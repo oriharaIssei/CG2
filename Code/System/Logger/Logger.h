@@ -4,9 +4,9 @@
 
 class Logger {
 public:
-	void OutputLog(const std::string& str);
-	void OutputLog(const std::wstring& str);
+	static void OutputLog(const std::string& str);
+	static void OutputLog(const std::wstring& str);
 private:
-	std::wstring ConvertString(const std::string& str);
-	std::string ConvertString(const std::wstring& str);
+	static std::wstring ConvertString(const std::string& str);
+	static std::string ConvertString(const std::wstring& str);
 };
