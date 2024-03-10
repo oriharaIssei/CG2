@@ -5,21 +5,22 @@
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
-#include <cassert>
+#include <dxgidebug.h>
 
-/*
-<TODO>
-・画面の色を変えるコードを正しい位置に書く(正しい位置がわからないため保留中) - Init()
-*/
+#include <cassert>
+#include <cstdint>
+
 class WinApp;
 class DirectXCommon {
 public:
-	DirectXCommon(WinApp* winApp):window_(winApp) {};
+	DirectXCommon(WinApp* winApp) :window_(winApp) {};
 	~DirectXCommon();
 
 	void Init();
 
 	void ClearRenderTarget();
+
+	void CheckIsAliveInstance();
 
 private:
 	WinApp* window_;
@@ -37,14 +38,22 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> swapChainResources[2] = { nullptr };
-	
+	Microsoft::WRL::ComPtr<ID3D12Resource> swapChainResources_[2] = { nullptr };
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH_[2];
+
 	ID3D12Debug1* debugController = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
+	HANDLE fenceEvent_;
+	uint64_t fenceVal_ = 0;
 private:
 	void InitDXGIDevice();
 	void InitCommand();
 	void CreateSwapChain();
 	void CreateRenderTarget();
+	void CreateFence();
 
 public:
+	void PreDraw();
+	void PostDraw();
 };

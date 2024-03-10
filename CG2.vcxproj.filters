@@ -24,9 +24,6 @@
     <ClCompile Include="Code\System\DirectX12\DirectXCommon.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DirectXInclude.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Code\System\Logger\Logger.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>

@@ -86,7 +86,6 @@
   <ItemGroup>
     <ClCompile Include="Code\main.cpp" />
     <ClCompile Include="Code\System\DirectX12\DirectXCommon.cpp" />
-    <ClCompile Include="Code\System\DirectX12\DirectXInclude.cpp" />
     <ClCompile Include="Code\System\GameScene\GameScene.cpp" />
     <ClCompile Include="Code\System\Logger\Logger.cpp" />
     <ClCompile Include="Code\System\WinApp\WinApp.cpp" />
