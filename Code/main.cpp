@@ -1,15 +1,24 @@
 #include <WinApp.h>
 
+#include <DirectXCommon.h>
+
 #include <memory>
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	
+
 	std::unique_ptr<WinApp> window = std::make_unique<WinApp>();
 	window->CreateGameWindow(L"title", WS_OVERLAPPEDWINDOW, 1280, 720);
 
-	while (!window->ProcessMessage()) {
+	std::unique_ptr<DirectXCommon> directXCommon = std::make_unique<DirectXCommon>(window.get());
+	directXCommon->Init();
 
+	while (!window->ProcessMessage()) {
+		directXCommon->PreDraw();
+
+		directXCommon->PostDraw();
 	}
 
+	directXCommon->CheckIsAliveInstance();
+	window->TerminateGameWindow();
 	return 0;
 }
