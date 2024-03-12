@@ -17,7 +17,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		directXCommon->PostDraw();
 	}
 
-	directXCommon->CheckIsAliveInstance();
+	directXCommon->Finalize();
+
 	window->TerminateGameWindow();
 	return 0;
 }

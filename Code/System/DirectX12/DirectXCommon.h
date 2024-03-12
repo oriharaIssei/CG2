@@ -17,10 +17,11 @@ public:
 	~DirectXCommon();
 
 	void Init();
+	void Finalize();
 
 	void ClearRenderTarget();
 
-	void CheckIsAliveInstance();
+	static void CheckIsAliveInstance();
 
 private:
 	WinApp* window_;
@@ -41,10 +42,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> swapChainResources_[2] = { nullptr };
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvH_[2];
 
-	ID3D12Debug1* debugController = nullptr;
+	Microsoft::WRL::ComPtr <ID3D12Debug1> debugController_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
-	
+
 	uint64_t fenceVal_ = 0;
 private:
 	void InitDXGIDevice();

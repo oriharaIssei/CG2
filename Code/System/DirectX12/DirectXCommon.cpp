@@ -9,6 +9,7 @@
 #pragma comment(lib,"dxguid.lib")
 
 DirectXCommon::~DirectXCommon() {
+	CheckIsAliveInstance();
 }
 
 void DirectXCommon::Init() {
@@ -26,6 +27,22 @@ void DirectXCommon::Init() {
 	CreateFence();
 
 	Logger::OutputLog("Complete create D3D12Device \n");
+}
+
+void DirectXCommon::Finalize() {
+	device_.Reset();
+	dxgiFactory_.Reset();
+	useAdapter_.Reset();
+	commandQueue_.Reset();
+	commandAllocator_.Reset();
+	commandList_.Reset();
+	swapChain_.Reset();
+	rtvDescriptorHeap_.Reset();
+	fence_.Reset();
+	for (int i = 0; i < 2; i++) {
+		swapChainResources_[i].Reset();
+	}
+	debugController_.Reset();
 }
 
 void DirectXCommon::ClearRenderTarget() {
@@ -358,7 +375,7 @@ void DirectXCommon::PostDraw() {
 	// Fenceの値を更新
 	// //イベントを待つ
 	// // 指定したSignalにたどりついていないのでたどり着くまで待つようにイベントを設置
-		
+
 	// GPUがここまでたどり着いたとき、FenceVal_ を指定した値に代入するように Signal を送る
 	commandQueue_->Signal(fence_.Get(), ++fenceVal_);
 	if (fence_->GetCompletedValue() < fenceVal_) {
