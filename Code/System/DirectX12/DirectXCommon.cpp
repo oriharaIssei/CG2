@@ -9,8 +9,6 @@
 #pragma comment(lib,"dxguid.lib")
 
 DirectXCommon::~DirectXCommon() {
-	// ハンドルを閉じる
-	CloseHandle(fenceEvent_);
 }
 
 void DirectXCommon::Init() {
@@ -28,37 +26,6 @@ void DirectXCommon::Init() {
 	CreateFence();
 
 	Logger::OutputLog("Complete create D3D12Device \n");
-
-#ifdef _DEBUG
-	ID3D12InfoQueue* infoQueue = nullptr;
-	if (SUCCEEDED(device_->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
-		//やばいエラーの時に止める
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-		//エラー時に止まる
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-		//警告時に止まる
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-
-		//=========================================
-		//エラーと警告の抑制
-		//=========================================
-		D3D12_MESSAGE_ID denyIds[] = {
-			//Windows11 でのDXGIデバッグレイヤーとDX12デバッグレイヤーの相互作用によるエラーメッセージ
-			D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE
-		};
-		//抑制するレベル
-		D3D12_MESSAGE_SEVERITY serverities[] = { D3D12_MESSAGE_SEVERITY_INFO };
-		D3D12_INFO_QUEUE_FILTER filter{};
-		filter.DenyList.NumIDs = _countof(denyIds);
-		filter.DenyList.pIDList = denyIds;
-		filter.DenyList.NumSeverities = _countof(serverities);
-		filter.DenyList.pSeverityList = serverities;
-		//指定したメッセージの表示を抑制する
-		infoQueue->PushStorageFilter(&filter);
-
-		infoQueue->Release();//解放
-	}
-#endif // _DEBUG
 }
 
 void DirectXCommon::ClearRenderTarget() {
@@ -138,12 +105,16 @@ void DirectXCommon::InitDXGIDevice() {
 	///================================================
 	//機能レベルとログ出力用文字列
 	D3D_FEATURE_LEVEL featureLevels[] = {
-		D3D_FEATURE_LEVEL_12_2,D3D_FEATURE_LEVEL_12_1,D3D_FEATURE_LEVEL_12_0
+		D3D_FEATURE_LEVEL_12_2,
+		D3D_FEATURE_LEVEL_12_1,
+		D3D_FEATURE_LEVEL_12_0
 	};
-	const char* featrueLevelStrings[] = { "12.2","12.1","12.0" };
+	const char* featrueLevelStrings[] = {
+		"12.2","12.1","12.0"
+	};
 
 	//レベルの高い順に生成できるか試す
-	for (size_t i = 0; i < _countof(featureLevels); i++) {
+	for (size_t i = 0; i < _countof(featureLevels); ++i) {
 		//採用したアダプターを生成
 		hr = D3D12CreateDevice(
 			useAdapter_.Get(), featureLevels[i], IID_PPV_ARGS(&device_)
@@ -156,6 +127,37 @@ void DirectXCommon::InitDXGIDevice() {
 	}
 	assert(device_ != nullptr);
 	///================================================
+
+#ifdef _DEBUG
+	ID3D12InfoQueue* infoQueue = nullptr;
+	if (SUCCEEDED(device_->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
+		//やばいエラーの時に止める
+		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+		//エラー時に止まる
+		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+		//警告時に止まる
+		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+
+		//=========================================
+		//エラーと警告の抑制
+		//=========================================
+		D3D12_MESSAGE_ID denyIds[] = {
+			//Windows11 でのDXGIデバッグレイヤーとDX12デバッグレイヤーの相互作用によるエラーメッセージ
+			D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE
+		};
+		//抑制するレベル
+		D3D12_MESSAGE_SEVERITY serverities[] = { D3D12_MESSAGE_SEVERITY_INFO };
+		D3D12_INFO_QUEUE_FILTER filter{};
+		filter.DenyList.NumIDs = _countof(denyIds);
+		filter.DenyList.pIDList = denyIds;
+		filter.DenyList.NumSeverities = _countof(serverities);
+		filter.DenyList.pSeverityList = serverities;
+		//指定したメッセージの表示を抑制する
+		infoQueue->PushStorageFilter(&filter);
+
+		infoQueue->Release();//解放
+	}
+#endif // _DEBUG
 }
 
 void DirectXCommon::InitCommand() {
@@ -218,6 +220,16 @@ void DirectXCommon::CreateSwapChain() {
 	hr = swapChain1->QueryInterface(IID_PPV_ARGS(&swapChain_));
 	assert(SUCCEEDED(hr));
 	///================================================
+
+	///================================================
+	///	Resource の初期化
+	///================================================
+	for (int i = 0; i < 2; ++i) {
+		hr = swapChain_->GetBuffer(
+			i, IID_PPV_ARGS(&swapChainResources_[i]));
+		assert(SUCCEEDED(hr));
+	}
+	///================================================
 }
 
 void DirectXCommon::CreateRenderTarget() {
@@ -237,14 +249,6 @@ void DirectXCommon::CreateRenderTarget() {
 	assert(SUCCEEDED(hr));
 	///================================================
 
-	///================================================
-	///	Resource の初期化
-	///================================================
-	hr = swapChain_.Get()->GetBuffer(0, IID_PPV_ARGS(&swapChainResources_[0]));
-	assert(SUCCEEDED(hr));
-
-	hr = swapChain_.Get()->GetBuffer(1, IID_PPV_ARGS(&swapChainResources_[1]));
-	assert(SUCCEEDED(hr));
 	///================================================
 
 	///================================================
@@ -281,16 +285,7 @@ void DirectXCommon::CreateFence() {
 		D3D12_FENCE_FLAG_NONE,
 		IID_PPV_ARGS(&fence_)
 	);
-
 	assert(SUCCEEDED(hr));
-
-	fenceEvent_ = CreateEvent(
-		NULL,
-		FALSE,
-		FALSE,
-		NULL
-	);
-	assert(fenceEvent_ != nullptr);
 }
 
 void DirectXCommon::PreDraw() {
@@ -353,7 +348,6 @@ void DirectXCommon::PostDraw() {
 	ID3D12CommandList* commandLists[] = { commandList_.Get() };
 	commandQueue_->ExecuteCommandLists(1, commandLists);
 
-	// フレームを表示
 	hr = swapChain_->Present(1, 0);
 	///===============================================================
 
@@ -362,16 +356,17 @@ void DirectXCommon::PostDraw() {
 	///===============================================================
 
 	// Fenceの値を更新
+	// //イベントを待つ
+	// // 指定したSignalにたどりついていないのでたどり着くまで待つようにイベントを設置
+		
 	// GPUがここまでたどり着いたとき、FenceVal_ を指定した値に代入するように Signal を送る
 	commandQueue_->Signal(fence_.Get(), ++fenceVal_);
-
-	// FenceVal_が指定した Signal値 にたどり着いているか
 	if (fence_->GetCompletedValue() < fenceVal_) {
-		// 指定したSignalにたどりついていないのでたどり着くまで待つようにイベントを設置
-		fence_->SetEventOnCompletion(fenceVal_, fenceEvent_);
-		//イベントを待つ
-		WaitForSingleObject(fenceEvent_, INFINITY);
-	};
+		HANDLE fenceEvent = CreateEvent(nullptr, false, false, nullptr);
+		fence_->SetEventOnCompletion(fenceVal_, fenceEvent);
+		WaitForSingleObject(fenceEvent, INFINITE);
+		CloseHandle(fenceEvent);
+	}
 	///===============================================================
 
 	///===============================================================

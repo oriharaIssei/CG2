@@ -11,7 +11,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	std::unique_ptr<DirectXCommon> directXCommon = std::make_unique<DirectXCommon>(window.get());
 	directXCommon->Init();
-
 	while (!window->ProcessMessage()) {
 		directXCommon->PreDraw();
 

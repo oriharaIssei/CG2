@@ -44,7 +44,7 @@ private:
 	ID3D12Debug1* debugController = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
-	HANDLE fenceEvent_;
+	
 	uint64_t fenceVal_ = 0;
 private:
 	void InitDXGIDevice();
