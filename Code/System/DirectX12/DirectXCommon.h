@@ -19,10 +19,13 @@ public:
 	void Init();
 	void Finalize();
 
+	void PreDraw();
+	void PostDraw();
+
+
 	void ClearRenderTarget();
 
 	static void CheckIsAliveInstance();
-
 private:
 	WinApp* window_;
 
@@ -53,8 +56,6 @@ private:
 	void CreateSwapChain();
 	void CreateRenderTarget();
 	void CreateFence();
-
 public:
-	void PreDraw();
-	void PostDraw();
+	const Microsoft::WRL::ComPtr<ID3D12Device> getDevice()const { return device_.Get(); }
 };

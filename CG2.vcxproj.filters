@@ -30,6 +30,12 @@
     <ClCompile Include="Code\System\GameScene\GameScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\ShaderCompiler.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\System\WinApp\WinApp.h">
@@ -44,5 +50,15 @@
     <ClInclude Include="Code\System\GameScene\GameScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\ShaderCompiler.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\PipelineStateObj.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Code\System\Shader\Object3d.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Object3d.VS.hlsl" />
   </ItemGroup>
 </Project>

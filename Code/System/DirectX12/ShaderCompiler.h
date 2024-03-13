@@ -5,6 +5,13 @@
 
 #include <dxcapi.h>
 
+/*
+TODO :
+使用箇所で都度インスタンスを作るか、
+中枢クラスを作って持たせるべきか
+検討中
+*/
+
 class ShaderCompiler {
 public:
 	void Init();
