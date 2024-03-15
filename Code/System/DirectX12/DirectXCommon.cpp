@@ -3,6 +3,8 @@
 #include <WinApp.h>
 #include <Logger.h>
 
+#include <Vector4.h>
+
 //.hに書いてはいけない
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -57,6 +59,70 @@ void DirectXCommon::ClearRenderTarget() {
 	commandList_->ClearRenderTargetView(
 		rtvH_[backBufferIndex], clearColor, 0, nullptr
 	);
+}
+
+void DirectXCommon::CreateGraphicsPipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc, ID3D12PipelineState* pipelineState) {
+	HRESULT hr = device_->CreateGraphicsPipelineState(
+		&psoDesc,
+		IID_PPV_ARGS(&pipelineState)
+	);
+	assert(SUCCEEDED(hr));
+}
+
+void DirectXCommon::CreateBufferResource(ID3D12Resource* resource, size_t sizeInBytes) {
+	//頂点リソース用のヒープの設定
+	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
+	//頂点リソースの設定
+	D3D12_RESOURCE_DESC vertexResourceDesc{};
+	//バッファのリソース(テクスチャの場合は別の設定をする)
+	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	vertexResourceDesc.Width = sizeInBytes;
+	//バッファの場合、これらは 1 にする
+	vertexResourceDesc.Height = 1;
+	vertexResourceDesc.DepthOrArraySize = 1;
+	vertexResourceDesc.MipLevels = 1;
+	vertexResourceDesc.SampleDesc.Count = 1;
+	//バッファの場合はこれにする
+	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	HRESULT hr = device_->CreateCommittedResource(
+		&uploadHeapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&vertexResourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&resource)
+	);
+	assert(SUCCEEDED(hr));
+}
+
+void DirectXCommon::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Resource>& resource, size_t sizeInBytes) {
+	//頂点リソース用のヒープの設定
+	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
+	//頂点リソースの設定
+	D3D12_RESOURCE_DESC vertexResourceDesc{};
+	//バッファのリソース(テクスチャの場合は別の設定をする)
+	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	vertexResourceDesc.Width = sizeInBytes;
+	//バッファの場合、これらは 1 にする
+	vertexResourceDesc.Height = 1;
+	vertexResourceDesc.DepthOrArraySize = 1;
+	vertexResourceDesc.MipLevels = 1;
+	vertexResourceDesc.SampleDesc.Count = 1;
+	//バッファの場合はこれにする
+	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	HRESULT hr = device_->CreateCommittedResource(
+		&uploadHeapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&vertexResourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&resource)
+	);
+	assert(SUCCEEDED(hr));
 }
 
 void DirectXCommon::CheckIsAliveInstance() {
@@ -214,7 +280,7 @@ void DirectXCommon::CreateSwapChain() {
 	///	SwapChain の生成
 	///================================================
 	DXGI_SWAP_CHAIN_DESC1 swapchainDesc{};
-	swapchainDesc.Width = window_->getWidht();  //画面の幅。windowと同じにする
+	swapchainDesc.Width = window_->getWidth();  //画面の幅。windowと同じにする
 	swapchainDesc.Height = window_->getHeight(); //画面の高さ。windowと同じにする
 	swapchainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapchainDesc.SampleDesc.Count = 1; //マルチサンプルしない
@@ -326,6 +392,25 @@ void DirectXCommon::PreDraw() {
 	commandList_->ResourceBarrier(1, &barrier);
 
 	ClearRenderTarget();
+
+	//ビューポートの設定
+	D3D12_VIEWPORT viewPort{};
+	viewPort.Width = window_->getWidth();
+	viewPort.Height = window_->getHeight();
+	viewPort.TopLeftX = 0;
+	viewPort.TopLeftY = 0;
+	viewPort.MinDepth = 0.0f;
+	viewPort.MaxDepth = 1.0f;
+
+	commandList_->RSSetViewports(1, &viewPort);
+
+	D3D12_RECT scissorRect{};
+	scissorRect.left = 0;
+	scissorRect.right = window_->getWidth();
+	scissorRect.top = 0;
+	scissorRect.bottom = window_->getHeight();
+
+	commandList_->RSSetScissorRects(1, &scissorRect);
 }
 
 void DirectXCommon::PostDraw() {
@@ -361,7 +446,6 @@ void DirectXCommon::PostDraw() {
 	///===============================================================
 	/// コマンドリストの実行
 	///===============================================================
-	// コマンド リストを実行
 	ID3D12CommandList* commandLists[] = { commandList_.Get() };
 	commandQueue_->ExecuteCommandLists(1, commandLists);
 

@@ -21,6 +21,9 @@ void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t cl
 	title_ = title;
 	windowStyle_ = windowStyle;
 
+	clientWidth_ = clientWidth;
+	clientHeight_ = clientHeight;
+
 	//ウィンドウクラスの初期化
 	wndClass_ = std::make_unique<WNDCLASSEX>();
 	wndClass_->cbSize = sizeof(WNDCLASSEX);

@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <cassert>
 
-#pragma comment(lib,"dexcompiler.lib")
+#pragma comment(lib,"dxcompiler.lib")
 
 void ShaderCompiler::Init() {
 	HRESULT hr;
@@ -79,12 +79,18 @@ IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& filePath, const wcha
 		nullptr
 	);
 	assert(SUCCEEDED(hr));
-	Logger::OutputLog(std::format(L"Compile Succeeded, path : {}, profile : {}", filePath, profile));
+	Logger::OutputLog(std::format(L"Compile Succeeded, path : {}, profile : {}\n", filePath, profile));
 	// 解放を忘れない
-	shaderSource->Release();
-	shaderResult->Release();
+	/*shaderSource->Release();
+	shaderResult->Release();*/
 
 	return shaderBlob;
+}
+
+void ShaderCompiler::Finalize() {
+	dxcUtils_.Reset();
+	dxcCompiler_.Reset();
+	includeHandler_.Reset();
 }
 
 void ShaderCompiler::LoadShaderFile(const std::wstring& filePath, IDxcBlobEncoding* shaderSource, DxcBuffer& buf) {

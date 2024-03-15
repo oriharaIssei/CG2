@@ -2,13 +2,24 @@
 
 #include <DirectXCommon.h>
 
+#include <Vector3.h>
+#include <Matrix4x4.h>
+
 class GameScene {
 public:
-	GameScene(DirectXCommon* dXCommon);
+	GameScene() = default;
 
 	void Init();
 	void Update();
 	void Draw();
 private:
-	DirectXCommon* dXCommon_;
+	struct Transform {
+		Vector3 scale;
+		Vector3 rotate;
+		Vector3 translate;
+	};
+	Transform transform_;
+	Transform cameraT_;
+	
+	Matrix4x4 wvpVpMa_;
 };

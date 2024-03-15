@@ -4,21 +4,19 @@
 
 #include <d3d12.h>
 
-
 ///=================================================
 /// Pipeline State Object
 ///=================================================
 class DirectXCommon;
-class PipelineStateObj {
-public:
+struct PipelineStateObj {
 	void Init(DirectXCommon* dxCommon);
-private:
+	void Finalize();
+
 	void CreateRootSignature(DirectXCommon* dxCommon);
 	void InitInputLayout(D3D12_INPUT_LAYOUT_DESC& inputLayoutDesc);
 	void InitBlendState(D3D12_BLEND_DESC& blendDesc);
 	void InitRasterizerState(D3D12_RASTERIZER_DESC& rasterizerDesc);
-private:
+
 	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature_ = nullptr;
 	Microsoft::WRL::ComPtr <ID3D12PipelineState> pipelineState_ = nullptr;
 };
-

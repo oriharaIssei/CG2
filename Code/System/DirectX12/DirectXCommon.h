@@ -22,8 +22,12 @@ public:
 	void PreDraw();
 	void PostDraw();
 
-
 	void ClearRenderTarget();
+
+	void CreateGraphicsPipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc, ID3D12PipelineState* pipelineState);
+
+	void CreateBufferResource(ID3D12Resource* resource, size_t sizeInBytes);
+	void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Resource>& resource, size_t sizeInBytes);
 
 	static void CheckIsAliveInstance();
 private:
@@ -57,5 +61,6 @@ private:
 	void CreateRenderTarget();
 	void CreateFence();
 public:
-	const Microsoft::WRL::ComPtr<ID3D12Device> getDevice()const { return device_.Get(); }
+	Microsoft::WRL::ComPtr<ID3D12Device> getDevice() { return device_; }
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> getCommandList() { return commandList_; }
 };

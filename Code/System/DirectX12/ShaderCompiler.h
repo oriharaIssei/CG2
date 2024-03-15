@@ -5,13 +5,6 @@
 
 #include <dxcapi.h>
 
-/*
-TODO :
-使用箇所で都度インスタンスを作るか、
-中枢クラスを作って持たせるべきか
-検討中
-*/
-
 class ShaderCompiler {
 public:
 	void Init();
@@ -22,6 +15,7 @@ public:
 	/// <param name="profile">CompilerにしようするProfile</param>
 	/// <returns></returns>
 	IDxcBlob* CompileShader(const std::wstring& filePath,const wchar_t* profile);
+	void Finalize();
 private:
 	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_ = nullptr;
 	Microsoft::WRL::ComPtr <IDxcCompiler3> dxcCompiler_ = nullptr;
