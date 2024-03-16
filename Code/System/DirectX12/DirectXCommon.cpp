@@ -1,7 +1,13 @@
 #include "DirectXCommon.h"
 
+#include <imgui.h>
+#include <imgui_impl_dx12.h>
+#include <imgui_impl_win32.h>
+
 #include <WinApp.h>
 #include <Logger.h>
+
+#include <Vector4.h>
 
 //.hに書いてはいけない
 #pragma comment(lib,"d3d12.lib")
@@ -27,6 +33,7 @@ void DirectXCommon::Init() {
 	CreateFence();
 
 	Logger::OutputLog("Complete create D3D12Device \n");
+
 }
 
 void DirectXCommon::Finalize() {
@@ -38,10 +45,14 @@ void DirectXCommon::Finalize() {
 	commandList_.Reset();
 	swapChain_.Reset();
 	rtvDescriptorHeap_.Reset();
+	srvDescriptorHeap_.Reset();
 	fence_.Reset();
-	for (int i = 0; i < 2; i++) {
+	
+	for (int i = 0; i < swapChainResources_.size(); i++) {
 		swapChainResources_[i].Reset();
 	}
+	swapChainResources_.clear();
+
 	debugController_.Reset();
 }
 
@@ -57,6 +68,89 @@ void DirectXCommon::ClearRenderTarget() {
 	commandList_->ClearRenderTargetView(
 		rtvH_[backBufferIndex], clearColor, 0, nullptr
 	);
+}
+
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
+	HRESULT hr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>descriptorHeap = nullptr;
+
+	D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc{};
+
+	rtvDescriptorHeapDesc.Type = heapType;
+	rtvDescriptorHeapDesc.NumDescriptors = numDescriptors; //swapChainBufferCountに合わせる(多い分には問題ない)
+	rtvDescriptorHeapDesc.Flags = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+	hr = device_->CreateDescriptorHeap(
+		&rtvDescriptorHeapDesc,
+		IID_PPV_ARGS(&descriptorHeap)
+	);
+	assert(SUCCEEDED(hr));
+	return descriptorHeap;
+}
+
+
+void DirectXCommon::CreateGraphicsPipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc, ID3D12PipelineState* pipelineState) {
+	HRESULT hr = device_->CreateGraphicsPipelineState(
+		&psoDesc,
+		IID_PPV_ARGS(&pipelineState)
+	);
+	assert(SUCCEEDED(hr));
+}
+
+void DirectXCommon::CreateBufferResource(ID3D12Resource* resource, size_t sizeInBytes) {
+	//頂点リソース用のヒープの設定
+	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
+	//頂点リソースの設定
+	D3D12_RESOURCE_DESC vertexResourceDesc{};
+	//バッファのリソース(テクスチャの場合は別の設定をする)
+	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	vertexResourceDesc.Width = sizeInBytes;
+	//バッファの場合、これらは 1 にする
+	vertexResourceDesc.Height = 1;
+	vertexResourceDesc.DepthOrArraySize = 1;
+	vertexResourceDesc.MipLevels = 1;
+	vertexResourceDesc.SampleDesc.Count = 1;
+	//バッファの場合はこれにする
+	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	HRESULT hr = device_->CreateCommittedResource(
+		&uploadHeapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&vertexResourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&resource)
+	);
+	assert(SUCCEEDED(hr));
+}
+
+void DirectXCommon::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Resource>& resource, size_t sizeInBytes) {
+	//頂点リソース用のヒープの設定
+	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
+	//頂点リソースの設定
+	D3D12_RESOURCE_DESC vertexResourceDesc{};
+	//バッファのリソース(テクスチャの場合は別の設定をする)
+	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	vertexResourceDesc.Width = sizeInBytes;
+	//バッファの場合、これらは 1 にする
+	vertexResourceDesc.Height = 1;
+	vertexResourceDesc.DepthOrArraySize = 1;
+	vertexResourceDesc.MipLevels = 1;
+	vertexResourceDesc.SampleDesc.Count = 1;
+	//バッファの場合はこれにする
+	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	HRESULT hr = device_->CreateCommittedResource(
+		&uploadHeapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&vertexResourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&resource)
+	);
+	assert(SUCCEEDED(hr));
 }
 
 void DirectXCommon::CheckIsAliveInstance() {
@@ -87,7 +181,7 @@ void DirectXCommon::InitDXGIDevice() {
 	///================================================
 	hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory_));
 
-	assert(SUCCEEDED(hr), "FAILED CreateDXGIFactory");
+	assert(SUCCEEDED(hr));
 	//=================================================
 
 	///================================================
@@ -103,7 +197,7 @@ void DirectXCommon::InitDXGIDevice() {
 		DXGI_ADAPTER_DESC3 adapterDesc{};
 		hr = useAdapter_->GetDesc3(&adapterDesc);
 
-		assert(SUCCEEDED(hr), "FAILED GET AdapterDesc");
+		assert(SUCCEEDED(hr));
 
 		//ソフトウェアアダプタは弾く
 		if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
@@ -214,7 +308,7 @@ void DirectXCommon::CreateSwapChain() {
 	///	SwapChain の生成
 	///================================================
 	DXGI_SWAP_CHAIN_DESC1 swapchainDesc{};
-	swapchainDesc.Width = window_->getWidht();  //画面の幅。windowと同じにする
+	swapchainDesc.Width = window_->getWidth();  //画面の幅。windowと同じにする
 	swapchainDesc.Height = window_->getHeight(); //画面の高さ。windowと同じにする
 	swapchainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapchainDesc.SampleDesc.Count = 1; //マルチサンプルしない
@@ -241,6 +335,7 @@ void DirectXCommon::CreateSwapChain() {
 	///================================================
 	///	Resource の初期化
 	///================================================
+	swapChainResources_.resize(2);
 	for (int i = 0; i < 2; ++i) {
 		hr = swapChain_->GetBuffer(
 			i, IID_PPV_ARGS(&swapChainResources_[i]));
@@ -250,22 +345,11 @@ void DirectXCommon::CreateSwapChain() {
 }
 
 void DirectXCommon::CreateRenderTarget() {
-	HRESULT hr;
 	///================================================
 	///	DescriptorHeap の生成
 	///================================================
-	D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc{};
-
-	rtvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; //レンダーターゲットビュー用
-	rtvDescriptorHeapDesc.NumDescriptors = 2; //swapChainBufferCountに合わせる(多い分には問題ない)
-
-	hr = device_->CreateDescriptorHeap(
-		&rtvDescriptorHeapDesc,
-		IID_PPV_ARGS(&rtvDescriptorHeap_)
-	);
-	assert(SUCCEEDED(hr));
-	///================================================
-
+	rtvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+	srvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
 	///================================================
 
 	///================================================
@@ -326,6 +410,25 @@ void DirectXCommon::PreDraw() {
 	commandList_->ResourceBarrier(1, &barrier);
 
 	ClearRenderTarget();
+
+	//ビューポートの設定
+	D3D12_VIEWPORT viewPort{};
+	viewPort.Width = static_cast<float>(window_->getWidth());
+	viewPort.Height = static_cast<float>(window_->getHeight());
+	viewPort.TopLeftX = 0;
+	viewPort.TopLeftY = 0;
+	viewPort.MinDepth = 0.0f;
+	viewPort.MaxDepth = 1.0f;
+
+	commandList_->RSSetViewports(1, &viewPort);
+
+	D3D12_RECT scissorRect{};
+	scissorRect.left = 0;
+	scissorRect.right = window_->getWidth();
+	scissorRect.top = 0;
+	scissorRect.bottom = window_->getHeight();
+
+	commandList_->RSSetScissorRects(1, &scissorRect);
 }
 
 void DirectXCommon::PostDraw() {
@@ -361,7 +464,6 @@ void DirectXCommon::PostDraw() {
 	///===============================================================
 	/// コマンドリストの実行
 	///===============================================================
-	// コマンド リストを実行
 	ID3D12CommandList* commandLists[] = { commandList_.Get() };
 	commandQueue_->ExecuteCommandLists(1, commandLists);
 

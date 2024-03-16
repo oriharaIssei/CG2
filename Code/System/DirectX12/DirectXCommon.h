@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <vector>
 
 class WinApp;
 class DirectXCommon {
@@ -19,10 +20,21 @@ public:
 	void Init();
 	void Finalize();
 
+	void PreDraw();
+	void PostDraw();
+
 	void ClearRenderTarget();
 
-	static void CheckIsAliveInstance();
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(
+		D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible
+	);
 
+	void CreateGraphicsPipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc, ID3D12PipelineState* pipelineState);
+
+	void CreateBufferResource(ID3D12Resource* resource, size_t sizeInBytes);
+	void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Resource>& resource, size_t sizeInBytes);
+
+	static void CheckIsAliveInstance();
 private:
 	WinApp* window_;
 
@@ -39,7 +51,9 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> swapChainResources_[2] = { nullptr };
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap_ = nullptr;
+
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> swapChainResources_ = { nullptr };
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvH_[2];
 
 	Microsoft::WRL::ComPtr <ID3D12Debug1> debugController_ = nullptr;
@@ -53,8 +67,9 @@ private:
 	void CreateSwapChain();
 	void CreateRenderTarget();
 	void CreateFence();
-
 public:
-	void PreDraw();
-	void PostDraw();
+	ID3D12Device* getDevice() { return device_.Get(); }
+	ID3D12GraphicsCommandList* getCommandList() { return commandList_.Get(); }
+	int getSwapChainBufferCount()const { return static_cast<int>(swapChainResources_.size()); }
+
 };

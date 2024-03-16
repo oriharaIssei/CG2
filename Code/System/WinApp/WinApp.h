@@ -32,7 +32,7 @@ private:
 public:
 	const HWND& getHwnd()const { return hwnd_; }
 
-	const int32_t& getWidht()const { return clientWidth_; }
+	const int32_t& getWidth()const { return clientWidth_; }
 	const int32_t& getHeight()const { return clientHeight_; }
 
 };
