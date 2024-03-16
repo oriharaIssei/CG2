@@ -1,5 +1,9 @@
 #include "DirectXCommon.h"
 
+#include <imgui.h>
+#include <imgui_impl_dx12.h>
+#include <imgui_impl_win32.h>
+
 #include <WinApp.h>
 #include <Logger.h>
 
@@ -29,6 +33,7 @@ void DirectXCommon::Init() {
 	CreateFence();
 
 	Logger::OutputLog("Complete create D3D12Device \n");
+
 }
 
 void DirectXCommon::Finalize() {
@@ -40,10 +45,14 @@ void DirectXCommon::Finalize() {
 	commandList_.Reset();
 	swapChain_.Reset();
 	rtvDescriptorHeap_.Reset();
+	srvDescriptorHeap_.Reset();
 	fence_.Reset();
-	for (int i = 0; i < 2; i++) {
+	
+	for (int i = 0; i < swapChainResources_.size(); i++) {
 		swapChainResources_[i].Reset();
 	}
+	swapChainResources_.clear();
+
 	debugController_.Reset();
 }
 
@@ -60,6 +69,25 @@ void DirectXCommon::ClearRenderTarget() {
 		rtvH_[backBufferIndex], clearColor, 0, nullptr
 	);
 }
+
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
+	HRESULT hr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>descriptorHeap = nullptr;
+
+	D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc{};
+
+	rtvDescriptorHeapDesc.Type = heapType;
+	rtvDescriptorHeapDesc.NumDescriptors = numDescriptors; //swapChainBufferCountに合わせる(多い分には問題ない)
+	rtvDescriptorHeapDesc.Flags = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+	hr = device_->CreateDescriptorHeap(
+		&rtvDescriptorHeapDesc,
+		IID_PPV_ARGS(&descriptorHeap)
+	);
+	assert(SUCCEEDED(hr));
+	return descriptorHeap;
+}
+
 
 void DirectXCommon::CreateGraphicsPipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc, ID3D12PipelineState* pipelineState) {
 	HRESULT hr = device_->CreateGraphicsPipelineState(
@@ -153,7 +181,7 @@ void DirectXCommon::InitDXGIDevice() {
 	///================================================
 	hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory_));
 
-	assert(SUCCEEDED(hr), "FAILED CreateDXGIFactory");
+	assert(SUCCEEDED(hr));
 	//=================================================
 
 	///================================================
@@ -169,7 +197,7 @@ void DirectXCommon::InitDXGIDevice() {
 		DXGI_ADAPTER_DESC3 adapterDesc{};
 		hr = useAdapter_->GetDesc3(&adapterDesc);
 
-		assert(SUCCEEDED(hr), "FAILED GET AdapterDesc");
+		assert(SUCCEEDED(hr));
 
 		//ソフトウェアアダプタは弾く
 		if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
@@ -307,6 +335,7 @@ void DirectXCommon::CreateSwapChain() {
 	///================================================
 	///	Resource の初期化
 	///================================================
+	swapChainResources_.resize(2);
 	for (int i = 0; i < 2; ++i) {
 		hr = swapChain_->GetBuffer(
 			i, IID_PPV_ARGS(&swapChainResources_[i]));
@@ -316,22 +345,11 @@ void DirectXCommon::CreateSwapChain() {
 }
 
 void DirectXCommon::CreateRenderTarget() {
-	HRESULT hr;
 	///================================================
 	///	DescriptorHeap の生成
 	///================================================
-	D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc{};
-
-	rtvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV; //レンダーターゲットビュー用
-	rtvDescriptorHeapDesc.NumDescriptors = 2; //swapChainBufferCountに合わせる(多い分には問題ない)
-
-	hr = device_->CreateDescriptorHeap(
-		&rtvDescriptorHeapDesc,
-		IID_PPV_ARGS(&rtvDescriptorHeap_)
-	);
-	assert(SUCCEEDED(hr));
-	///================================================
-
+	rtvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+	srvDescriptorHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
 	///================================================
 
 	///================================================
@@ -395,8 +413,8 @@ void DirectXCommon::PreDraw() {
 
 	//ビューポートの設定
 	D3D12_VIEWPORT viewPort{};
-	viewPort.Width = window_->getWidth();
-	viewPort.Height = window_->getHeight();
+	viewPort.Width = static_cast<float>(window_->getWidth());
+	viewPort.Height = static_cast<float>(window_->getHeight());
 	viewPort.TopLeftX = 0;
 	viewPort.TopLeftY = 0;
 	viewPort.MinDepth = 0.0f;

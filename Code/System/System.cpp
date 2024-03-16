@@ -1,5 +1,7 @@
 #include "System.h"
 
+#include <ImGuiManager.h>
+
 #include "Vector4.h"
 #include "Matrix4x4.h"
 
@@ -30,6 +32,8 @@ void System::Init() {
 	dxCommon_->CreateBufferResource(constantBuff_, sizeof(Vector4));
 	dxCommon_->CreateBufferResource(wvpResource_, sizeof(Matrix4x4));
 
+	ImGuiManager::getInstance()->Init(window_.get(), dxCommon_.get());
+
 	Vector4* materialData = nullptr;
 	constantBuff_->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
 	*materialData = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
@@ -40,12 +44,19 @@ void System::Init() {
 }
 
 void System::Finalize() {
-	window_->TerminateGameWindow();
+	ImGuiManager::getInstance()->Finalize();
 
+	window_->TerminateGameWindow();
 	dxCommon_->Finalize();
+
 	shaderCompiler_->Finalize();
 	pso_->Finalize();
 	triangle_->Finalize();
+
+	constantBuff_.Reset();
+	wvpResource_.Reset();
+
+	DirectXCommon::CheckIsAliveInstance();
 }
 
 void System::DrawTriangle(const Matrix4x4& wvp) {
@@ -90,9 +101,12 @@ bool System::ProcessMessage() {
 }
 
 void System::BeginFrame() {
+	ImGuiManager::getInstance()->Begin();
 	dxCommon_->PreDraw();
 }
 
 void System::EndFrame() {
+	ImGuiManager::getInstance()->End();
+	ImGuiManager::getInstance()->Draw(dxCommon_.get());
 	dxCommon_->PostDraw();
 }

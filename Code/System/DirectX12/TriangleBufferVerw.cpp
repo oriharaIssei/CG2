@@ -16,5 +16,5 @@ void TriangleBufferVerw::Init(DirectXCommon* dxCommon) {
 }
 
 void TriangleBufferVerw::Finalize() {
-	vertBuff_->Release();
+	vertBuff_.Reset();
 }

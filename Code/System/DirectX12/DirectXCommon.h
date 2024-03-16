@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <vector>
 
 class WinApp;
 class DirectXCommon {
@@ -23,6 +24,10 @@ public:
 	void PostDraw();
 
 	void ClearRenderTarget();
+
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(
+		D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible
+	);
 
 	void CreateGraphicsPipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC& psoDesc, ID3D12PipelineState* pipelineState);
 
@@ -46,7 +51,9 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> swapChainResources_[2] = { nullptr };
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap_ = nullptr;
+
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> swapChainResources_ = { nullptr };
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvH_[2];
 
 	Microsoft::WRL::ComPtr <ID3D12Debug1> debugController_ = nullptr;
@@ -61,6 +68,8 @@ private:
 	void CreateRenderTarget();
 	void CreateFence();
 public:
-	Microsoft::WRL::ComPtr<ID3D12Device> getDevice() { return device_; }
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> getCommandList() { return commandList_; }
+	ID3D12Device* getDevice() { return device_.Get(); }
+	ID3D12GraphicsCommandList* getCommandList() { return commandList_.Get(); }
+	int getSwapChainBufferCount()const { return static_cast<int>(swapChainResources_.size()); }
+
 };
