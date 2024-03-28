@@ -30,10 +30,11 @@ void DirectXCommon::Init() {
 
 	CreateRenderTarget();
 
+	CreatDepthBuffer();
+
 	CreateFence();
 
 	Logger::OutputLog("Complete create D3D12Device \n");
-
 }
 
 void DirectXCommon::Finalize() {
@@ -47,11 +48,14 @@ void DirectXCommon::Finalize() {
 	rtvDescriptorHeap_.Reset();
 	srvDescriptorHeap_.Reset();
 	fence_.Reset();
-	
+
 	for (int i = 0; i < swapChainResources_.size(); i++) {
 		swapChainResources_[i].Reset();
 	}
 	swapChainResources_.clear();
+
+	dsvDescriptorHeap_.Reset();
+	depthStencilResource_.Reset();
 
 	debugController_.Reset();
 }
@@ -59,15 +63,52 @@ void DirectXCommon::Finalize() {
 void DirectXCommon::ClearRenderTarget() {
 	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
 
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
 	commandList_->OMSetRenderTargets(
-		1, &rtvH_[backBufferIndex], false, nullptr
+		1, &rtvH_[backBufferIndex], false, &dsvHandle
 	);
 
 	float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//RGBA
-
 	commandList_->ClearRenderTargetView(
 		rtvH_[backBufferIndex], clearColor, 0, nullptr
 	);
+
+	commandList_->ClearDepthStencilView(
+		dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr
+	);
+}
+
+void DirectXCommon::ExecuteCommandList() {
+	///===============================================================
+	/// コマンドリストの実行
+	///===============================================================
+	ID3D12CommandList* commandLists[] = { commandList_.Get() };
+	commandQueue_->ExecuteCommandLists(1, commandLists);
+
+	HRESULT hr = swapChain_->Present(1, 0);
+	///===============================================================
+}
+
+void DirectXCommon::Wait4ExecuteCommand() {
+	// Fenceの値を更新
+	// //イベントを待つ
+	// // 指定したSignalにたどりついていないのでたどり着くまで待つようにイベントを設置
+
+	// GPUがここまでたどり着いたとき、FenceVal_ を指定した値に代入するように Signal を送る
+	commandQueue_->Signal(fence_.Get(), ++fenceVal_);
+	if (fence_->GetCompletedValue() < fenceVal_) {
+		HANDLE fenceEvent = CreateEvent(nullptr, false, false, nullptr);
+		fence_->SetEventOnCompletion(fenceVal_, fenceEvent);
+		WaitForSingleObject(fenceEvent, INFINITE);
+		CloseHandle(fenceEvent);
+	}
+}
+
+void DirectXCommon::ResetCommand() {
+	HRESULT hr = commandAllocator_->Reset();
+	assert(SUCCEEDED(hr));
+	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
+	assert(SUCCEEDED(hr));
 }
 
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
@@ -148,6 +189,36 @@ void DirectXCommon::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Resource>&
 		&vertexResourceDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
+		IID_PPV_ARGS(&resource)
+	);
+	assert(SUCCEEDED(hr));
+}
+
+void DirectXCommon::CreateDepthStencilTextureResource(Microsoft::WRL::ComPtr<ID3D12Resource>& resource, int32_t width, int32_t height) {
+	D3D12_RESOURCE_DESC resourceDesc{};
+	resourceDesc.Width = width;
+	resourceDesc.Height = height;
+	resourceDesc.MipLevels = 1;
+	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	resourceDesc.SampleDesc.Count = 1;
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	//heap の設定
+	D3D12_HEAP_PROPERTIES heapProperties{};
+	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+	D3D12_CLEAR_VALUE depthClearValue{};
+	depthClearValue.DepthStencil.Depth = 1.0f;// 最大値でクリア
+	depthClearValue.Format= DXGI_FORMAT_D24_UNORM_S8_UINT;// Resource と合わせる
+
+	HRESULT hr = device_->CreateCommittedResource(
+		&heapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&resourceDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&depthClearValue,
 		IID_PPV_ARGS(&resource)
 	);
 	assert(SUCCEEDED(hr));
@@ -389,6 +460,32 @@ void DirectXCommon::CreateFence() {
 	assert(SUCCEEDED(hr));
 }
 
+void DirectXCommon::CreatDepthBuffer() {
+	 CreateDepthStencilTextureResource(
+		 depthStencilResource_,
+		static_cast<int32_t>(window_->getWidth()),
+		static_cast<int32_t>(window_->getHeight())
+	);
+
+	dsvDescriptorHeap_ = CreateDescriptorHeap(
+		D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+		1,
+		false
+	);
+
+	// DSV の設定
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;// resourceに合わせる
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;// 2d Texture
+	
+	// DsvHeap の先頭に DSV を作る
+	device_->CreateDepthStencilView(
+		depthStencilResource_.Get(),
+		&dsvDesc,
+		dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart()
+	);
+}
+
 void DirectXCommon::PreDraw() {
 	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
 
@@ -461,39 +558,18 @@ void DirectXCommon::PostDraw() {
 	hr = commandList_->Close();
 	//----------------------------------------------------
 
-	///===============================================================
-	/// コマンドリストの実行
-	///===============================================================
-	ID3D12CommandList* commandLists[] = { commandList_.Get() };
-	commandQueue_->ExecuteCommandLists(1, commandLists);
-
-	hr = swapChain_->Present(1, 0);
-	///===============================================================
+	ExecuteCommandList();
 
 	///===============================================================
 	/// コマンドリストの実行を待つ
 	///===============================================================
+	Wait4ExecuteCommand();
 
-	// Fenceの値を更新
-	// //イベントを待つ
-	// // 指定したSignalにたどりついていないのでたどり着くまで待つようにイベントを設置
-
-	// GPUがここまでたどり着いたとき、FenceVal_ を指定した値に代入するように Signal を送る
-	commandQueue_->Signal(fence_.Get(), ++fenceVal_);
-	if (fence_->GetCompletedValue() < fenceVal_) {
-		HANDLE fenceEvent = CreateEvent(nullptr, false, false, nullptr);
-		fence_->SetEventOnCompletion(fenceVal_, fenceEvent);
-		WaitForSingleObject(fenceEvent, INFINITE);
-		CloseHandle(fenceEvent);
-	}
 	///===============================================================
 
 	///===============================================================
 	/// リセット
 	///===============================================================
-	hr = commandAllocator_->Reset();
-	assert(SUCCEEDED(hr));
-	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
-	assert(SUCCEEDED(hr));
+	ResetCommand();
 	///===============================================================
 }

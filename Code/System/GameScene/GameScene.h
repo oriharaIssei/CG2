@@ -21,5 +21,7 @@ private:
 	Transform transform_;
 	Transform cameraT_;
 	
+	int gh_;
+
 	Matrix4x4 wvpVpMa_;
 };

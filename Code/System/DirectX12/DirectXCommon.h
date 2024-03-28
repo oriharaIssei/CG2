@@ -25,6 +25,10 @@ public:
 
 	void ClearRenderTarget();
 
+	void ExecuteCommandList();
+	void Wait4ExecuteCommand();
+	void ResetCommand();
+
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(
 		D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible
 	);
@@ -33,6 +37,8 @@ public:
 
 	void CreateBufferResource(ID3D12Resource* resource, size_t sizeInBytes);
 	void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Resource>& resource, size_t sizeInBytes);
+
+	void CreateDepthStencilTextureResource(Microsoft::WRL::ComPtr<ID3D12Resource>& resource,int32_t width, int32_t height);
 
 	static void CheckIsAliveInstance();
 private:
@@ -51,9 +57,13 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap_ = nullptr;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> swapChainResources_ = { nullptr };
+
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap_ = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilResource_ = { nullptr };
+
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap_ = nullptr;
 
-	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> swapChainResources_ = { nullptr };
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvH_[2];
 
 	Microsoft::WRL::ComPtr <ID3D12Debug1> debugController_ = nullptr;
@@ -67,9 +77,15 @@ private:
 	void CreateSwapChain();
 	void CreateRenderTarget();
 	void CreateFence();
+	void CreatDepthBuffer();
 public:
-	ID3D12Device* getDevice() { return device_.Get(); }
+	ID3D12Device* getDevice(){ return device_.Get(); }
+	IDXGISwapChain4* getSwapChain() { return swapChain_.Get(); }
 	ID3D12GraphicsCommandList* getCommandList() { return commandList_.Get(); }
+	ID3D12CommandQueue* getCommandQueue() { return commandQueue_.Get(); }
+	
 	int getSwapChainBufferCount()const { return static_cast<int>(swapChainResources_.size()); }
 
+	ID3D12DescriptorHeap* getRtvDescriptorHeap() { return rtvDescriptorHeap_.Get(); }
+	ID3D12DescriptorHeap* getSrvDescriptorHeap() { return srvDescriptorHeap_.Get(); }
 };
