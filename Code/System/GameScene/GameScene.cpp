@@ -5,21 +5,45 @@
 #include <imgui.h>
 
 void GameScene::Init() {
-	transform_ = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f } };
-	cameraT_= { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f } };
-
-	wvpVpMa_ = MakeMatrix::Affine(transform_.scale, transform_.rotate, transform_.translate)
-		* MakeMatrix::Affine(cameraT_.scale, cameraT_.rotate, cameraT_.translate).Inverse()
-		* MakeMatrix::PerspectiveFov(0.45f, static_cast<float>(System::getWinApp()->getWidth()) / static_cast<float>(System::getWinApp()->getHeight()), 0.1f, 100.0f);
+	camera = {
+		{ 1.0f,1.0f,1.0f },
+		{ 0.0f,0.0f,0.0f },
+		{ 0.0f,0.0f, 0.0f }
+	};
+	sphere = {
+		{ 1.0f,1.0f,1.0f },
+		{ 0.0f,0.0f,0.0f },
+		{ 0.0f,0.0f, 5.0f }
+	};
+	gh[0] = System::LoadTexture("uvChecker.png");
+	gh[1] = System::LoadTexture("monsterBall.png");
 }
 
 void GameScene::Update() {
-	transform_.rotate.y += 0.03f;
-	wvpVpMa_ = MakeMatrix::Affine(transform_.scale, transform_.rotate, transform_.translate)
-		* MakeMatrix::Affine(cameraT_.scale, cameraT_.rotate, cameraT_.translate).Inverse()
-		* MakeMatrix::PerspectiveFov(0.45f, static_cast<float>(System::getWinApp()->getWidth()) / static_cast<float>(System::getWinApp()->getHeight()), 0.1f, 100.0f);
+	ImGui::Begin("camera");
+	ImGui::DragFloat3("scale", &camera.scale.x, 0.01f);
+	ImGui::DragFloat3("rotate", &camera.rotate.x, 0.01f);
+	ImGui::DragFloat3("translate", &camera.translate.x, 0.01f);
+	ImGui::End();
+	ImGui::Begin("sphere");
+	ImGui::DragFloat3("scale", &sphere.scale.x, 0.01f);
+	ImGui::DragFloat3("rotate", &sphere.rotate.x, 0.01f);
+	ImGui::DragFloat3("translate", &sphere.translate.x, 0.01f);
+	ImGui::Checkbox("GH", &ghSwitcher_);
+	ImGui::End();
 }
 
 void GameScene::Draw() {
-	System::DrawTriangle(wvpVpMa_);
+	System::DrawSphere(MakeMatrix::Affine(
+		sphere.scale,
+		sphere.rotate,
+		sphere.translate
+	),
+		MakeMatrix::Affine(
+			camera.scale,
+			camera.rotate,
+			camera.translate
+		).Inverse(),
+		gh[ghSwitcher_]
+	);
 }

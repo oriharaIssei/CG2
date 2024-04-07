@@ -4,10 +4,9 @@
 
 #include <GameScene.h>
 
-
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	System::Init();
-
+	
 	std::unique_ptr<GameScene> scene = std::make_unique<GameScene>();
 	scene->Init();
 

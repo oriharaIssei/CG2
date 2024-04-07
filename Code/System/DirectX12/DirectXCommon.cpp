@@ -30,10 +30,11 @@ void DirectXCommon::Init() {
 
 	CreateRenderTarget();
 
+	CreatDepthBuffer();
+
 	CreateFence();
 
 	Logger::OutputLog("Complete create D3D12Device \n");
-
 }
 
 void DirectXCommon::Finalize() {
@@ -47,11 +48,14 @@ void DirectXCommon::Finalize() {
 	rtvDescriptorHeap_.Reset();
 	srvDescriptorHeap_.Reset();
 	fence_.Reset();
-	
-	for (int i = 0; i < swapChainResources_.size(); i++) {
+
+	for(int i = 0; i < swapChainResources_.size(); i++) {
 		swapChainResources_[i].Reset();
 	}
 	swapChainResources_.clear();
+
+	dsvDescriptorHeap_.Reset();
+	depthStencilResource_.Reset();
 
 	debugController_.Reset();
 }
@@ -59,15 +63,60 @@ void DirectXCommon::Finalize() {
 void DirectXCommon::ClearRenderTarget() {
 	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
 
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart();
 	commandList_->OMSetRenderTargets(
-		1, &rtvH_[backBufferIndex], false, nullptr
+		1, &rtvH_[backBufferIndex], false, &dsvHandle
 	);
 
 	float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//RGBA
-
 	commandList_->ClearRenderTargetView(
 		rtvH_[backBufferIndex], clearColor, 0, nullptr
 	);
+
+	commandList_->ClearDepthStencilView(
+		dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr
+	);
+}
+
+void DirectXCommon::ExecuteCommandList() {
+	///===============================================================
+	/// コマンドリストの実行
+	///===============================================================
+	ID3D12CommandList* commandLists[] = { commandList_.Get() };
+	commandQueue_->ExecuteCommandLists(1, commandLists);
+
+	HRESULT hr = swapChain_->Present(1, 0);
+	///===============================================================
+}
+
+void DirectXCommon::Wait4ExecuteCommand() {
+	// Fenceの値を更新
+	// //イベントを待つ
+	// // 指定したSignalにたどりついていないのでたどり着くまで待つようにイベントを設置
+
+	// GPUがここまでたどり着いたとき、FenceVal_ を指定した値に代入するように Signal を送る
+	commandQueue_->Signal(fence_.Get(), ++fenceVal_);
+	if(fence_->GetCompletedValue() < fenceVal_) {
+		HANDLE fenceEvent = CreateEvent(nullptr, false, false, nullptr);
+		fence_->SetEventOnCompletion(fenceVal_, fenceEvent);
+		WaitForSingleObject(fenceEvent, INFINITE);
+		CloseHandle(fenceEvent);
+	}
+}
+
+void DirectXCommon::ResetCommand() {
+	HRESULT hr = commandAllocator_->Reset();
+	assert(SUCCEEDED(hr));
+	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
+	assert(SUCCEEDED(hr));
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXCommon::GetCPUDescriptorHandle(ID3D12DescriptorHeap* heap, uint32_t descriptorSize, uint32_t index) {
+	return D3D12_CPU_DESCRIPTOR_HANDLE(heap->GetCPUDescriptorHandleForHeapStart().ptr + ( descriptorSize * index ));
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DirectXCommon::GetGPUDescriptorHandle(ID3D12DescriptorHeap* heap, uint32_t descriptorSize, uint32_t index) {
+	return D3D12_GPU_DESCRIPTOR_HANDLE(heap->GetGPUDescriptorHandleForHeapStart().ptr + ( descriptorSize * index ));
 }
 
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DirectXCommon::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
@@ -153,9 +202,39 @@ void DirectXCommon::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Resource>&
 	assert(SUCCEEDED(hr));
 }
 
+void DirectXCommon::CreateDepthStencilTextureResource(Microsoft::WRL::ComPtr<ID3D12Resource>& resource, int32_t width, int32_t height) {
+	D3D12_RESOURCE_DESC resourceDesc{};
+	resourceDesc.Width = width;
+	resourceDesc.Height = height;
+	resourceDesc.MipLevels = 1;
+	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	resourceDesc.SampleDesc.Count = 1;
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	//heap の設定
+	D3D12_HEAP_PROPERTIES heapProperties{};
+	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+	D3D12_CLEAR_VALUE depthClearValue{};
+	depthClearValue.DepthStencil.Depth = 1.0f;// 最大値でクリア
+	depthClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;// Resource と合わせる
+
+	HRESULT hr = device_->CreateCommittedResource(
+		&heapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&resourceDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&depthClearValue,
+		IID_PPV_ARGS(&resource)
+	);
+	assert(SUCCEEDED(hr));
+}
+
 void DirectXCommon::CheckIsAliveInstance() {
 	IDXGIDebug1* debug;
-	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
+	if(SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
 		debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
 		debug->ReportLiveObjects(DXGI_DEBUG_APP, DXGI_DEBUG_RLO_ALL);
 		debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);
@@ -168,7 +247,7 @@ void DirectXCommon::InitDXGIDevice() {
 #ifdef _DEBUG
 	Microsoft::WRL::ComPtr<ID3D12Debug1> debugController = nullptr;
 	//デバッグレイヤーをオンに
-	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+	if(SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 		//デバッグレイヤーの有効化
 		debugController->EnableDebugLayer();
 		//GPU側でもデバッグさせる
@@ -187,7 +266,7 @@ void DirectXCommon::InitDXGIDevice() {
 	///================================================
 	///	IDXGIAdapterの初期化
 	///================================================
-	for (UINT i = 0;
+	for(UINT i = 0;
 		dxgiFactory_->EnumAdapterByGpuPreference(
 			i,
 			DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
@@ -200,7 +279,7 @@ void DirectXCommon::InitDXGIDevice() {
 		assert(SUCCEEDED(hr));
 
 		//ソフトウェアアダプタは弾く
-		if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
+		if(!( adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE )) {
 			Logger::OutputLog(std::format(L"Use Adapter : {}\n", adapterDesc.Description));
 			break;
 		}
@@ -225,13 +304,13 @@ void DirectXCommon::InitDXGIDevice() {
 	};
 
 	//レベルの高い順に生成できるか試す
-	for (size_t i = 0; i < _countof(featureLevels); ++i) {
+	for(size_t i = 0; i < _countof(featureLevels); ++i) {
 		//採用したアダプターを生成
 		hr = D3D12CreateDevice(
 			useAdapter_.Get(), featureLevels[i], IID_PPV_ARGS(&device_)
 		);
 		//生成できたか確認
-		if (SUCCEEDED(hr)) {
+		if(SUCCEEDED(hr)) {
 			Logger::OutputLog(std::format("FeatureLevel : {}\n", featrueLevelStrings[i]));
 			break;//生成出来たらループを抜ける
 		}
@@ -241,7 +320,7 @@ void DirectXCommon::InitDXGIDevice() {
 
 #ifdef _DEBUG
 	ID3D12InfoQueue* infoQueue = nullptr;
-	if (SUCCEEDED(device_->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
+	if(SUCCEEDED(device_->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
 		//やばいエラーの時に止める
 		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 		//エラー時に止まる
@@ -336,7 +415,7 @@ void DirectXCommon::CreateSwapChain() {
 	///	Resource の初期化
 	///================================================
 	swapChainResources_.resize(2);
-	for (int i = 0; i < 2; ++i) {
+	for(int i = 0; i < 2; ++i) {
 		hr = swapChain_->GetBuffer(
 			i, IID_PPV_ARGS(&swapChainResources_[i]));
 		assert(SUCCEEDED(hr));
@@ -389,6 +468,32 @@ void DirectXCommon::CreateFence() {
 	assert(SUCCEEDED(hr));
 }
 
+void DirectXCommon::CreatDepthBuffer() {
+	CreateDepthStencilTextureResource(
+		depthStencilResource_,
+		static_cast<int32_t>( window_->getWidth() ),
+		static_cast<int32_t>( window_->getHeight() )
+	);
+
+	dsvDescriptorHeap_ = CreateDescriptorHeap(
+		D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+		1,
+		false
+	);
+
+	// DSV の設定
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;// resourceに合わせる
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;// 2d Texture
+
+	// DsvHeap の先頭に DSV を作る
+	device_->CreateDepthStencilView(
+		depthStencilResource_.Get(),
+		&dsvDesc,
+		dsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart()
+	);
+}
+
 void DirectXCommon::PreDraw() {
 	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
 
@@ -396,25 +501,18 @@ void DirectXCommon::PreDraw() {
 	//	TransitionBarrierの設定
 	///=========================================
 	D3D12_RESOURCE_BARRIER barrier{};
-	//Barrier を Transition に変更
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	// バリアを張る対象のリソース
-	barrier.Transition.pResource = swapChainResources_[backBufferIndex].Get();
-	// Noneにしておく
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	// バリアを張る前(現在)のResourceState
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	// 遷移後のResourceState
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	// TransitionBarrierを張る
+	barrier = barrierTransition_(
+		D3D12_RESOURCE_STATE_RENDER_TARGET, swapChainResources_[backBufferIndex].Get()
+	);
+
 	commandList_->ResourceBarrier(1, &barrier);
 
 	ClearRenderTarget();
 
 	//ビューポートの設定
 	D3D12_VIEWPORT viewPort{};
-	viewPort.Width = static_cast<float>(window_->getWidth());
-	viewPort.Height = static_cast<float>(window_->getHeight());
+	viewPort.Width = static_cast<float>( window_->getWidth() );
+	viewPort.Height = static_cast<float>( window_->getHeight() );
 	viewPort.TopLeftX = 0;
 	viewPort.TopLeftY = 0;
 	viewPort.MinDepth = 0.0f;
@@ -440,18 +538,9 @@ void DirectXCommon::PostDraw() {
 	///	バリアの更新(描画->表示状態)
 	///===============================================================
 	D3D12_RESOURCE_BARRIER barrier{};
-	//Barrier を Transition に変更
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	// バリアを張る対象のリソース
-	barrier.Transition.pResource = swapChainResources_[backBufferIndex].Get();
-	// Noneにしておく
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	//----------------------------------------------------
-	// 入れ替える
-	// バリアを張る前(現在)のResourceState
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	// 遷移後のResourceState
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	barrier = barrierTransition_(
+		D3D12_RESOURCE_STATE_PRESENT, swapChainResources_[backBufferIndex].Get()
+	);
 
 	commandList_->ResourceBarrier(1, &barrier);
 	//----------------------------------------------------
@@ -461,39 +550,35 @@ void DirectXCommon::PostDraw() {
 	hr = commandList_->Close();
 	//----------------------------------------------------
 
-	///===============================================================
-	/// コマンドリストの実行
-	///===============================================================
-	ID3D12CommandList* commandLists[] = { commandList_.Get() };
-	commandQueue_->ExecuteCommandLists(1, commandLists);
-
-	hr = swapChain_->Present(1, 0);
-	///===============================================================
+	ExecuteCommandList();
 
 	///===============================================================
 	/// コマンドリストの実行を待つ
 	///===============================================================
+	Wait4ExecuteCommand();
 
-	// Fenceの値を更新
-	// //イベントを待つ
-	// // 指定したSignalにたどりついていないのでたどり着くまで待つようにイベントを設置
-
-	// GPUがここまでたどり着いたとき、FenceVal_ を指定した値に代入するように Signal を送る
-	commandQueue_->Signal(fence_.Get(), ++fenceVal_);
-	if (fence_->GetCompletedValue() < fenceVal_) {
-		HANDLE fenceEvent = CreateEvent(nullptr, false, false, nullptr);
-		fence_->SetEventOnCompletion(fenceVal_, fenceEvent);
-		WaitForSingleObject(fenceEvent, INFINITE);
-		CloseHandle(fenceEvent);
-	}
 	///===============================================================
 
 	///===============================================================
 	/// リセット
 	///===============================================================
-	hr = commandAllocator_->Reset();
-	assert(SUCCEEDED(hr));
-	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
-	assert(SUCCEEDED(hr));
+	ResetCommand();
 	///===============================================================
+}
+
+D3D12_RESOURCE_BARRIER DirectXCommon::ResourceBarrierTransition::operator()(D3D12_RESOURCE_STATES stateAfter, ID3D12Resource* barrierTarget) {
+	D3D12_RESOURCE_BARRIER barrier{};
+	//Barrier を Transition に変更
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	// バリアを張る対象のリソース
+	barrier.Transition.pResource = barrierTarget;
+	// Noneにしておく
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	// バリアを張る前(現在)のResourceState
+	barrier.Transition.StateBefore = currentState_;
+	// 遷移後のResourceState
+	barrier.Transition.StateAfter = stateAfter;
+	currentState_ = stateAfter;
+
+	return barrier;
 }

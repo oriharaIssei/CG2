@@ -22,7 +22,7 @@ public:
 private:
 #ifdef _DEBUG
 	// SRV用ヒープ
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap_;
+	ID3D12DescriptorHeap* srvHeap_;
 #endif // _DEBUG
 
 	ImGuiManager() = default;

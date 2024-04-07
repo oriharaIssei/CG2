@@ -18,8 +18,10 @@ private:
 		Vector3 rotate;
 		Vector3 translate;
 	};
-	Transform transform_;
-	Transform cameraT_;
 	
-	Matrix4x4 wvpVpMa_;
+	Transform camera;
+	Transform sphere;
+
+	bool ghSwitcher_;
+	int gh[2];
 };
