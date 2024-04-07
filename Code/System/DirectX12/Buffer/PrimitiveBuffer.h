@@ -15,18 +15,19 @@ struct PosColor {
 
 enum PrimitiveType {
 	Triangle,
-	Quad
+	Quad,
+	Sphere
 };
 
 class DirectXCommon;
 struct PrimitiveBuffer {
-	void Init(DirectXCommon* dxCommon,PrimitiveType type);
+	void Init(DirectXCommon* dxCommon, PrimitiveType type);
 	void Finalize();
 
 	// 頂点バッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff;
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
 	// インデックスバッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff;
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
 	// 頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 	// インデックスバッファビュー

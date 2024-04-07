@@ -32,9 +32,9 @@ void PrimitiveBuffer::Init(DirectXCommon* dxCommon, PrimitiveType type) {
 		indexData[0] = 0;
 		indexData[1] = 1;
 		indexData[2] = 2;
+
 		vertexNum = 3;
 		index = 0;
-
 		break;
 	case Quad:
 		buffSize = sizeof(PosColor) * 6;
@@ -67,6 +67,23 @@ void PrimitiveBuffer::Init(DirectXCommon* dxCommon, PrimitiveType type) {
 		indexData[5] = 2;
 
 		vertexNum = 6;
+		index = 0;
+		break;
+	case Sphere:
+		dxCommon->CreateBufferResource(vertBuff, sizeof(PosColor) * ( 16 * 16 * 6 ));
+		vertBuff->Map(0, nullptr, reinterpret_cast<void**>( &vertData ));
+
+		vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
+		vbView.SizeInBytes = sizeof(PosColor) * ( 16 * 16 * 6 );
+		vbView.StrideInBytes = sizeof(PosColor);
+
+		dxCommon->CreateBufferResource(indexBuff, sizeof(uint32_t) * ( 16 * 16 * 6 ));
+		ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
+		ibView.SizeInBytes = sizeof(uint32_t) * ( 16 * 16 * 6 );
+		ibView.Format = DXGI_FORMAT_R32_UINT;
+		indexBuff->Map(0, nullptr, reinterpret_cast<void**>( &indexData ));
+		
+		vertexNum = ( 16 * 16 * 6 );
 		index = 0;
 		break;
 	default:

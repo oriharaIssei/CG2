@@ -34,24 +34,10 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	System::DrawSphere(MakeMatrix::Affine(
-		sphere.scale,
-		sphere.rotate,
-		sphere.translate
-	),
-		MakeMatrix::Affine(
-			camera.scale,
-			camera.rotate,
-			camera.translate
-		).Inverse(),
-		gh[ghSwitcher_]
-	);
-	System::DrawQuad(
-		{0.0f,0.0f,0.0f},
-		{50.0f,0.0f,0.0f},
-		{0.0f,50.0f,0.0f},
-		{ 50.0f,50.0f,0.0f },
-		{1.0f,1.0f,1.0f},
+	System::DrawSphere(
+		MakeMatrix::Affine(sphere.scale, sphere.rotate, sphere.translate),
+		MakeMatrix::Affine(camera.scale, camera.rotate, camera.translate).Inverse(),
 		{1.0f,1.0f,1.0f,1.0f}
-	);
+		);
+	
 }

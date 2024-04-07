@@ -39,7 +39,7 @@
     <ClCompile Include="Code\System\System.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\PrimitiveBuffer.cpp">
+    <ClCompile Include="Code\System\DirectX12\Buffer\PrimitiveBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Code\Math\Matrix4x4.cpp">
@@ -72,7 +72,7 @@
     <ClCompile Include="Code\System\Texture\TextureManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\Splite\Splite.cpp">
+    <ClCompile Include="Code\System\DirectX12\Buffer\Splite\Splite.Buffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Code\System\Light\Light.cpp">
@@ -101,7 +101,7 @@
     <ClInclude Include="Code\System\System.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\PrimitiveBuffer.h">
+    <ClInclude Include="Code\System\DirectX12\Buffer\PrimitiveBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\Math\Vector3.h">
@@ -146,7 +146,7 @@
     <ClInclude Include="Code\Math\Vector2.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\Splite\Splite.h">
+    <ClInclude Include="Code\System\DirectX12\Buffer\Splite\SpliteBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\System\Light\Light.h">

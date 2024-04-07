@@ -12,12 +12,11 @@ std::unique_ptr<WinApp> System::window_ = nullptr;
 std::unique_ptr<DirectXCommon> System::dxCommon_ = nullptr;
 std::unique_ptr<ShaderCompiler> System::shaderCompiler_ = nullptr;
 std::unique_ptr<PipelineStateObj> System::primitivePSO_ = nullptr;
-std::unique_ptr<PrimitiveBuffer> System::triangle_ = nullptr;
-std::unique_ptr<PrimitiveBuffer> System::quad_ = nullptr;
-std::unique_ptr<Splite> System::splite_ = nullptr;
+std::vector<std::unique_ptr<PrimitiveBuffer>> System::primitiveBuff_;
+std::vector<std::unique_ptr<SpliteBuffer>> System::spliteBuff_;
 
-Microsoft::WRL::ComPtr<ID3D12Resource> System::constantBuff_ = nullptr;
-Microsoft::WRL::ComPtr<ID3D12Resource> System::wvpResource_ = nullptr;
+Microsoft::WRL::ComPtr<ID3D12Resource> System::wvp2DResource_ = nullptr;
+Microsoft::WRL::ComPtr<ID3D12Resource> System::wvp3DResource_ = nullptr;
 
 void System::Init() {
 	window_ = std::make_unique<WinApp>();
@@ -32,24 +31,38 @@ void System::Init() {
 	primitivePSO_ = std::make_unique<PipelineStateObj>();
 	CreatePrimitivePSO();
 
-	triangle_ = std::make_unique<PrimitiveBuffer>();
-	triangle_->Init(dxCommon_.get(), Triangle);
+	primitiveBuff_.clear();
+	spliteBuff_.clear();
+	primitiveBuff_.resize(3);
+	spliteBuff_.resize(3);
+	for(int i = 0; i < 3; i++) {
+		primitiveBuff_[i] = std::make_unique<PrimitiveBuffer>();
+		primitiveBuff_[i]->Init(dxCommon_.get(), static_cast<PrimitiveType>( i ));
 
-	quad_ = std::make_unique<PrimitiveBuffer>();
-	quad_->Init(dxCommon_.get(), Quad);
+		spliteBuff_[i] = std::make_unique<SpliteBuffer>();
+		spliteBuff_[i]->Init(dxCommon_.get(), static_cast<PrimitiveType>( i ));
+	}
 
-	splite_ = std::make_unique<Splite>();
-	splite_->Init(dxCommon_.get());
+	dxCommon_->CreateBufferResource(wvp2DResource_, sizeof(Matrix4x4));
+	Matrix4x4* wvpData = nullptr;
+	wvp2DResource_->Map(0, nullptr, reinterpret_cast<void**>( &wvpData ));
+	*wvpData = MakeMatrix::Orthographic(0.0f, 0.0f, static_cast<float>( window_->getWidth() ), static_cast<float>( window_->getHeight() ), 0.0f, 100.0f);
 
-	dxCommon_->CreateBufferResource(wvpResource_, sizeof(Matrix4x4));
+	Matrix4x4* wvp3DData = nullptr;
+	dxCommon_->CreateBufferResource(wvp3DResource_, sizeof(Matrix4x4));
+	wvp3DResource_->Map(0, nullptr, reinterpret_cast<void**>( &wvp3DData ));
+	*wvp3DData = MakeMatrix::PerspectiveFov(
+		0.45f,
+		static_cast<float>( window_->getWidth() )
+		/
+		static_cast<float>( window_->getHeight() ),
+		0.1f,
+		100.0f
+	);
 
 	TextureManager::Init(dxCommon_.get());
-
 	ImGuiManager::getInstance()->Init(window_.get(), dxCommon_.get());
 
-	Matrix4x4* wvpData = nullptr;
-	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>( &wvpData ));
-	*wvpData = MakeMatrix::Orthographic(0.0f, 0.0f, static_cast<float>( window_->getWidth() ), static_cast<float>( window_->getHeight() ), 0.0f, 100.0f);
 }
 
 void System::Finalize() {
@@ -60,30 +73,35 @@ void System::Finalize() {
 
 	shaderCompiler_->Finalize();
 	primitivePSO_->Finalize();
-	triangle_->Finalize();
-	quad_->Finalize();
-	splite_->Finalize();
+
+	for(int i = 0; i < 3; i++) {
+		primitiveBuff_[i]->Finalize();
+		spliteBuff_[i]->Finalize();
+	}
+	primitiveBuff_.clear();
+	spliteBuff_.clear();
+
 	TextureManager::Finalize();
 
-	constantBuff_.Reset();
-	wvpResource_.Reset();
+	wvp2DResource_.Reset();
+	wvp3DResource_.Reset();
 
 	DirectXCommon::CheckIsAliveInstance();
 }
 
 void System::DrawTriangle(const Vector3& position1, const Vector3& position2, const Vector3& position3, const Vector3& scale, Vector4 color) {
-	size_t indexVertex = triangle_->index * triangle_->vertexNum;
+	size_t indexVertex = primitiveBuff_[Triangle]->index * primitiveBuff_[Triangle]->vertexNum;
 
-	triangle_->vertData[indexVertex].pos = { position1.x,position1.y,position1.z,1.0f };
-	triangle_->vertData[indexVertex].color = color;
-	triangle_->vertData[indexVertex + 1].pos = { position2.x,position2.y,position2.z,1.0f };
-	triangle_->vertData[indexVertex + 1].color = color;
-	triangle_->vertData[indexVertex + 2].pos = { position3.x,position3.y,position3.z,1.0f };
-	triangle_->vertData[indexVertex + 2].color = color;
+	primitiveBuff_[Triangle]->vertData[indexVertex].pos = { position1.x,position1.y,position1.z,1.0f };
+	primitiveBuff_[Triangle]->vertData[indexVertex].color = color;
+	primitiveBuff_[Triangle]->vertData[indexVertex + 1].pos = { position2.x,position2.y,position2.z,1.0f };
+	primitiveBuff_[Triangle]->vertData[indexVertex + 1].color = color;
+	primitiveBuff_[Triangle]->vertData[indexVertex + 2].pos = { position3.x,position3.y,position3.z,1.0f };
+	primitiveBuff_[Triangle]->vertData[indexVertex + 2].color = color;
 
 	dxCommon_->getCommandList()->SetGraphicsRootSignature(primitivePSO_->rootSignature.Get());
 	dxCommon_->getCommandList()->SetPipelineState(primitivePSO_->pipelineState.Get());
-	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &triangle_->vbView);
+	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &primitiveBuff_[Triangle]->vbView);
 	//形状設定.PSOのものとはまた別(同じものを設定する)
 	dxCommon_->getCommandList()->IASetPrimitiveTopology(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
@@ -91,30 +109,30 @@ void System::DrawTriangle(const Vector3& position1, const Vector3& position2, co
 
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
 		1, //RootParameter配列の 1 番目
-		wvpResource_->GetGPUVirtualAddress()
+		wvp2DResource_->GetGPUVirtualAddress()
 	);
 
 	// 描画!!!
-	dxCommon_->getCommandList()->DrawInstanced(triangle_->vertexNum, 1, indexVertex, 0);
-	++triangle_->index;
+	dxCommon_->getCommandList()->DrawInstanced(primitiveBuff_[Triangle]->vertexNum, 1, indexVertex, 0);
+	++primitiveBuff_[Triangle]->index;
 }
 
 void System::DrawQuad(const Vector3& lt, const Vector3& rt, const Vector3& lb, const Vector3& rb, const Vector3& scale, Vector4 color) {
-	size_t indexVertex = quad_->index * quad_->vertexNum;
+	size_t indexVertex = primitiveBuff_[Quad]->index * primitiveBuff_[Quad]->vertexNum;
 
-	quad_->vertData[indexVertex].pos = { lb.x,lb.y,lb.z,1.0f };
-	quad_->vertData[indexVertex].color = color;
-	quad_->vertData[indexVertex + 1].pos = { lt.x,lt.y,lt.z,1.0f };
-	quad_->vertData[indexVertex + 1].color = color;
-	quad_->vertData[indexVertex + 2].pos = { rb.x,rb.y,rb.z,1.0f };
-	quad_->vertData[indexVertex + 2].color = color;
-	quad_->vertData[indexVertex + 3].pos = { rt.x,rt.y,rt.z,1.0f };
-	quad_->vertData[indexVertex + 3].color = color;
+	primitiveBuff_[Quad]->vertData[indexVertex].pos = { lb.x,lb.y,lb.z,1.0f };
+	primitiveBuff_[Quad]->vertData[indexVertex].color = color;
+	primitiveBuff_[Quad]->vertData[indexVertex + 1].pos = { lt.x,lt.y,lt.z,1.0f };
+	primitiveBuff_[Quad]->vertData[indexVertex + 1].color = color;
+	primitiveBuff_[Quad]->vertData[indexVertex + 2].pos = { rb.x,rb.y,rb.z,1.0f };
+	primitiveBuff_[Quad]->vertData[indexVertex + 2].color = color;
+	primitiveBuff_[Quad]->vertData[indexVertex + 3].pos = { rt.x,rt.y,rt.z,1.0f };
+	primitiveBuff_[Quad]->vertData[indexVertex + 3].color = color;
 
 	dxCommon_->getCommandList()->SetGraphicsRootSignature(primitivePSO_->rootSignature.Get());
 	dxCommon_->getCommandList()->SetPipelineState(primitivePSO_->pipelineState.Get());
-	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &quad_->vbView);
-	dxCommon_->getCommandList()->IASetIndexBuffer(&quad_->ibView);
+	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &primitiveBuff_[Quad]->vbView);
+	dxCommon_->getCommandList()->IASetIndexBuffer(&primitiveBuff_[Quad]->ibView);
 	//形状設定.PSOのものとはまた別(同じものを設定する)
 	dxCommon_->getCommandList()->IASetPrimitiveTopology(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
@@ -122,18 +140,105 @@ void System::DrawQuad(const Vector3& lt, const Vector3& rt, const Vector3& lb, c
 
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
 		1, //RootParameter配列の 1 番目
-		wvpResource_->GetGPUVirtualAddress()
+		wvp2DResource_->GetGPUVirtualAddress()
 	);
 
 	// 描画!!!
-	dxCommon_->getCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
-	++quad_->index;
+	dxCommon_->getCommandList()->DrawIndexedInstanced(primitiveBuff_[Quad]->vertexNum, 1, 0, 0, 0);
+	++primitiveBuff_[Quad]->index;
 }
 
-void System::DrawTexture(const Vector3& position1, const Vector3& position2, const Vector3& position3, const Vector3& scale, const Matrix4x4& wvp, Vector4* color, int textureNum) {
+void System::DrawSphere(const Matrix4x4& world, const Matrix4x4& view, const Vector4& color) {
+	constexpr int kSubDivision = 16;
+	const float kLonEvery = static_cast<float>( M_PI ) * 2.0f / static_cast<float>( kSubDivision );
+	const float kLatEvery = static_cast<float>( M_PI ) / static_cast<float>( kSubDivision );
+
+	for(int latIndex = 0; latIndex < kSubDivision; ++latIndex) {
+		float lat = -static_cast<float>( M_PI ) / 2.0f + ( kLatEvery * latIndex );
+		for(int lonIndex = 0; lonIndex < kSubDivision; ++lonIndex) {
+			float lon = lonIndex * kLonEvery;
+
+			uint32_t startIndex = ( latIndex * kSubDivision + lonIndex ) * 6;
+
+			primitiveBuff_[Sphere]->indexData[startIndex] = startIndex;
+			primitiveBuff_[Sphere]->indexData[startIndex + 1] = startIndex + 1;
+			primitiveBuff_[Sphere]->indexData[startIndex + 2] = startIndex + 2;
+
+			primitiveBuff_[Sphere]->indexData[startIndex + 3] = startIndex + 1;
+			primitiveBuff_[Sphere]->indexData[startIndex + 4] = startIndex + 3;
+			primitiveBuff_[Sphere]->indexData[startIndex + 5] = startIndex + 2;
+
+			// lb 0,0
+			primitiveBuff_[Sphere]->vertData[startIndex].pos = { Vector4(
+				std::cosf(lat) * std::cosf(lon),
+				std::sinf(lat),
+				std::cosf(lat) * std::sinf(lon),
+				1.0f)
+			};
+			primitiveBuff_[Sphere]->vertData[startIndex].color = color;
+
+			// lt 0,1
+			primitiveBuff_[Sphere]->vertData[startIndex + 1].pos = { Vector4(
+				std::cosf(lat + kLatEvery) * std::cosf(lon),
+				std::sinf(lat + kLatEvery),
+				std::cosf(lat + kLatEvery) * std::sinf(lon),
+				1.0f)
+			};
+			primitiveBuff_[Sphere]->vertData[startIndex + 1].color = color;
+
+			//rb 1,0
+			primitiveBuff_[Sphere]->vertData[startIndex + 2].pos = { Vector4(
+				std::cosf(lat) * std::cosf(lon + kLonEvery),
+				std::sinf(lat),
+				std::cosf(lat) * std::sinf(lon + kLonEvery),
+				1.0f)
+			};
+			primitiveBuff_[Sphere]->vertData[startIndex + 2].color = color;
+
+			// rt 1,1
+			primitiveBuff_[Sphere]->vertData[startIndex + 3].pos = { Vector4(
+				std::cosf(lat + kLatEvery) * std::cosf(lon + kLonEvery),
+				std::sinf(lat + kLatEvery),
+				std::cosf(lat + kLatEvery) * std::sinf(lon + kLonEvery),
+				1.0f)
+			};
+			primitiveBuff_[Sphere]->vertData[startIndex + 3].color = color;
+		}
+	}
+
+	Matrix4x4* wvp3d = nullptr;
+	wvp3DResource_->Map(0, nullptr, reinterpret_cast<void**>( &wvp3d ));
+	*wvp3d = world * view * MakeMatrix::PerspectiveFov(
+		0.45f,
+		static_cast<float>( window_->getWidth() )
+		/
+		static_cast<float>( window_->getHeight() ),
+		0.1f,
+		100.0f
+	);
+
+	dxCommon_->getCommandList()->SetGraphicsRootSignature(primitivePSO_->rootSignature.Get());
+	dxCommon_->getCommandList()->SetPipelineState(primitivePSO_->pipelineState.Get());
+	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &primitiveBuff_[Sphere]->vbView);
+	dxCommon_->getCommandList()->IASetIndexBuffer(&primitiveBuff_[Sphere]->ibView);
+	//形状設定.PSOのものとはまた別(同じものを設定する)
+	dxCommon_->getCommandList()->IASetPrimitiveTopology(
+		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
+	);
+
+	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
+		1, //RootParameter配列の 1 番目
+		wvp3DResource_->GetGPUVirtualAddress()
+	);
+
+	// 描画!!!
+	dxCommon_->getCommandList()->DrawIndexedInstanced(primitiveBuff_[Sphere]->vertexNum, 1, 0, 0, 0);
+}
+
+void System::DrawTriangleTexture(const Vector3& position1, const Vector3& position2, const Vector3& position3, const Vector3& scale, const Matrix4x4& wvp, Vector4* color, int textureNum) {
 	VertexData* vertData = nullptr;
 
-	triangle_->vertBuff->Map(
+	primitiveBuff_[Triangle]->vertBuff->Map(
 		0,
 		nullptr,
 		reinterpret_cast<void**>( &vertData )
@@ -149,11 +254,11 @@ void System::DrawTexture(const Vector3& position1, const Vector3& position2, con
 	vertData[2].texCoord = { 1.0f,1.0f };
 
 	Matrix4x4* wvpData = nullptr;
-	wvpResource_->Map(0, nullptr, reinterpret_cast<void**>( &wvpData ));
+	wvp2DResource_->Map(0, nullptr, reinterpret_cast<void**>( &wvpData ));
 	*wvpData = wvp;
 
 	TextureManager::SetPSO2CommandList(dxCommon_->getCommandList());
-	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &triangle_->vbView);
+	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &primitiveBuff_[Triangle]->vbView);
 	//形状設定.PSOのものとはまた別(同じものを設定する)
 	dxCommon_->getCommandList()->IASetPrimitiveTopology(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
@@ -161,11 +266,11 @@ void System::DrawTexture(const Vector3& position1, const Vector3& position2, con
 
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
 		0, //RootParameter配列の 0 番目
-		constantBuff_->GetGPUVirtualAddress()
+		spliteBuff_[Quad]->materialBuff->GetGPUVirtualAddress()
 	);
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
-		1, //RootParameter配列の 0 番目
-		wvpResource_->GetGPUVirtualAddress()
+		1,
+		spliteBuff_[Quad]->matrixBuff->GetGPUVirtualAddress()
 	);
 
 	ID3D12DescriptorHeap* ppHeaps[] = { dxCommon_->getSrvDescriptorHeap() };
@@ -181,25 +286,25 @@ void System::DrawTexture(const Vector3& position1, const Vector3& position2, con
 }
 
 void System::DrawSprite(const Vector3& ltPos, const Vector2& size, int textureNum) {
-	splite_->vertData[0].pos = { ltPos.x,ltPos.y + size.y,ltPos.z,1.0f };
-	splite_->vertData[0].texCoord = { 0.0f,1.0f };
-	splite_->vertData[1].pos = { ltPos.x,ltPos.y,ltPos.z,1.0f };
-	splite_->vertData[1].texCoord = { 0.0,0.0f };
-	splite_->vertData[2].pos = { ltPos.x + size.x,ltPos.y + size.y,ltPos.z,1.0f };
-	splite_->vertData[2].texCoord = { 1.0f,1.0f };
+	spliteBuff_[Quad]->vertData[0].pos = { ltPos.x,ltPos.y + size.y,ltPos.z,1.0f };
+	spliteBuff_[Quad]->vertData[0].texCoord = { 0.0f,1.0f };
+	spliteBuff_[Quad]->vertData[1].pos = { ltPos.x,ltPos.y,ltPos.z,1.0f };
+	spliteBuff_[Quad]->vertData[1].texCoord = { 0.0,0.0f };
+	spliteBuff_[Quad]->vertData[2].pos = { ltPos.x + size.x,ltPos.y + size.y,ltPos.z,1.0f };
+	spliteBuff_[Quad]->vertData[2].texCoord = { 1.0f,1.0f };
 
-	splite_->vertData[3].pos = { ltPos.x,ltPos.y,ltPos.z,1.0f };
-	splite_->vertData[3].texCoord = { 0.0f,0.0f };
-	splite_->vertData[4].pos = { ltPos.x + size.x,ltPos.y,ltPos.z,1.0f };
-	splite_->vertData[4].texCoord = { 1.0f,0.0f };
-	splite_->vertData[5].pos = { ltPos.x + size.x,ltPos.y + size.y,ltPos.z,1.0f };
-	splite_->vertData[5].texCoord = { 1.0f,1.0f };
+	spliteBuff_[Quad]->vertData[3].pos = { ltPos.x,ltPos.y,ltPos.z,1.0f };
+	spliteBuff_[Quad]->vertData[3].texCoord = { 0.0f,0.0f };
+	spliteBuff_[Quad]->vertData[4].pos = { ltPos.x + size.x,ltPos.y,ltPos.z,1.0f };
+	spliteBuff_[Quad]->vertData[4].texCoord = { 1.0f,0.0f };
+	spliteBuff_[Quad]->vertData[5].pos = { ltPos.x + size.x,ltPos.y + size.y,ltPos.z,1.0f };
+	spliteBuff_[Quad]->vertData[5].texCoord = { 1.0f,1.0f };
 
-	splite_->materialData->color = { 1.0f,1.0f,1.0f,1.0f };
-	splite_->matrixData->wvp = MakeMatrix::Identity();
+	spliteBuff_[Quad]->materialData->color = { 1.0f,1.0f,1.0f,1.0f };
+	spliteBuff_[Quad]->matrixData->wvp = MakeMatrix::Identity();
 
 	TextureManager::SetPSO2CommandList(dxCommon_->getCommandList());
-	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &splite_->vbView);
+	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &spliteBuff_[Quad]->vbView);
 	// 形状設定.PSOのものとはまた別(同じものを設定する)
 	dxCommon_->getCommandList()->IASetPrimitiveTopology(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
@@ -207,11 +312,11 @@ void System::DrawSprite(const Vector3& ltPos, const Vector2& size, int textureNu
 
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
 		0, //RootParameter配列の 0 番目
-		splite_->materialBuff->GetGPUVirtualAddress()
+		spliteBuff_[Quad]->materialBuff->GetGPUVirtualAddress()
 	);
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
 		1,
-		splite_->matrixBuff->GetGPUVirtualAddress()
+		spliteBuff_[Quad]->matrixBuff->GetGPUVirtualAddress()
 	);
 
 	ID3D12DescriptorHeap* ppHeaps[] = { dxCommon_->getSrvDescriptorHeap() };
@@ -226,7 +331,7 @@ void System::DrawSprite(const Vector3& ltPos, const Vector2& size, int textureNu
 	dxCommon_->getCommandList()->DrawInstanced(6, 1, 0, 0);
 }
 
-void System::DrawSphere(const Matrix4x4& world, const Matrix4x4& view, int textureNum) {
+void System::DrawSpherTexture(const Matrix4x4& world, const Matrix4x4& view, int textureNum) {
 	constexpr int kSubDivision = 16;
 	const float kLonEvery = static_cast<float>( M_PI ) * 2.0f / static_cast<float>( kSubDivision );
 	const float kLatEvery = static_cast<float>( M_PI ) / static_cast<float>( kSubDivision );
@@ -237,86 +342,85 @@ void System::DrawSphere(const Matrix4x4& world, const Matrix4x4& view, int textu
 			float lon = lonIndex * kLonEvery;
 
 			uint32_t startIndex = ( latIndex * kSubDivision + lonIndex ) * 6;
-			
-			splite_->indexData[startIndex] = startIndex;
-			splite_->indexData[startIndex + 1] = startIndex + 1;
-			splite_->indexData[startIndex + 2] = startIndex + 2;
 
-			splite_->indexData[startIndex + 3] = startIndex + 1;
-			splite_->indexData[startIndex + 4] = startIndex + 3;
-			splite_->indexData[startIndex + 5] = startIndex + 2;
+			spliteBuff_[Sphere]->indexData[startIndex] = startIndex;
+			spliteBuff_[Sphere]->indexData[startIndex + 1] = startIndex + 1;
+			spliteBuff_[Sphere]->indexData[startIndex + 2] = startIndex + 2;
+
+			spliteBuff_[Sphere]->indexData[startIndex + 3] = startIndex + 1;
+			spliteBuff_[Sphere]->indexData[startIndex + 4] = startIndex + 3;
+			spliteBuff_[Sphere]->indexData[startIndex + 5] = startIndex + 2;
 
 			// lb 0,0
-			splite_->vertData[startIndex].pos = { Vector4(
+			spliteBuff_[Sphere]->vertData[startIndex].pos = { Vector4(
 				std::cosf(lat) * std::cosf(lon),
 				std::sinf(lat),
 				std::cosf(lat) * std::sinf(lon),
 				1.0f)
 			};
-			splite_->vertData[startIndex].texCoord = {
+			spliteBuff_[Sphere]->vertData[startIndex].texCoord = {
 				float(lonIndex) / float(kSubDivision),
 				1.0f - float(latIndex) / float(kSubDivision)
 			};
-			splite_->vertData[startIndex].normal = {
-				splite_->vertData[startIndex].pos.x,
-				splite_->vertData[startIndex].pos.y ,
-				splite_->vertData[startIndex].pos.z
+			spliteBuff_[Sphere]->vertData[startIndex].normal = {
+				spliteBuff_[Sphere]->vertData[startIndex].pos.x,
+				spliteBuff_[Sphere]->vertData[startIndex].pos.y ,
+				spliteBuff_[Sphere]->vertData[startIndex].pos.z
 			};
 
 			// lt 0,1
-			splite_->vertData[startIndex + 1].pos = { Vector4(
+			spliteBuff_[Sphere]->vertData[startIndex + 1].pos = { Vector4(
 				std::cosf(lat + kLatEvery) * std::cosf(lon),
 				std::sinf(lat + kLatEvery),
 				std::cosf(lat + kLatEvery) * std::sinf(lon),
 				1.0f)
 			};
-			splite_->vertData[startIndex + 1].texCoord = {
+			spliteBuff_[Sphere]->vertData[startIndex + 1].texCoord = {
 				float(lonIndex) / float(kSubDivision),
 				1.0f - float(latIndex + 1.0f) / float(kSubDivision)
 			};
-			splite_->vertData[startIndex + 1].normal = {
-				splite_->vertData[startIndex + 1].pos.x,
-				splite_->vertData[startIndex + 1].pos.y ,
-				splite_->vertData[startIndex + 1].pos.z
+			spliteBuff_[Sphere]->vertData[startIndex + 1].normal = {
+				spliteBuff_[Sphere]->vertData[startIndex + 1].pos.x,
+				spliteBuff_[Sphere]->vertData[startIndex + 1].pos.y ,
+				spliteBuff_[Sphere]->vertData[startIndex + 1].pos.z
 			};
 
 			//rb 1,0
-			splite_->vertData[startIndex + 2].pos = { Vector4(
+			spliteBuff_[Sphere]->vertData[startIndex + 2].pos = { Vector4(
 				std::cosf(lat) * std::cosf(lon + kLonEvery),
 				std::sinf(lat),
 				std::cosf(lat) * std::sinf(lon + kLonEvery),
 				1.0f)
 			};
-			splite_->vertData[startIndex + 2].texCoord = {
+			spliteBuff_[Sphere]->vertData[startIndex + 2].texCoord = {
 				float(lonIndex + 1.0f) / float(kSubDivision) ,
 				1.0f - float(latIndex) / float(kSubDivision)
 			};
-			splite_->vertData[startIndex + 2].normal = {
-				splite_->vertData[startIndex + 2].pos.x,
-				splite_->vertData[startIndex + 2].pos.y ,
-				splite_->vertData[startIndex + 2].pos.z
+			spliteBuff_[Sphere]->vertData[startIndex + 2].normal = {
+				spliteBuff_[Sphere]->vertData[startIndex + 2].pos.x,
+				spliteBuff_[Sphere]->vertData[startIndex + 2].pos.y ,
+				spliteBuff_[Sphere]->vertData[startIndex + 2].pos.z
 			};
 			// rt 1,1
-			splite_->vertData[startIndex + 3].pos = { Vector4(
+			spliteBuff_[Sphere]->vertData[startIndex + 3].pos = { Vector4(
 				std::cosf(lat + kLatEvery) * std::cosf(lon + kLonEvery),
 				std::sinf(lat + kLatEvery),
 				std::cosf(lat + kLatEvery) * std::sinf(lon + kLonEvery),
 				1.0f)
 			};
-			splite_->vertData[startIndex + 3].texCoord = {
+			spliteBuff_[Sphere]->vertData[startIndex + 3].texCoord = {
 				float(lonIndex + 1.0f) / float(kSubDivision) ,
 				1.0f - float(latIndex + 1.0f) / float(kSubDivision)
 			};
-			splite_->vertData[startIndex + 3].normal = {
-				splite_->vertData[startIndex + 3].pos.x,
-				splite_->vertData[startIndex + 3].pos.y ,
-				splite_->vertData[startIndex + 3].pos.z
+			spliteBuff_[Sphere]->vertData[startIndex + 3].normal = {
+				spliteBuff_[Sphere]->vertData[startIndex + 3].pos.x,
+				spliteBuff_[Sphere]->vertData[startIndex + 3].pos.y ,
+				spliteBuff_[Sphere]->vertData[startIndex + 3].pos.z
 			};
-
 		}
 	}
 
-	*splite_->matrixData = { {
+	*spliteBuff_[Sphere]->matrixData = { {
 			world *
 			view *
 		MakeMatrix::PerspectiveFov(
@@ -326,21 +430,21 @@ void System::DrawSphere(const Matrix4x4& world, const Matrix4x4& view, int textu
 			static_cast<float>( window_->getHeight() ),
 			0.1f,
 			100.0f)},
-		{world} // lightのワールド
+		{world} 
 	};
 
 	ImGui::Begin("Light");
-	DirectionalLight light = *splite_->lightData;
+	DirectionalLight light = *spliteBuff_[Sphere]->lightData;
 	ImGui::DragFloat3("Color", &light.color.x, 0.01f);
 	ImGui::DragFloat3("direction", &light.direction.x, 0.01f);
 	ImGui::DragFloat("Intensity", &light.intensity, 0.01f);
 	light.direction = light.direction.Normalize();
-	*splite_->lightData = light;
+	*spliteBuff_[Sphere]->lightData = light;
 	ImGui::End();
 
 	TextureManager::SetPSO2CommandList(dxCommon_->getCommandList());
-	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &splite_->vbView);
-	dxCommon_->getCommandList()->IASetIndexBuffer(&splite_->ibView);
+	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &spliteBuff_[Sphere]->vbView);
+	dxCommon_->getCommandList()->IASetIndexBuffer(&spliteBuff_[Sphere]->ibView);
 	//形状設定.PSOのものとはまた別(同じものを設定する)
 	dxCommon_->getCommandList()->IASetPrimitiveTopology(
 		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
@@ -348,15 +452,15 @@ void System::DrawSphere(const Matrix4x4& world, const Matrix4x4& view, int textu
 
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
 		0, //RootParameter配列の 0 番目
-		splite_->materialBuff->GetGPUVirtualAddress()
+		spliteBuff_[Sphere]->materialBuff->GetGPUVirtualAddress()
 	);
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
 		1, //RootParameter配列の 1 番目
-		splite_->matrixBuff->GetGPUVirtualAddress()
+		spliteBuff_[Sphere]->matrixBuff->GetGPUVirtualAddress()
 	);
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
 		3, //RootParameter配列の 1 番目
-		splite_->lightBuff->GetGPUVirtualAddress()
+		spliteBuff_[Sphere]->lightBuff->GetGPUVirtualAddress()
 	);
 
 	ID3D12DescriptorHeap* ppHeaps[] = { dxCommon_->getSrvDescriptorHeap() };
@@ -367,8 +471,7 @@ void System::DrawSphere(const Matrix4x4& world, const Matrix4x4& view, int textu
 		TextureManager::getGpuHandle(textureNum)
 	);
 	// 描画!!!
-	dxCommon_->getCommandList()->DrawIndexedInstanced((UINT)( kSubDivision * kSubDivision * 6 ), 1, 0,0, 0);
-
+	dxCommon_->getCommandList()->DrawIndexedInstanced((UINT)( kSubDivision * kSubDivision * 6 ), 1, 0, 0, 0);
 }
 
 void System::CreatePrimitivePSO() {
@@ -520,8 +623,8 @@ void System::EndFrame() {
 	ImGuiManager::getInstance()->Draw(dxCommon_.get());
 	dxCommon_->PostDraw();
 
-	triangle_->index = 0;
-	quad_->index = 0;
+	primitiveBuff_[Triangle]->index = 0;
+	primitiveBuff_[Quad]->index = 0;
 }
 
 int System::LoadTexture(const std::string& filePath) {

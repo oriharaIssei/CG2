@@ -11,6 +11,8 @@
 #include "Vector3.h"
 #include "Vector2.h"
 
+#include "PrimitiveBuffer.h"
+
 class DirectXCommon;
 struct VertexData {
 	Vector4 pos;
@@ -25,8 +27,8 @@ struct TransformMatrix {
 	Matrix4x4 wvp;
 	Matrix4x4 world;
 };
-struct Splite {
-	void Init(DirectXCommon* dxCommon);
+struct SpliteBuffer {
+	void Init(DirectXCommon* dxCommon,PrimitiveType type);
 	void Finalize();
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
@@ -34,11 +36,11 @@ struct Splite {
 	Microsoft::WRL::ComPtr<ID3D12Resource> matrixBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> lightBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
-	VertexData* vertData;
-	TransformMatrix* matrixData;
-	Material* materialData;
-	DirectionalLight* lightData;
-	uint32_t* indexData;
+	VertexData* vertData = nullptr;
+	TransformMatrix* matrixData = nullptr;
+	Material* materialData = nullptr;
+	DirectionalLight* lightData = nullptr;
+	uint32_t* indexData = nullptr;
 
 	D3D12_INDEX_BUFFER_VIEW ibView{};
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
