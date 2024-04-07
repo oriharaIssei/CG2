@@ -29,6 +29,7 @@ public:
 	static int LoadTexture(const std::string& filePath);
 
 	static void DrawTriangle(const Vector3& position1, const Vector3& position2, const Vector3& position3, const Vector3& scale,  Vector4 color);
+	static void DrawQuad(const Vector3& position1, const Vector3& position2, const Vector3& position3 , const Vector3& position4, const Vector3& scale, Vector4 color);
 	static void DrawTexture(const Vector3& position1, const Vector3& position2, const Vector3& position3, const Vector3& scale, const Matrix4x4& wvp, Vector4* color, int textureNum);
 	static void DrawSprite(const Vector3& ltPos,const Vector2& size, int textureNum);
 	static void DrawSphere(const Matrix4x4& world, const Matrix4x4& view, int textureNum);
@@ -41,6 +42,7 @@ private:
 	static std::unique_ptr<PipelineStateObj> primitivePSO_;
 
 	static std::unique_ptr<PrimitiveBuffer> triangle_;
+	static std::unique_ptr<PrimitiveBuffer> quad_;
 	static std::unique_ptr<Splite> splite_;
 
 	static Microsoft::WRL::ComPtr<ID3D12Resource> constantBuff_;

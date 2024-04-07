@@ -5,6 +5,7 @@
 
 #include "stdint.h"
 #include "Light.h"
+
 #include "Matrix4x4.h"
 #include "Vector4.h"
 #include "Vector3.h"
@@ -32,11 +33,13 @@ struct Splite {
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> matrixBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> lightBuff = nullptr;
-
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
 	VertexData* vertData;
 	TransformMatrix* matrixData;
 	Material* materialData;
 	DirectionalLight* lightData;
+	uint32_t* indexData;
 
+	D3D12_INDEX_BUFFER_VIEW ibView{};
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 };

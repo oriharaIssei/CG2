@@ -46,4 +46,12 @@ void GameScene::Draw() {
 		).Inverse(),
 		gh[ghSwitcher_]
 	);
+	System::DrawQuad(
+		{0.0f,0.0f,0.0f},
+		{50.0f,0.0f,0.0f},
+		{0.0f,50.0f,0.0f},
+		{ 50.0f,50.0f,0.0f },
+		{1.0f,1.0f,1.0f},
+		{1.0f,1.0f,1.0f,1.0f}
+	);
 }

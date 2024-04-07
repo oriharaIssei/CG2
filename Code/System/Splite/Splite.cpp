@@ -10,8 +10,14 @@ void Splite::Init(DirectXCommon* dxCommon) {
 	vertBuff->Map(0, nullptr, reinterpret_cast<void**>( &vertData ));
 
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
-	vbView.SizeInBytes = sizeof(VertexData) * ( 16 * 16 * 6 );;
+	vbView.SizeInBytes = sizeof(VertexData) * ( 16 * 16 * 6 );
 	vbView.StrideInBytes = sizeof(VertexData);
+
+	dxCommon->CreateBufferResource(indexBuff, sizeof(uint32_t) * ( 16 * 16 * 6 ));
+	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
+	ibView.SizeInBytes = sizeof(uint32_t) * ( 16 * 16 * 6 );
+	ibView.Format = DXGI_FORMAT_R32_UINT;
+	indexBuff->Map(0, nullptr, reinterpret_cast<void**>( &indexData ));
 
 	dxCommon->CreateBufferResource(matrixBuff, sizeof(TransformMatrix));
 	matrixBuff->Map(0, nullptr, reinterpret_cast<void**>( &matrixData ));
@@ -31,4 +37,5 @@ void Splite::Finalize() {
 	matrixBuff.Reset();
 	materialBuff.Reset();
 	lightBuff.Reset();
+	indexBuff.Reset();
 }
