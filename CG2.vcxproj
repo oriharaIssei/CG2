@@ -53,7 +53,7 @@
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/System/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Splite;$(ProjectDir)/Code/System;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/System/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Splite;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code/System;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -99,9 +99,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\DirectXCommon.cpp" />
     <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp" />
     <ClCompile Include="Code\System\DirectX12\ShaderCompiler.cpp" />
+    <ClCompile Include="Code\System\Light\Light.cpp" />
     <ClCompile Include="Code\System\Splite\Splite.cpp" />
     <ClCompile Include="Code\System\Texture\TextureManager.cpp" />
-    <ClCompile Include="Code\System\DirectX12\TriangleBufferVerw.cpp" />
+    <ClCompile Include="Code\System\DirectX12\PrimitiveBuffer.cpp" />
     <ClCompile Include="Code\System\GameScene\GameScene.cpp" />
     <ClCompile Include="Code\System\ImGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="Code\System\Logger\Logger.cpp" />
@@ -122,6 +123,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\System\DirectX12\DirectXCommon.h" />
     <ClInclude Include="Code\System\DirectX12\PipelineStateObj.h" />
     <ClInclude Include="Code\System\DirectX12\ShaderCompiler.h" />
+    <ClInclude Include="Code\System\Light\Light.h" />
     <ClInclude Include="Code\System\Splite\Splite.h" />
     <ClInclude Include="Code\System\Texture\TextureManager.h" />
     <ClInclude Include="Code\System\GameScene\GameScene.h" />
@@ -130,7 +132,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\Math\Vector3.h" />
     <ClInclude Include="Code\System\WinApp\WinApp.h" />
     <ClInclude Include="Code\System\System.h" />
-    <ClInclude Include="Code\System\DirectX12\TriangleBufferVerw.h" />
+    <ClInclude Include="Code\System\DirectX12\PrimitiveBuffer.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -151,9 +153,18 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="Code\System\Shader\Primitive.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Code\System\Shader\Primitive.VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Code\System\Shader\Object3d.hlsli" />
+    <None Include="Code\System\Shader\Primitive.hlsli" />
     <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />
   </ItemGroup>
   <ItemGroup>

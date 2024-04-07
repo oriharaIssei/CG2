@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 
+#include "PipelineStateObj.h"
+
 class DirectXCommon;
 class TextureManager {
 public:
@@ -18,12 +20,14 @@ public:
 
 	static int LoadTexture(const std::string& filePath);
 
+	static void SetPSO2CommandList(ID3D12GraphicsCommandList* cmdlist);
+
 	class Texture {
 	public:
 		Texture() = default;
 		~Texture() = default;
 
-		void Init(const std::string& filePath);
+		void Init(const std::string& filePath, int textureIndex);
 		void Finalize();
 	private:
 		DirectX::ScratchImage Load(const std::string& filePath);
@@ -37,8 +41,11 @@ public:
 		const D3D12_GPU_DESCRIPTOR_HANDLE& getGpuHandle() { return srvHandleGPU_; }
 	};
 private:
+	static void InitPSO();
+private:
 	static DirectXCommon* dxCommon_;
 	static std::vector<std::unique_ptr<Texture>> textures_;
+	static std::unique_ptr<PipelineStateObj> pso_;
 public:
 	static const D3D12_GPU_DESCRIPTOR_HANDLE& getGpuHandle(int textureNum) { return textures_[textureNum]->getGpuHandle(); }
 };

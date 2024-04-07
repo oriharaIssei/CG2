@@ -6,15 +6,29 @@
 #include "DirectXCommon.h"
 
 void Splite::Init(DirectXCommon* dxCommon) {
-	dxCommon->CreateBufferResource(vertBuff_, sizeof(VertexData) * 6);
-	vbView_.BufferLocation = vertBuff_->GetGPUVirtualAddress();
-	vbView_.SizeInBytes = sizeof(VertexData) * 6;
-	vbView_.StrideInBytes = sizeof(VertexData);
+	dxCommon->CreateBufferResource(vertBuff, sizeof(VertexData) * ( 16 * 16 * 6 ));
+	vertBuff->Map(0, nullptr, reinterpret_cast<void**>( &vertData ));
 
-	dxCommon->CreateBufferResource(matrixBuff_, sizeof(Matrix4x4));
+	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
+	vbView.SizeInBytes = sizeof(VertexData) * ( 16 * 16 * 6 );;
+	vbView.StrideInBytes = sizeof(VertexData);
+
+	dxCommon->CreateBufferResource(matrixBuff, sizeof(TransformMatrix));
+	matrixBuff->Map(0, nullptr, reinterpret_cast<void**>( &matrixData ));
+	*matrixData = { MakeMatrix::Identity(),MakeMatrix::Identity() };
+
+	dxCommon->CreateBufferResource(materialBuff, sizeof(Material));
+	materialBuff->Map(0, nullptr, reinterpret_cast<void**>( &materialData ));
+	*materialData = { {1.0f,1.0f,1.0f,1.0f },true };
+
+	dxCommon->CreateBufferResource(lightBuff, sizeof(DirectionalLight));
+	lightBuff->Map(0, nullptr, reinterpret_cast<void**>( &lightData ));
+	*lightData = { { 1.0f,1.0f,1.0f,1.0f },{ 0.0f,-1.0f,0.0f },1.0f };
 }
 
 void Splite::Finalize() {
-	vertBuff_.Reset();
-	matrixBuff_.Reset();
+	vertBuff.Reset();
+	matrixBuff.Reset();
+	materialBuff.Reset();
+	lightBuff.Reset();
 }
