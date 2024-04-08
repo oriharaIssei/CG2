@@ -62,7 +62,6 @@ void System::Init() {
 
 	TextureManager::Init(dxCommon_.get());
 	ImGuiManager::getInstance()->Init(window_.get(), dxCommon_.get());
-
 }
 
 void System::Finalize() {
@@ -285,25 +284,26 @@ void System::DrawTriangleTexture(const Vector3& position1, const Vector3& positi
 	dxCommon_->getCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
-void System::DrawSprite(const Vector3& ltPos, const Vector2& size, int textureNum) {
+void System::DrawSprite(const Vector3& ltPos, const Vector2& size, const Vector3& uvScale, const Vector3& uvRotate, const Vector3& uvTranslate, int textureNum) {
 	spliteBuff_[Quad]->vertData[0].pos = { ltPos.x,ltPos.y + size.y,ltPos.z,1.0f };
 	spliteBuff_[Quad]->vertData[0].texCoord = { 0.0f,1.0f };
 	spliteBuff_[Quad]->vertData[1].pos = { ltPos.x,ltPos.y,ltPos.z,1.0f };
 	spliteBuff_[Quad]->vertData[1].texCoord = { 0.0,0.0f };
 	spliteBuff_[Quad]->vertData[2].pos = { ltPos.x + size.x,ltPos.y + size.y,ltPos.z,1.0f };
 	spliteBuff_[Quad]->vertData[2].texCoord = { 1.0f,1.0f };
-
-	spliteBuff_[Quad]->vertData[3].pos = { ltPos.x,ltPos.y,ltPos.z,1.0f };
-	spliteBuff_[Quad]->vertData[3].texCoord = { 0.0f,0.0f };
-	spliteBuff_[Quad]->vertData[4].pos = { ltPos.x + size.x,ltPos.y,ltPos.z,1.0f };
-	spliteBuff_[Quad]->vertData[4].texCoord = { 1.0f,0.0f };
-	spliteBuff_[Quad]->vertData[5].pos = { ltPos.x + size.x,ltPos.y + size.y,ltPos.z,1.0f };
-	spliteBuff_[Quad]->vertData[5].texCoord = { 1.0f,1.0f };
+	spliteBuff_[Quad]->vertData[3].pos = { ltPos.x + size.x,ltPos.y,ltPos.z,1.0f };
+	spliteBuff_[Quad]->vertData[3].texCoord = { 1.0f,0.0f };
 
 	spliteBuff_[Quad]->materialData->color = { 1.0f,1.0f,1.0f,1.0f };
-	spliteBuff_[Quad]->matrixData->wvp = MakeMatrix::Identity();
+	spliteBuff_[Quad]->materialData->uvTransform =
+		MakeMatrix::Scale(uvScale)
+		* MakeMatrix::RotateZ(uvRotate.z)
+		* MakeMatrix::Translate(uvTranslate);
+
+	spliteBuff_[Quad]->matrixData->wvp = MakeMatrix::Orthographic(0.0f, 0.0f, static_cast<float>( window_->getWidth() ), static_cast<float>( window_->getHeight() ), 0.0f, 100.0f);
 
 	TextureManager::SetPSO2CommandList(dxCommon_->getCommandList());
+	dxCommon_->getCommandList()->IASetIndexBuffer(&spliteBuff_[Quad]->ibView);
 	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &spliteBuff_[Quad]->vbView);
 	// 形状設定.PSOのものとはまた別(同じものを設定する)
 	dxCommon_->getCommandList()->IASetPrimitiveTopology(
@@ -328,7 +328,7 @@ void System::DrawSprite(const Vector3& ltPos, const Vector2& size, int textureNu
 	);
 
 	// 描画!!!
-	dxCommon_->getCommandList()->DrawInstanced(6, 1, 0, 0);
+	dxCommon_->getCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
 void System::DrawSpherTexture(const Matrix4x4& world, const Matrix4x4& view, int textureNum) {
@@ -430,7 +430,7 @@ void System::DrawSpherTexture(const Matrix4x4& world, const Matrix4x4& view, int
 			static_cast<float>( window_->getHeight() ),
 			0.1f,
 			100.0f)},
-		{world} 
+		{world}
 	};
 
 	ImGui::Begin("Light");

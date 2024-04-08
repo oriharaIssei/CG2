@@ -15,6 +15,13 @@ void GameScene::Init() {
 		{ 0.0f,0.0f,0.0f },
 		{ 0.0f,0.0f, 5.0f }
 	};
+
+	uv = {
+		{1.0f,1.0f,1.0f},
+		{0.0f,0.0f,0.0f},
+		{0.0f,0.0f,0.0f}
+	};
+
 	gh[0] = System::LoadTexture("uvChecker.png");
 	gh[1] = System::LoadTexture("monsterBall.png");
 }
@@ -31,6 +38,11 @@ void GameScene::Update() {
 	ImGui::DragFloat3("translate", &sphere.translate.x, 0.01f);
 	ImGui::Checkbox("GH", &ghSwitcher_);
 	ImGui::End();
+	ImGui::Begin("UV");
+	ImGui::DragFloat2("scale", &uv.scale.x, 0.01f, -10.0f, 10.0f);
+	ImGui::SliderAngle("rotate", &uv.rotate.z);
+	ImGui::DragFloat2("translate", &uv.translate.x, 0.01f, -10.0f, 10.0f);
+	ImGui::End();
 }
 
 void GameScene::Draw() {
@@ -39,5 +51,12 @@ void GameScene::Draw() {
 		MakeMatrix::Affine(camera.scale, camera.rotate, camera.translate).Inverse(),
 		{1.0f,1.0f,1.0f,1.0f}
 		);
-	
+	System::DrawSprite(
+		{ 0.0f,0.0f,1.0f },
+		{ 500.0f,500.0f },
+		uv.scale,
+		uv.rotate,
+		uv.translate,
+		0
+	);
 }

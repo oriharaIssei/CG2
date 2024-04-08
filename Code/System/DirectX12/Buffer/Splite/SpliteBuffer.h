@@ -22,6 +22,31 @@ struct VertexData {
 struct Material {
 	Vector4 color;
 	int32_t enableLighting;
+	float padding[3];// 下記を参照
+	Matrix4x4 uvTransform;
+	/*
+		< パディング >
+	機会に都合のいいような
+	c++とhlslのメモリ配置の違いによる誤差のようなもの。
+
+	c++ :
+	color			: [][][][]
+	enableLighting	: []
+	uvTransform		: [][][]float1
+					  [][][]float2
+					  [][][]float3
+	しかし、hlslでは
+	hlsl :
+	color			: [][][][]
+	enableLighting	: []<><><>
+	uvTransform		: [][][]<>float1
+					  [][][]<>float2
+					  [][][]<>float3
+	(<>は実際には使われないメモリ)
+	となっているらしい。
+	この誤差を埋めるためにc++側で隙間のメモリを上手く埋める。
+	*/
+	
 };
 struct TransformMatrix {
 	Matrix4x4 wvp;

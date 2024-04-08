@@ -63,7 +63,9 @@ void SpliteBuffer::Init(DirectXCommon* dxCommon, PrimitiveType type) {
 
 	dxCommon->CreateBufferResource(materialBuff, sizeof(Material));
 	materialBuff->Map(0, nullptr, reinterpret_cast<void**>( &materialData ));
-	*materialData = { {1.0f,1.0f,1.0f,1.0f },true };
+	materialData->color = { 1.0f,1.0f,1.0f,1.0f };
+	materialData->enableLighting = false;
+	materialData->uvTransform = MakeMatrix::Identity();
 
 	dxCommon->CreateBufferResource(lightBuff, sizeof(DirectionalLight));
 	lightBuff->Map(0, nullptr, reinterpret_cast<void**>( &lightData ));

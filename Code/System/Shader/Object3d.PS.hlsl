@@ -3,6 +3,7 @@
 struct Material {
     float4 color;
     int enableLighting;
+    float4x4 uvTransform;
 };
 
 struct PixelShaderOutput {
@@ -28,7 +29,10 @@ SamplerState gSampler : register(s0); // textureを読むためのもの. textur
 
 PixelShaderOutput main(VertexShaderOutput input) {
     PixelShaderOutput output;
-    float4 textureColor = gMaterial.color * gTexture.Sample(gSampler,input.texCoord);
+    
+    // texcoord を z=0 の (3+1)次元 として考える
+    float4 transformedUV = mul(float4(input.texCoord,0.0f,1.0f),gMaterial.uvTransform);
+    float4 textureColor = gMaterial.color * gTexture.Sample(gSampler,transformedUV.xy);
     if(gMaterial.enableLighting != 0) {
         float NdotL = dot(normalize(input.normal),-gDirectionalLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f,2.0f);

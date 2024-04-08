@@ -53,7 +53,7 @@
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/System/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/DirectX12/Buffer/Splite;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code/System;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/Buffer/Splite;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/System/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code/System;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -95,6 +95,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Code\main.cpp" />
+    <ClCompile Include="Code\Math\Matrix3x3.cpp" />
     <ClCompile Include="Code\Math\Matrix4x4.cpp" />
     <ClCompile Include="Code\System\DirectX12\DirectXCommon.cpp" />
     <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp" />
@@ -117,6 +118,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\Math\Matrix3x3.h" />
     <ClInclude Include="Code\Math\Matrix4x4.h" />
     <ClInclude Include="Code\Math\Vector2.h" />
     <ClInclude Include="Code\Math\Vector4.h" />

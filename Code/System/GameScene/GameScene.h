@@ -20,6 +20,7 @@ private:
 	};
 	
 	Transform camera;
+	Transform uv;
 	Transform sphere;
 
 	bool ghSwitcher_;

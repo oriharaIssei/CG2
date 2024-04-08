@@ -32,7 +32,7 @@ public:
 	static void DrawQuad(const Vector3& position1, const Vector3& position2, const Vector3& position3 , const Vector3& position4, const Vector3& scale, Vector4 color);
 	static void DrawSphere(const Matrix4x4& world, const Matrix4x4& view, const Vector4& color);
 	static void DrawTriangleTexture(const Vector3& position1, const Vector3& position2, const Vector3& position3, const Vector3& scale, const Matrix4x4& wvp, Vector4* color, int textureNum);
-	static void DrawSprite(const Vector3& ltPos, const Vector2& size,int textureNum);
+	static void DrawSprite(const Vector3& ltPos, const Vector2& size, const Vector3& uvScale, const Vector3& uvRotate, const Vector3& uvTranslate, int textureNum);
 	static void DrawSpherTexture(const Matrix4x4& world, const Matrix4x4& view, int textureNum);
 private:
 	static void CreatePrimitivePSO();
