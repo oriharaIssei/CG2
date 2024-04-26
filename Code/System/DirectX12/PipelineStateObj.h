@@ -1,6 +1,10 @@
 #pragma once
 
+#include <string>
+
 #include <wrl.h>
+
+#include <list>
 
 #include <d3d12.h>
 

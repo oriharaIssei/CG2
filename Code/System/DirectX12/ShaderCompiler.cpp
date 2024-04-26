@@ -2,8 +2,8 @@
 
 #include <Logger.h>
 
-#include <Windows.h>
 #include <cassert>
+#include <Windows.h>
 
 #pragma comment(lib,"dxcompiler.lib")
 

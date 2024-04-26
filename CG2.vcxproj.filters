@@ -39,9 +39,6 @@
     <ClCompile Include="Code\System\System.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\PrimitiveBuffer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Math\Matrix4x4.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -72,13 +69,13 @@
     <ClCompile Include="Code\System\Texture\TextureManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\Splite\Splite.Buffer.cpp">
+    <ClCompile Include="Code\System\DirectX12\Buffer\CommonBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Code\System\Light\Light.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Math\Matrix3x3.cpp">
+    <ClCompile Include="Code\System\Model\Model.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -102,9 +99,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\System\System.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\PrimitiveBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\Math\Vector3.h">
@@ -149,25 +143,28 @@
     <ClInclude Include="Code\Math\Vector2.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\Splite\SpliteBuffer.h">
+    <ClInclude Include="Code\System\DirectX12\Buffer\CommonBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\System\Light\Light.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Math\Matrix3x3.h">
+    <ClInclude Include="Code\System\Model\Model.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Math\Transform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Code\System\Shader\Object3d.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Object3dTexture.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Object3dTexture.VS.hlsl" />
     <FxCompile Include="Code\System\Shader\Object3d.VS.hlsl" />
-    <FxCompile Include="Code\System\Shader\Primitive.VS.hlsl" />
-    <FxCompile Include="Code\System\Shader\Primitive.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Object3d.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />
+    <None Include="Code\System\Shader\Object3dTexture.hlsli" />
     <None Include="Code\System\Shader\Object3d.hlsli" />
-    <None Include="Code\System\Shader\Primitive.hlsli" />
   </ItemGroup>
 </Project>

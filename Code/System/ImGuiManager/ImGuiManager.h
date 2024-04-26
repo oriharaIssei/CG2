@@ -9,24 +9,24 @@ class DirectXCommon;
 
 class ImGuiManager {
 public:
-	static ImGuiManager* getInstance();
+	static ImGuiManager *getInstance();
 
-	void Init(const WinApp* window, DirectXCommon* dxCommon);
+	void Init(const WinApp *window, DirectXCommon *dxCommon);
 	void Finalize();
 
 	void Begin();
 	void End();
 
-	void Draw(DirectXCommon* dxCommon);
+	void Draw(DirectXCommon *dxCommon);
 
 private:
 #ifdef _DEBUG
 	// SRV用ヒープ
-	ID3D12DescriptorHeap* srvHeap_;
+	ID3D12DescriptorHeap *srvHeap_;
 #endif // _DEBUG
 
-	ImGuiManager() = default;
-	~ImGuiManager() = default;
-	ImGuiManager(const ImGuiManager&) = delete;
-	const ImGuiManager& operator=(const ImGuiManager&) = delete;
+	ImGuiManager()=default;
+	~ImGuiManager()=default;
+	ImGuiManager(const ImGuiManager &)=delete;
+	const ImGuiManager &operator=(const ImGuiManager &)=delete;
 };
