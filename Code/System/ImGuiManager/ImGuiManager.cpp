@@ -9,14 +9,14 @@
 #include <imgui_impl_win32.h>
 #endif // _DEBUG
 
-ImGuiManager* ImGuiManager::getInstance() {
+ImGuiManager *ImGuiManager::getInstance() {
 	static ImGuiManager instance;
 	return &instance;
 }
 
-void ImGuiManager::Init(const WinApp* window, DirectXCommon* dxCommon) {
+void ImGuiManager::Init(const WinApp *window, DirectXCommon *dxCommon) {
 #ifdef _DEBUG
-	srvHeap_ = dxCommon->getSrvDescriptorHeap();
+	srvHeap_ = dxCommon->getSrv();
 
 	///=============================================
 	/// imgui の初期化
@@ -33,6 +33,9 @@ void ImGuiManager::Init(const WinApp* window, DirectXCommon* dxCommon) {
 		srvHeap_->GetCPUDescriptorHandleForHeapStart(),
 		srvHeap_->GetGPUDescriptorHandleForHeapStart()
 	);
+	ImGuiIO &io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
 #endif // _DEBUG
 }
 
@@ -60,11 +63,11 @@ void ImGuiManager::End() {
 #endif
 }
 
-void ImGuiManager::Draw(DirectXCommon* dxCommon) {
+void ImGuiManager::Draw(DirectXCommon *dxCommon) {
 #ifdef _DEBUG
-	ID3D12GraphicsCommandList* commandList = dxCommon->getCommandList();
+	ID3D12GraphicsCommandList *commandList = dxCommon->getCommandList();
 
-	ID3D12DescriptorHeap* ppHeaps[] = { srvHeap_ };
+	ID3D12DescriptorHeap *ppHeaps[] = { srvHeap_ };
 	commandList->SetDescriptorHeaps(1, ppHeaps);
 
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);

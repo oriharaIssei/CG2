@@ -1,8 +1,12 @@
 #include "GameScene.h"
 
 #include <System.h>
+#include <TextureManager.h>
 
 #include <imgui.h>
+
+GameScene::~GameScene() {
+}
 
 void GameScene::Init() {
 	camera = {
@@ -13,10 +17,10 @@ void GameScene::Init() {
 	sphere = {
 		{ 1.0f,1.0f,1.0f },
 		{ 0.0f,0.0f,0.0f },
-		{ 0.0f,0.0f, 5.0f }
+		{ 0.0f,0.0f, 0.0f }
 	};
-	gh[0] = System::LoadTexture("uvChecker.png");
-	gh[1] = System::LoadTexture("monsterBall.png");
+
+	sprite.reset(Sprite::Create({ 0.0f,0.0f }, { 640.0f,360.0f }, "./resource/uvChecker.png"));
 }
 
 void GameScene::Update() {
@@ -29,21 +33,17 @@ void GameScene::Update() {
 	ImGui::DragFloat3("scale", &sphere.scale.x, 0.01f);
 	ImGui::DragFloat3("rotate", &sphere.rotate.x, 0.01f);
 	ImGui::DragFloat3("translate", &sphere.translate.x, 0.01f);
-	ImGui::Checkbox("GH", &ghSwitcher_);
 	ImGui::End();
+	/*ImGui::Begin("UV");
+	ImGui::DragFloat2("scale", &uv.scale.x, 0.01f, -10.0f, 10.0f);
+	ImGui::SliderAngle("rotate", &uv.rotate.z);
+	ImGui::DragFloat2("translate", &uv.translate.x, 0.01f, -10.0f, 10.0f);
+	ImGui::End();
+	model->setUv(MakeMatrix::Identity());
+	*/
 }
 
 void GameScene::Draw() {
-	System::DrawSphere(MakeMatrix::Affine(
-		sphere.scale,
-		sphere.rotate,
-		sphere.translate
-	),
-		MakeMatrix::Affine(
-			camera.scale,
-			camera.rotate,
-			camera.translate
-		).Inverse(),
-		gh[ghSwitcher_]
-	);
+	Sprite::PreDraw();
+	sprite->Draw(MakeMatrix::Affine(sphere),MakeMatrix::Affine(camera));
 }

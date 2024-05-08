@@ -2,8 +2,8 @@
 
 #include <Logger.h>
 
-#include <Windows.h>
 #include <cassert>
+#include <Windows.h>
 
 #pragma comment(lib,"dxcompiler.lib")
 
@@ -24,8 +24,8 @@ IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& filePath, const wcha
 
 	HRESULT hr;
 
-	DxcBuffer buf;
 	IDxcBlobEncoding* shaderSource = nullptr;
+	DxcBuffer buf;
 	LoadShaderFile(filePath, shaderSource, buf);
 
 	/*---------- Setting Compile Option ----------*/
@@ -80,10 +80,7 @@ IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& filePath, const wcha
 	);
 	assert(SUCCEEDED(hr));
 	Logger::OutputLog(std::format(L"Compile Succeeded, path : {}, profile : {}\n", filePath, profile));
-	// 解放を忘れない
-	/*shaderSource->Release();
-	shaderResult->Release();*/
-
+	
 	return shaderBlob;
 }
 

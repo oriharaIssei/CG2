@@ -3,6 +3,7 @@
 struct Material {
     float4 color;
     int enableLighting;
+    float4x4 uvTransform;
 };
 
 struct PixelShaderOutput {
@@ -17,24 +18,23 @@ struct DirectionalLight {
 ///========================================
 /// ConstantBufferの定義
 ///========================================
-cbuffer ConstantBuffer : register(b0) {
+cbuffer ConstantBuffer : register(b3) {
     Material gMaterial;
 }
-cbuffer ConstantBuffer : register(b1) {
+
+cbuffer ConstantBuffer : register(b4) {
     DirectionalLight gDirectionalLight;
 }
-Texture2D<float4> gTexture : register(t0); // SRVの registerは t
-SamplerState gSampler : register(s0); // textureを読むためのもの. texture のサンプリングを担当
 
 PixelShaderOutput main(VertexShaderOutput input) {
     PixelShaderOutput output;
-    float4 textureColor = gMaterial.color * gTexture.Sample(gSampler,input.texCoord);
+    
     if(gMaterial.enableLighting != 0) {
         float NdotL = dot(normalize(input.normal),-gDirectionalLight.direction);
         float cos = pow(NdotL * 0.5f + 0.5f,2.0f);
-        output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
+        output.color = gMaterial.color * gMaterial.color * gDirectionalLight.color * cos * gDirectionalLight.intensity;
     } else {
-        output.color = gMaterial.color * textureColor;
+        output.color = gMaterial.color * gMaterial.color;
     }
     return output;
 }
