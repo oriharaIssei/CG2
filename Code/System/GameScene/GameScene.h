@@ -3,6 +3,7 @@
 #include <DirectXCommon.h>
 
 #include <Model.h>
+#include "Sprite/Sprite.h"
 
 #include <Matrix4x4.h>
 #include <Transform.h>
@@ -22,5 +23,5 @@ private:
 	Transform uv;
 	Transform sphere;
 
-	std::unique_ptr<Model> model;
+	std::unique_ptr<Sprite> sprite;
 };

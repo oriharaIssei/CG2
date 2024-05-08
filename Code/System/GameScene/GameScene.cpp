@@ -6,7 +6,6 @@
 #include <imgui.h>
 
 GameScene::~GameScene() {
-	model.reset();
 }
 
 void GameScene::Init() {
@@ -18,10 +17,10 @@ void GameScene::Init() {
 	sphere = {
 		{ 1.0f,1.0f,1.0f },
 		{ 0.0f,0.0f,0.0f },
-		{ 0.0f,0.0f, 5.0f }
+		{ 0.0f,0.0f, 0.0f }
 	};
 
-	model.reset(Model::Create("resource", "suzanne.obj"));
+	sprite.reset(Sprite::Create({ 0.0f,0.0f }, { 640.0f,360.0f }, "./resource/uvChecker.png"));
 }
 
 void GameScene::Update() {
@@ -40,11 +39,11 @@ void GameScene::Update() {
 	ImGui::SliderAngle("rotate", &uv.rotate.z);
 	ImGui::DragFloat2("translate", &uv.translate.x, 0.01f, -10.0f, 10.0f);
 	ImGui::End();
-	model->setUv(MakeMatrix::Identity());*/
+	model->setUv(MakeMatrix::Identity());
+	*/
 }
 
 void GameScene::Draw() {
-	model->Draw(MakeMatrix::Affine(sphere.scale,sphere.rotate,sphere.translate),
-				MakeMatrix::Affine(camera.scale, camera.rotate, camera.translate)
-				);
+	Sprite::PreDraw();
+	sprite->Draw(MakeMatrix::Affine(sphere),MakeMatrix::Affine(camera));
 }

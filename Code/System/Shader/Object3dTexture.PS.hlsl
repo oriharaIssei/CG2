@@ -18,12 +18,6 @@ struct DirectionalLight {
 ///========================================
 /// ConstantBufferの定義
 ///========================================
-//cbuffer ConstantBuffer : register(b0) {
-//    Material gMaterial;
-//}
-//cbuffer ConstantBuffer : register(b1) {
-//    DirectionalLight gDirectionalLight;
-//}
 
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);

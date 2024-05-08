@@ -9,12 +9,12 @@ struct Vector4 {
 	float w;
 
 	// 加算演算子のオーバーロード
-	Vector4 operator+(const Vector4& other) {
+	Vector4 operator+(const Vector4 &other) {
 		return { x + other.x, y + other.y, z + other.z, w + other.w };
 	}
 
 	// 減算演算子のオーバーロード
-	Vector4 operator-(const Vector4& other) {
+	Vector4 operator-(const Vector4 &other) {
 		return { x - other.x, y - other.y, z - other.z, w - other.w };
 	}
 
@@ -24,11 +24,11 @@ struct Vector4 {
 	}
 
 	// 比較演算子のオーバーロード (==)
-	bool operator==(const Vector4& other) {
+	bool operator==(const Vector4 &other) {
 		return x == other.x && y == other.y && z == other.z && w == other.w;
 	}
 
-	Vector4 cross(const Vector4& other) {
+	Vector4 cross(const Vector4 &other) {
 		return {
 			y * other.z - z * other.y,
 			z * other.x - x * other.z,
@@ -38,7 +38,7 @@ struct Vector4 {
 	}
 
 	// dot積を計算する関数
-	float dot(const Vector4& other) {
+	float dot(const Vector4 &other) {
 		return x * other.x + y * other.y + z * other.z + w * other.w;
 	}
 

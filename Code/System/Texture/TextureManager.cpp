@@ -12,6 +12,7 @@ std::vector<std::unique_ptr<TextureManager::Texture>> TextureManager::textures_;
 
 #pragma region Texture
 void TextureManager::Texture::Init(const std::string &filePath, int textureIndex) {
+	path_ = filePath;
 	//==================================================
 	// Textureを読み込んで転送する
 	//==================================================
@@ -177,6 +178,14 @@ void TextureManager::Finalize() {
 }
 
 int TextureManager::LoadTexture(const std::string &filePath) {
+	for(size_t i = 0; i > textures_.size(); ++i) {
+		if(textures_[i] == nullptr) {
+			break;
+		}
+		if(filePath == textures_[i]->getPath()) {
+			return i;
+		}
+	}
 	textures_.push_back(std::make_unique<Texture>());
 	textures_.back()->Init(filePath, textures_.size());
 	return static_cast<int>(textures_.size() - 1);

@@ -5,6 +5,7 @@
 #include <ImGuiManager.h>
 #include <Logger.h>
 #include <TextureManager.h>
+#include <Sprite/Sprite.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -34,6 +35,10 @@ void System::Init() {
 	TextureManager::Init(dxCommon_.get());
 	
 	ImGuiManager::getInstance()->Init(window_.get(), dxCommon_.get());
+
+	Model::Init();
+
+	Sprite::Init();
 }
 
 void System::Finalize() {
@@ -262,7 +267,7 @@ void System::Finalize() {
 //	spliteBuff_[Quad]->matrixData->wvp=MakeMatrix::Orthographic(0.0f, 0.0f, static_cast<float>(window_->getWidth()), static_cast<float>(window_->getHeight()), 0.0f, 100.0f);
 //
 //	TextureManager::SetPSO2CommandList(dxCommon_->getCommandList());
-//	dxCommon_->getCommandList()->IASetIndexBuffer(&spliteBuff_[Quad]->ibView);
+//	dxCommon_->getCommandList()->IASetIndexBuffer(&spliteBuff_[Quad]->ibView);`
 //	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &spliteBuff_[Quad]->vbView);
 //	// 形状設定.PSOのものとはまた別(同じものを設定する)
 //	dxCommon_->getCommandList()->IASetPrimitiveTopology(

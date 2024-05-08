@@ -44,12 +44,11 @@ void CommonBuffer::Create(DirectXCommon *dxCommon, bool isTexture, ShapeType typ
 
 	dxCommon->CreateBufferResource(vertBuff, vertexDataSize * 3);
 	if(isTexture) {
-		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(textureVertData));
+		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&textureVertData));
 	} else {
-		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(primitiveVertData));
+		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&primitiveVertData));
 	}
 	
-
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
 	vbView.SizeInBytes = vertexDataSize * 3;
 	vbView.StrideInBytes = vertexDataSize;
@@ -60,9 +59,9 @@ void CommonBuffer::Create(DirectXCommon *dxCommon, bool isTexture, ShapeType typ
 	dxCommon->CreateBufferResource(vertBuff, vertexDataSize * 6);
 
 	if(isTexture) {
-		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(textureVertData));
+		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&textureVertData));
 	} else {
-		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(primitiveVertData));
+		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&primitiveVertData));
 	}
 
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
@@ -86,9 +85,9 @@ void CommonBuffer::Create(DirectXCommon *dxCommon, bool isTexture, ShapeType typ
 	dxCommon->CreateBufferResource(vertBuff, vertexDataSize * (16 * 16 * 6));
 
 	if(isTexture) {
-		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(textureVertData));
+		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&textureVertData));
 	} else {
-		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(primitiveVertData));
+		vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&primitiveVertData));
 	}
 
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();

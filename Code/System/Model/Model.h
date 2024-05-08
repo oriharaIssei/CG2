@@ -22,10 +22,14 @@ struct ModelData {
 	size_t vertSize;
 };
 
+class ModelManager;
 class Model {
 	friend class ModelManager;
 public:
 	static Model *Create(const std::string &directoryPath, const std::string &filename);
+	static void Init();
+private:
+	static std::unique_ptr<Matrix4x4> fovMa_;
 public:
 	Model() = default;
 
