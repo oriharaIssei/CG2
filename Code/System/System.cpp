@@ -25,15 +25,15 @@ void System::Init() {
 	shaderCompiler_ = std::make_unique<ShaderCompiler>();
 	shaderCompiler_->Init();
 
-	primitivePso_=std::make_unique<PipelineStateObj>();
-	texturePso_=std::make_unique<PipelineStateObj>();
+	primitivePso_ = std::make_unique<PipelineStateObj>();
+	texturePso_ = std::make_unique<PipelineStateObj>();
 	CreateTexturePSO();
 	CreatePrimitivePSO();
 
 	CommonBuffer::Init(dxCommon_.get());
-	
+
 	TextureManager::Init(dxCommon_.get());
-	
+
 	ImGuiManager::getInstance()->Init(window_.get(), dxCommon_.get());
 
 	Model::Init();
@@ -44,6 +44,8 @@ void System::Init() {
 void System::Finalize() {
 	dxCommon_->Finalize();
 	shaderCompiler_->Finalize();
+	primitivePso_->Finalize();
+	texturePso_->Finalize();
 
 	TextureManager::Finalize();
 	CommonBuffer::Finalize();
@@ -502,7 +504,7 @@ void System::CreatePrimitivePSO() {
 	descriptionRootSignature.Flags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-	
+
 	D3D12_ROOT_PARAMETER rootParameters[3] = {};
 	// CBV を使う
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;

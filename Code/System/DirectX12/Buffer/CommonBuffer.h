@@ -4,7 +4,7 @@
 #include "wrl.h"
 #include <variant>
 
-#include "Light.h"
+#include "LightBuffer.h"
 
 #include "Matrix4x4.h"
 #include "stdint.h"
@@ -102,7 +102,6 @@ public:
 
 	static Microsoft::WRL::ComPtr<ID3D12Resource> matrixBuff;
 	static Microsoft::WRL::ComPtr<ID3D12Resource> materialBuff;
-	static Microsoft::WRL::ComPtr<ID3D12Resource> lightBuff;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
@@ -114,5 +113,4 @@ public:
 
 	D3D12_INDEX_BUFFER_VIEW ibView {};
 	D3D12_VERTEX_BUFFER_VIEW vbView {};
-
 };
