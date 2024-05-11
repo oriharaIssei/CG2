@@ -96,10 +96,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="Code\main.cpp" />
     <ClCompile Include="Code\Math\Matrix4x4.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\MatrixBuffer.cpp" />
     <ClCompile Include="Code\System\DirectX12\DirectXCommon.cpp" />
     <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp" />
     <ClCompile Include="Code\System\DirectX12\ShaderCompiler.cpp" />
-    <ClCompile Include="Code\System\Light\Light.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\CommonBuffer.cpp" />
     <ClCompile Include="Code\System\Model\Model.cpp" />
     <ClCompile Include="Code\System\Sprite\Sprite.cpp" />
@@ -117,16 +117,17 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Code\System\Model\ModelManager.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\LightBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Math\Matrix4x4.h" />
     <ClInclude Include="Code\Math\Transform.h" />
     <ClInclude Include="Code\Math\Vector2.h" />
     <ClInclude Include="Code\Math\Vector4.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\MatrixBuffer.h" />
     <ClInclude Include="Code\System\DirectX12\DirectXCommon.h" />
     <ClInclude Include="Code\System\DirectX12\PipelineStateObj.h" />
     <ClInclude Include="Code\System\DirectX12\ShaderCompiler.h" />
-    <ClInclude Include="Code\System\Light\Light.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\CommonBuffer.h" />
     <ClInclude Include="Code\System\Model\Model.h" />
     <ClInclude Include="Code\System\Sprite\Sprite.h" />
@@ -146,6 +147,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Code\System\Model\ModelManager.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\LightBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Code\System\Shader\Object3d.PS.hlsl">

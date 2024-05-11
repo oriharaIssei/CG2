@@ -61,10 +61,7 @@ void Model::Draw(const Matrix4x4 &world, const Matrix4x4 &view) {
 		1, //RootParameter配列の 1 番目
 		buffer_->matrixBuff->GetGPUVirtualAddress()
 	);
-	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
-		2, //RootParameter配列の 3 番目
-		buffer_->lightBuff->GetGPUVirtualAddress()
-	);
+	
 
 	if(isTexture_ == true) {
 		ID3D12DescriptorHeap *ppHeaps[] = { dxCommon_->getSrv() };

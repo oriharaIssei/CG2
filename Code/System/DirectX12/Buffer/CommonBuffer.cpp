@@ -10,7 +10,6 @@ Material *CommonBuffer::materialData = nullptr;
 DirectionalLight *CommonBuffer::lightData = nullptr;
 Microsoft::WRL::ComPtr<ID3D12Resource> CommonBuffer::matrixBuff = nullptr;
 Microsoft::WRL::ComPtr<ID3D12Resource> CommonBuffer::materialBuff = nullptr;
-Microsoft::WRL::ComPtr<ID3D12Resource> CommonBuffer::lightBuff = nullptr;
 
 CommonBuffer::~CommonBuffer() {
 	vertBuff.Reset();
@@ -23,10 +22,6 @@ void CommonBuffer::Init(DirectXCommon *dxCommon) {
 	materialData[0].color = { 1.0f,1.0f,1.0f,1.0f };
 	materialData[0].enableLighting = false;
 	materialData[0].uvTransform = MakeMatrix::Identity();
-
-	dxCommon->CreateBufferResource(lightBuff, sizeof(DirectionalLight));
-	lightBuff->Map(0, nullptr, reinterpret_cast<void **>(&lightData));
-	*lightData = { { 1.0f,1.0f,1.0f,1.0f },{ 0.0f,-1.0f,0.0f },1.0f };
 
 	dxCommon->CreateBufferResource(matrixBuff, sizeof(TransformMatrix));
 	matrixBuff->Map(0, nullptr, reinterpret_cast<void **>(&matrixData));
@@ -108,5 +103,4 @@ void CommonBuffer::Create(DirectXCommon *dxCommon, bool isTexture, ShapeType typ
 void CommonBuffer::Finalize() {
 	matrixBuff.Reset();
 	materialBuff.Reset();
-	lightBuff.Reset();
 }
