@@ -23,5 +23,5 @@ private:
 	Transform uv;
 	Transform sphere;
 
-	std::unique_ptr<Sprite> sprite;
+	std::unique_ptr<Model> model;
 };

@@ -20,7 +20,7 @@ void GameScene::Init() {
 		{ 0.0f,0.0f, 0.0f }
 	};
 
-	sprite.reset(Sprite::Create({ 0.0f,0.0f }, { 640.0f,360.0f }, "./resource/uvChecker.png"));
+	model.reset(Model::Create("./resource", "plane.obj"));
 }
 
 void GameScene::Update() {
@@ -44,6 +44,5 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	Sprite::PreDraw();
-	sprite->Draw(MakeMatrix::Affine(sphere),MakeMatrix::Affine(camera));
+	model->Draw(MakeMatrix::Affine(sphere),MakeMatrix::Affine(camera));
 }
