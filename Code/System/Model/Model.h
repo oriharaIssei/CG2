@@ -5,11 +5,14 @@
 #include <fstream>
 #include <sstream>
 
-#include <CommonBuffer.h>
 #include <DirectXCommon.h>
 #include <PipelineStateObj.h>
 
-struct MaterialData {
+#include <Object3dMesh.h>
+#include <ViewProjection.h>
+#include <WorldTransform.h>
+
+struct ModelMtl {
 	/// <summary>
 	/// mtl file などから読み込んだ情報を保存するためのもの
 	/// </summary>
@@ -17,7 +20,7 @@ struct MaterialData {
 };
 struct ModelData {
 	std::vector<TextureVertexData> vertices;
-	MaterialData materialData;
+	ModelMtl materialData;
 	size_t dataSize;
 	size_t vertSize;
 };
@@ -33,12 +36,10 @@ private:
 public:
 	Model() = default;
 
-	void Draw(const Matrix4x4 &world, const Matrix4x4 &view);
+	void Draw(const WorldTransform &world, const ViewProjection &view);
 private:
 	PipelineStateObj *usePso_ = nullptr;
-	std::unique_ptr<CommonBuffer> buffer_;
 	ModelData data_;
+	std::unique_ptr<IObject3dMesh> meshBuff_;
 	bool isTexture_;
-public:
-	void setUv(const Matrix4x4 &uv);
 };

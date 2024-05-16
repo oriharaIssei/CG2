@@ -17,6 +17,8 @@ struct Matrix4x4 {
 	Matrix4x4 operator*(const Matrix4x4 &another) const;
 	Matrix4x4 operator*(const float &scalar) const;
 
+	Matrix4x4 *operator*=(const Matrix4x4 &another);
+
 	Matrix4x4 Transpose();
 
 	// Determinant

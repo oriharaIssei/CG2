@@ -4,19 +4,20 @@
 
 void LightBuffer::Init() {
 	directionalLigh_ = nullptr;
+
+	System::getInstance()->getDxCommon()->CreateBufferResource(constBuff_, sizeof(DirectionalLight));
+
 	constBuff_->Map(
 		0, nullptr, reinterpret_cast<void **>(&directionalLigh_)
 	);
 }
 
-void LightBuffer::SetConstantBuffer() {
-	System::getInstance()->getDxCommon()->getCommandList()->SetGraphicsRootConstantBufferView(
-		2,
-		constBuff_->GetGPUVirtualAddress()
-	);
+
+void LightBuffer::SetForRootParameter(ID3D12GraphicsCommandList *cmdList, UINT rootParameterNum)const {
+	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, constBuff_->GetGPUVirtualAddress());
 }
 
-void LightBuffer::Convert2Buffer() {
+void LightBuffer::ConvertToBuffer() {
 	directionalLigh_->color = color;
 	directionalLigh_->direction = direction;
 	directionalLigh_->intensity = intensity;

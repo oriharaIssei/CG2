@@ -1,23 +1,26 @@
 #include "Object3d.hlsli"
 
-struct TransformationMatrix {
-    float4x4 WVP;
+struct WorldTransform {
     float4x4 world;
 };
+struct ViewProjection {
+    float4x4 view;
+    float4x4 projection;
+};
 
-cbuffer ConstantBuffer : register(b5) {
-    TransformationMatrix gTransformationMatrix;
-}
+ConstantBuffer<WorldTransform> gWorldTransform : register(b0);
+ConstantBuffer<ViewProjection> gViewProjection : register(b1);
 
 struct VertexShaderInput {
     float4 pos : POSITION0;
-        float3 normal : NORMAL0;
+    float3 normal : NORMAL0;
 };
 
 VertexShaderOutput main(VertexShaderInput input) {
     VertexShaderOutput output;
     //mul は 行列の 積
-    output.pos = mul(input.pos,gTransformationMatrix.WVP);
-    output.normal = normalize(mul(input.normal,(float3x3)gTransformationMatrix.world));
+    float4x4 vpvMat = mul(mul(gWorldTransform.world,gViewProjection.view),gViewProjection.projection);
+    output.pos = mul(input.pos,vpvMat);
+    output.normal = normalize(mul(input.normal,(float3x3)gWorldTransform.world));
     return output;
 }

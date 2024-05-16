@@ -20,7 +20,10 @@ void GameScene::Init() {
 		{ 0.0f,0.0f, 0.0f }
 	};
 
-	model.reset(Model::Create("./resource", "plane.obj"));
+	worldTransform_.Init();
+	viewProj_.Init();
+
+	model.reset(Model::Create("./resource", "axis.obj"));
 }
 
 void GameScene::Update() {
@@ -41,8 +44,16 @@ void GameScene::Update() {
 	ImGui::End();
 	model->setUv(MakeMatrix::Identity());
 	*/
+
+	worldTransform_.transformData = sphere;
+
+	worldTransform_.Update();
+	viewProj_.UpdateMatrix();
+
+	viewProj_.viewMat = MakeMatrix::Affine(camera).Inverse();
+	viewProj_.ConvertToBuffer();
 }
 
 void GameScene::Draw() {
-	model->Draw(MakeMatrix::Affine(sphere),MakeMatrix::Affine(camera));
+	model->Draw(worldTransform_, viewProj_);
 }

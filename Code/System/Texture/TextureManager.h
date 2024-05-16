@@ -48,5 +48,4 @@ private:
 	static std::vector<std::unique_ptr<Texture>> textures_;
 public:
 	static const D3D12_GPU_DESCRIPTOR_HANDLE &getGpuHandle(uint32_t textureNum) { return textures_[textureNum]->getGpuHandle(); }
-
 };

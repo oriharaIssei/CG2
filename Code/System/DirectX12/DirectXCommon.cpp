@@ -241,7 +241,7 @@ void DirectXCommon::InitDXGIDevice() {
 		//GPU側でもデバッグさせる
 		debugController->SetEnableGPUBasedValidation(TRUE);
 	}
-#endif // DEBUG
+#endif // DEBUG 
 
 	///================================================
 	///	IDXGIFactoryの初期化
@@ -515,6 +515,7 @@ void DirectXCommon::PreDraw() {
 	scissorRect.bottom = window_->getHeight();
 
 	commandList_->RSSetScissorRects(1, &scissorRect);
+	commandList_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void DirectXCommon::PostDraw() {

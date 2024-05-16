@@ -4,12 +4,15 @@
 #include <string>
 #include <vector>
 
-#include "CommonBuffer.h"
 #include "DirectXCommon.h"
 #include "PipelineStateObj.h"
 #include "ShaderCompiler.h"
 #include "WinApp.h"
+
 #include <Model.h>
+
+#include <LightBuffer.h>
+#include <Material.h>
 
 #include <Matrix4x4.h>
 #include <Vector2.h>
@@ -41,10 +44,14 @@ private:
 	std::unique_ptr<PipelineStateObj> texturePso_;
 	std::unique_ptr<PipelineStateObj> primitivePso_;
 
+	std::unique_ptr<Material> standerdMaterial_;
+	std::unique_ptr<LightBuffer> standerdLight_;
 public:
 	WinApp *getWinApp() { return window_.get(); }
 	DirectXCommon *getDxCommon() { return dxCommon_.get(); }
 	ShaderCompiler *getShaderCompiler() { return shaderCompiler_.get(); }
 	PipelineStateObj *getPrimitivePso() { return primitivePso_.get(); }
 	PipelineStateObj *getTexturePso() { return texturePso_.get(); }
+
+	void SetStanderdForRootparameter(UINT materialRootparameter,UINT lightRootParameter);
 };
