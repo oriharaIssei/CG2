@@ -22,7 +22,6 @@ struct DirectionalLight {
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 
-
 Texture2D<float4> gTexture : register(t0); // SRVの registerは t
 SamplerState gSampler : register(s0); // textureを読むためのもの. texture のサンプリングを担当
 

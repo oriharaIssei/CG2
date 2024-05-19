@@ -80,6 +80,7 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath)
 		0,
 		mipImages
 	);
+
 	return mipImages;
 }
 
@@ -161,10 +162,10 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 	dxCommon_->ExecuteCommandList();
 	dxCommon_->Wait4ExecuteCommand();
 	dxCommon_->ResetCommand();
-
 }
 #pragma endregion
 
+#pragma region "Manager"
 void TextureManager::Init(DirectXCommon *dxCommon) {
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 	dxCommon_ = dxCommon;
@@ -178,7 +179,7 @@ void TextureManager::Finalize() {
 }
 
 int TextureManager::LoadTexture(const std::string &filePath) {
-	for(size_t i = 0; i > textures_.size(); ++i) {
+	for(size_t i = 0; i < textures_.size(); ++i) {
 		if(textures_[i] == nullptr) {
 			break;
 		}
@@ -190,3 +191,4 @@ int TextureManager::LoadTexture(const std::string &filePath) {
 	textures_.back()->Init(filePath, textures_.size());
 	return static_cast<int>(textures_.size() - 1);
 }
+#pragma endregion

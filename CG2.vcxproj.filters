@@ -69,13 +69,7 @@
     <ClCompile Include="Code\System\Texture\TextureManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\CommonBuffer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Code\System\Model\Model.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\Model\ModelManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Code\System\Sprite\Sprite.cpp">
@@ -84,7 +78,16 @@
     <ClCompile Include="Code\System\DirectX12\Buffer\LightBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\MatrixBuffer.cpp">
+    <ClCompile Include="Code\System\DirectX12\Buffer\WorldTransform.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\Buffer\ViewProjection.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\Buffer\Material.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\Buffer\Object3dMesh.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -152,16 +155,10 @@
     <ClInclude Include="Code\Math\Vector2.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\CommonBuffer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Code\System\Model\Model.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\Math\Transform.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\Model\ModelManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\System\Sprite\Sprite.h">
@@ -170,7 +167,16 @@
     <ClInclude Include="Code\System\DirectX12\Buffer\LightBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\MatrixBuffer.h">
+    <ClInclude Include="Code\System\DirectX12\Buffer\WorldTransform.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\Buffer\ViewProjection.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\Buffer\Material.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\Buffer\Object3dMesh.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

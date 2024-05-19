@@ -1,11 +1,10 @@
 #include "System.h"
 
-#include <CommonBuffer.h>
 #include <imgui.h>
 #include <ImGuiManager.h>
 #include <Logger.h>
-#include <TextureManager.h>
 #include <Sprite/Sprite.h>
+#include <TextureManager.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -30,15 +29,18 @@ void System::Init() {
 	CreateTexturePSO();
 	CreatePrimitivePSO();
 
-	CommonBuffer::Init(dxCommon_.get());
-
 	TextureManager::Init(dxCommon_.get());
 
 	ImGuiManager::getInstance()->Init(window_.get(), dxCommon_.get());
 
 	Model::Init();
 
-	Sprite::Init();
+	standerdMaterial_ = std::make_unique<Material>();
+	standerdMaterial_->Init();
+	standerdMaterial_->Update();
+	standerdLight_ = std::make_unique<LightBuffer>();
+	standerdLight_->Init();
+	standerdLight_->ConvertToBuffer();
 }
 
 void System::Finalize() {
@@ -48,7 +50,6 @@ void System::Finalize() {
 	texturePso_->Finalize();
 
 	TextureManager::Finalize();
-	CommonBuffer::Finalize();
 #ifdef _DEBUG
 	ImGuiManager::getInstance()->Finalize();
 #endif // _DEBUG
@@ -505,23 +506,27 @@ void System::CreatePrimitivePSO() {
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 
-	D3D12_ROOT_PARAMETER rootParameters[3] = {};
+	D3D12_ROOT_PARAMETER rootParameters[4] = {};
 	// CBV を使う
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	// PixelShderで使う
-	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	// レジスタ番号0 とバインド
 	// register(b0) の 0. b11 なら 11
-	rootParameters[0].Descriptor.ShaderRegister = 3;
+	rootParameters[0].Descriptor.ShaderRegister = 0;
 
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	// VertexShaderで使う
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[1].Descriptor.ShaderRegister = 5;
+	rootParameters[1].Descriptor.ShaderRegister = 1;
 
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[2].Descriptor.ShaderRegister = 4;
+	rootParameters[2].Descriptor.ShaderRegister = 0;
+
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[3].Descriptor.ShaderRegister = 1;
 
 	// パラメーターをDESCにセット
 	descriptionRootSignature.pParameters = rootParameters;
@@ -663,29 +668,28 @@ void System::CreateTexturePSO() {
 	descriptionRootSignature.pStaticSamplers = staticSamplers;
 	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
 
-	D3D12_ROOT_PARAMETER rootParameters[4] = {};
-	// CBV を使う
+	D3D12_ROOT_PARAMETER rootParameters[5] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	// PixelShderで使う
-	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	// レジスタ番号0 とバインド
-	// register(b0) の 0. b11 なら 11
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
 
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	// VertexShaderで使う
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameters[1].Descriptor.ShaderRegister = 0;
+	rootParameters[1].Descriptor.ShaderRegister = 1;
 
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[2].Descriptor.ShaderRegister = 1;
+	rootParameters[2].Descriptor.ShaderRegister = 0;
+
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[3].Descriptor.ShaderRegister = 1;
 
 	// DescriptorTable を使う
-	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[3].DescriptorTable.pDescriptorRanges = descriptorRange;
-	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
+	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[4].DescriptorTable.pDescriptorRanges = descriptorRange;
+	rootParameters[4].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
 
 	// パラメーターをDESCにセット
 	descriptionRootSignature.pParameters = rootParameters;
@@ -795,6 +799,11 @@ void System::CreateTexturePSO() {
 	assert(SUCCEEDED(hr));
 }
 
+void System::SetStanderdForRootparameter(UINT materialRootparameter, UINT lightRootParameter) {
+	standerdMaterial_->SetForRootParameter(dxCommon_->getCommandList(), materialRootparameter);
+	standerdLight_->SetForRootParameter(dxCommon_->getCommandList(), lightRootParameter);
+}
+
 bool System::ProcessMessage() {
 	return window_->ProcessMessage();
 }
@@ -802,6 +811,7 @@ bool System::ProcessMessage() {
 void System::BeginFrame() {
 	ImGuiManager::getInstance()->Begin();
 	dxCommon_->PreDraw();
+	
 }
 
 void System::EndFrame() {

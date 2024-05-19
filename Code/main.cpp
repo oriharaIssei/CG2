@@ -4,6 +4,12 @@
 
 #include <GameScene.h>
 
+////========================================
+////ToDo:
+/*
+	Model , Sprite の描画確認
+*/
+////========================================
 struct LeakChecker {
 	~LeakChecker() {
 		IDXGIDebug1 *debug;
