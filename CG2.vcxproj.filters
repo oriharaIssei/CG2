@@ -185,10 +185,13 @@
     <FxCompile Include="Code\System\Shader\Object3dTexture.VS.hlsl" />
     <FxCompile Include="Code\System\Shader\Object3d.VS.hlsl" />
     <FxCompile Include="Code\System\Shader\Object3d.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Sprite.VS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Sprite.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />
     <None Include="Code\System\Shader\Object3dTexture.hlsli" />
     <None Include="Code\System\Shader\Object3d.hlsli" />
+    <None Include="Code\System\Shader\Sprite.hlsli" />
   </ItemGroup>
 </Project>
