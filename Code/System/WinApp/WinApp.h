@@ -16,8 +16,8 @@ public:
 	WinApp() = default;
 	~WinApp();
 
-	void CreateGameWindow(const wchar_t* title, UINT windowStyle,
-		int32_t clientWidth, int32_t clientHeight);
+	void CreateGameWindow(const wchar_t *title, UINT windowStyle,
+						  int32_t clientWidth, int32_t clientHeight);
 
 	void TerminateGameWindow();
 
@@ -30,9 +30,10 @@ private:
 	std::wstring title_;//ウィンドウクラス名も兼ねている
 	int32_t clientWidth_, clientHeight_;
 public:
-	const HWND& getHwnd()const { return hwnd_; }
+	const HINSTANCE &getHInstance()const { return wndClass_->hInstance; }
+	const HWND &getHwnd()const { return hwnd_; }
 
-	const int32_t& getWidth()const { return clientWidth_; }
-	const int32_t& getHeight()const { return clientHeight_; }
+	const int32_t &getWidth()const { return clientWidth_; }
+	const int32_t &getHeight()const { return clientHeight_; }
 
 };

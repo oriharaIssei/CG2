@@ -18,6 +18,9 @@ void System::Init() {
 	window_ = std::make_unique<WinApp>();
 	window_->CreateGameWindow(L"title", WS_OVERLAPPEDWINDOW, 1280, 720);
 
+	input_.reset(Input::getInstance());
+	input_->Init();
+
 	dxCommon_ = std::make_unique<DirectXCommon>(window_.get());
 	dxCommon_->Init();
 
@@ -48,6 +51,7 @@ void System::Finalize() {
 	shaderCompiler_->Finalize();
 	primitivePso_->Finalize();
 	texturePso_->Finalize();
+	input_->Finalize();
 
 	TextureManager::Finalize();
 #ifdef _DEBUG
@@ -810,15 +814,14 @@ bool System::ProcessMessage() {
 
 void System::BeginFrame() {
 	ImGuiManager::getInstance()->Begin();
+	input_->Update();
 	dxCommon_->PreDraw();
-	
 }
 
 void System::EndFrame() {
 	ImGuiManager::getInstance()->End();
 	ImGuiManager::getInstance()->Draw(dxCommon_.get());
 	dxCommon_->PostDraw();
-
 }
 
 int System::LoadTexture(const std::string &filePath) {
