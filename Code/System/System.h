@@ -8,6 +8,7 @@
 #include "PipelineStateObj.h"
 #include "ShaderCompiler.h"
 #include "WinApp.h"
+#include <Input.h>
 
 #include <Model.h>
 
@@ -39,6 +40,7 @@ private:
 	void CreateTexturePSO();
 private:
 	std::unique_ptr<WinApp> window_;
+	std::unique_ptr<Input> input_;
 	std::unique_ptr<DirectXCommon> dxCommon_;
 	std::unique_ptr<ShaderCompiler> shaderCompiler_;
 	std::unique_ptr<PipelineStateObj> texturePso_;
@@ -53,5 +55,5 @@ public:
 	PipelineStateObj *getPrimitivePso() { return primitivePso_.get(); }
 	PipelineStateObj *getTexturePso() { return texturePso_.get(); }
 
-	void SetStanderdForRootparameter(UINT materialRootparameter,UINT lightRootParameter);
+	void SetStanderdForRootparameter(UINT materialRootparameter, UINT lightRootParameter);
 };

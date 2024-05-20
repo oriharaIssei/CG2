@@ -9,6 +9,7 @@ GameScene::~GameScene() {
 }
 
 void GameScene::Init() {
+	input_ = Input::getInstance();
 	camera = {
 		{ 1.0f,1.0f,1.0f },
 		{ 0.0f,0.0f,0.0f },
@@ -55,6 +56,4 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	Sprite::PreDraw();
-	model->Draw();
 }

@@ -1,12 +1,13 @@
 #pragma once
 
 #include <DirectXCommon.h>
+#include <Input.h>
 
 #include "Sprite/Sprite.h"
 #include <Model.h>
 
-#include <WorldTransform.h>
 #include <ViewProjection.h>
+#include <WorldTransform.h>
 
 #include <Matrix4x4.h>
 #include <Transform.h>
@@ -21,6 +22,7 @@ public:
 	void Update();
 	void Draw();
 private:
+	Input *input_;
 
 	Transform camera;
 	Transform uv;
