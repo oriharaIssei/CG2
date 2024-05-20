@@ -37,6 +37,7 @@ void System::Init() {
 	ImGuiManager::getInstance()->Init(window_.get(), dxCommon_.get());
 
 	Model::Init();
+	Sprite::Init();
 
 	standerdMaterial_ = std::make_unique<Material>();
 	standerdMaterial_->Init();
@@ -205,7 +206,7 @@ void System::Finalize() {
 //	dxCommon_->getCommandList()->DrawIndexedInstanced(primitiveBuff_[Sphere]->vertexNum, 1, 0, 0, 0);
 //}
 
-//void System::DrawTriangleTexture(const Vector3 &position1, const Vector3 &position2, const Vector3 &position3, const Vector3 &scale, const Matrix4x4 &wvp, Vector4 *color, int textureNum) {
+ //void System::DrawTriangleTexture(const Vector3 &position1, const Vector3 &position2, const Vector3 &position3, const Vector3 &scale, const Matrix4x4 &wvp, Vector4 *color, int textureNum) {
 //	VertexData *vertData=nullptr;
 //
 //	primitiveBuff_[Triangle]->vertBuff->Map(

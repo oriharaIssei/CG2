@@ -24,7 +24,7 @@ void GameScene::Init() {
 	worldTransform_.Init();
 	viewProj_.Init();
 
-	model.reset(Model::Create("./resource", "axis.obj"));
+	model.reset(Sprite::Create({ 0.0f,0.0f }, { 300.0f,800.0f }, "./resource/monsterBall.png"));
 }
 
 void GameScene::Update() {
@@ -56,7 +56,4 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	if(input_->isPressKey(DIK_W)) {
-		model->Draw(worldTransform_, viewProj_);
-	}
 }
