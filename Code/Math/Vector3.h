@@ -72,6 +72,14 @@ struct Vector3 {
 		return std::sqrtf(dot(*this));
 	}
 
+	Vector3 cross(const Vector3 &other) {
+		return {
+			y * other.z - z * other.y,
+			z * other.x - x * other.z,
+			x * other.y - y * other.x
+		};
+	}
+
 	Vector3 Normalize() {
 		float len = this->length();
 		if(len == 0.0f) {

@@ -3,11 +3,13 @@
 #include <DirectXCommon.h>
 #include <Input.h>
 
-#include "Sprite/Sprite.h"
+#include "Sprite.h"
 #include <Model.h>
 
 #include <ViewProjection.h>
 #include <WorldTransform.h>
+
+#include <DebugCamera.h>
 
 #include <Matrix4x4.h>
 #include <Transform.h>
@@ -22,6 +24,7 @@ public:
 	void Update();
 	void Draw();
 private:
+	DebugCamera debugCamera;
 	Input *input_;
 
 	Transform camera;

@@ -45,4 +45,5 @@ public:
 
 	const Vector2 &getCurrentMousePos()const { return currentMousePos_; }
 	const Vector2 &getPreMousePos()const { return preMousePos_; }
+	const Vector2 &getMouseVelocity()const { return currentMousePos_ - preMousePos_; }
 };
