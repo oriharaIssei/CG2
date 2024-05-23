@@ -8,6 +8,10 @@ void ViewProjection::Init() {
 	buff_->Map(0, nullptr, reinterpret_cast<void **>(&mappingData_));
 }
 
+void ViewProjection::Finalize() {
+	buff_.Reset();
+}
+
 void ViewProjection::UpdateMatrix() {
 	viewMat = MakeMatrix::Affine({ 1.0f,1.0f,1.0f }, rotate, translate);
 	projectionMat = MakeMatrix::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);

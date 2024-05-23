@@ -48,6 +48,7 @@ struct MaterialData {
 class Material {
 public:
 	void Init();
+	void Finalize();
 	void ConvertToBuffer();
 	void Update();
 	void UpdateMatrix();

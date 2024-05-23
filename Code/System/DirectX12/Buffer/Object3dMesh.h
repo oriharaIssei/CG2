@@ -41,6 +41,7 @@ struct PrimitiveVertexData {
 class IObject3dMesh {
 public:
 	virtual ~IObject3dMesh() {};
+	void Finalize() { vertBuff.Reset(); indexBuff.Reset(); }
 	/// <summary>
 	/// VertexDataを設定後に実行
 	/// </summary>

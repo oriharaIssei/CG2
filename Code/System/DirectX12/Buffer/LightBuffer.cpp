@@ -12,6 +12,9 @@ void LightBuffer::Init() {
 	);
 }
 
+void LightBuffer::Finalize() {
+	constBuff_.Reset();
+}
 
 void LightBuffer::SetForRootParameter(ID3D12GraphicsCommandList *cmdList, UINT rootParameterNum)const {
 	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, constBuff_->GetGPUVirtualAddress());

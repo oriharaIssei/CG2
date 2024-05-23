@@ -11,6 +11,10 @@ void WorldTransform::Init() {
 	worldMat = MakeMatrix::Identity();
 }
 
+void WorldTransform::Finalize() {
+	buff_.Reset();
+}
+
 void WorldTransform::Update() {
 	worldMat = MakeMatrix::Affine(transformData);
 

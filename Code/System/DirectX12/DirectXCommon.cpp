@@ -39,26 +39,26 @@ void DirectXCommon::Init() {
 }
 
 void DirectXCommon::Finalize() {
-	device_.Reset();
 	dxgiFactory_.Reset();
 	useAdapter_.Reset();
+	device_.Reset();
 	commandQueue_.Reset();
 	commandAllocator_.Reset();
 	commandList_.Reset();
 	swapChain_.Reset();
 	rtv_.Reset();
-	srv_.Reset();
-	fence_.Reset();
-
 	for(int i = 0; i < swapChainResources_.size(); i++) {
 		swapChainResources_[i].Reset();
 	}
 	swapChainResources_.clear();
-
+	
 	dsv_.Reset();
 	depthStencilResource_.Reset();
-
+	
+	srv_.Reset();
 	debugController_.Reset();
+
+	fence_.Reset();
 }
 
 void DirectXCommon::ClearRenderTarget() {

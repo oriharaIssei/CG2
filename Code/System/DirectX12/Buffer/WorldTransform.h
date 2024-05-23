@@ -16,6 +16,7 @@ struct ConstantBufferWorldMatrix {
 class WorldTransform {
 public:
 	void Init();
+	void Finalize();
 	void Update();
 	void ConvertToBuffer();
 	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList, UINT rootParameterNum)const;

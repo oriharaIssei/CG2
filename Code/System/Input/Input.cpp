@@ -51,6 +51,11 @@ void Input::Init() {
 }
 
 void Input::Finalize() {
+	if(directInput_) {
+		directInput_->Release();
+		directInput_ = nullptr;
+	}
+
 	if(keyboard_) {
 		keyboard_->Unacquire();
 		keyboard_->Release();

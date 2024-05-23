@@ -1,6 +1,7 @@
 #include "GameScene.h"
 
 #include <System.h>
+#include <PrimitiveDrawer.h>
 #include <TextureManager.h>
 
 #include <imgui.h>
@@ -23,8 +24,6 @@ void GameScene::Init() {
 
 	worldTransform_.Init();
 	viewProj_.Init();
-
-	model.reset(Sprite::Create({ 0.0f,0.0f }, { 300.0f,800.0f }, "./resource/monsterBall.png"));
 }
 
 void GameScene::Update() {
@@ -56,4 +55,8 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
+	for(float i = 0; i < 32; i++) {
+		PrimitiveDrawer::Line({ i * 2,0.0f,i }, { i * 3,i,0.0f }, worldTransform_, viewProj_);
+		PrimitiveDrawer::Quad({ i,i + 1.0f,i }, { i,i ,i }, { i + 1.0f,i + 1.0f,i + 1.0f }, { i + 1.0f,i ,i + 1.0f }, worldTransform_, viewProj_);
+	}
 }

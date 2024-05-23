@@ -53,7 +53,7 @@
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System;$(ProjectDir)/Code/System/DirectX12/Buffer/Splite;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/System/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/System/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -78,8 +78,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System;$(ProjectDir)/Code/System/DirectX12/Buffer/Splite;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/System/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-   </ClCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/System/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -104,6 +104,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\ShaderCompiler.cpp" />
     <ClCompile Include="Code\System\Input\Input.cpp" />
     <ClCompile Include="Code\System\Model\Model.cpp" />
+    <ClCompile Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="Code\System\Sprite\Sprite.cpp" />
     <ClCompile Include="Code\System\Texture\TextureManager.cpp" />
     <ClCompile Include="Code\System\GameScene\GameScene.cpp" />
@@ -134,6 +135,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\System\DirectX12\ShaderCompiler.h" />
     <ClInclude Include="Code\System\Input\Input.h" />
     <ClInclude Include="Code\System\Model\Model.h" />
+    <ClInclude Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="Code\System\Sprite\Sprite.h" />
     <ClInclude Include="Code\System\Texture\TextureManager.h" />
     <ClInclude Include="Code\System\GameScene\GameScene.h" />

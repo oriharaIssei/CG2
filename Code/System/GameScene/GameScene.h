@@ -30,5 +30,4 @@ private:
 
 	ViewProjection viewProj_;
 	WorldTransform worldTransform_;
-	std::unique_ptr<Sprite> model;
 };

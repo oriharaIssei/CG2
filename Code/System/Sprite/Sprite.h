@@ -17,6 +17,7 @@
 class Sprite {
 public:
 	static void Init();
+	static void Finalize();
 	static Sprite *Create(const Vector2 &pos, const Vector2 &size, const std::string &textureFilePath);
 	static void PreDraw();
 private:
@@ -39,7 +40,7 @@ private:
 		D3D12_INDEX_BUFFER_VIEW ibView {};
 		D3D12_VERTEX_BUFFER_VIEW vbView {};
 	};
-	static Matrix4x4 ViewPortMat_;
+	static Matrix4x4 viewPortMat_;
 	static void CreatePSO();
 	static std::unique_ptr<PipelineStateObj> pso_;
 public:
