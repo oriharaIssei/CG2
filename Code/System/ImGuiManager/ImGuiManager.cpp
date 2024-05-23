@@ -44,7 +44,6 @@ void ImGuiManager::Finalize() {
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
-
 #endif // _DEBUG
 }
 

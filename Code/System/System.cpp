@@ -2,9 +2,11 @@
 
 #include <imgui.h>
 #include <ImGuiManager.h>
-#include <Logger.h>
-#include <Sprite/Sprite.h>
+#include <PrimitiveDrawer.h>
+#include <Sprite.h>
 #include <TextureManager.h>
+
+#include <Logger.h>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -18,7 +20,7 @@ void System::Init() {
 	window_ = std::make_unique<WinApp>();
 	window_->CreateGameWindow(L"title", WS_OVERLAPPEDWINDOW, 1280, 720);
 
-	input_.reset(Input::getInstance());
+	input_ = Input::getInstance();
 	input_->Init();
 
 	dxCommon_ = std::make_unique<DirectXCommon>(window_.get());
@@ -30,14 +32,11 @@ void System::Init() {
 	primitivePso_ = std::make_unique<PipelineStateObj>();
 	texturePso_ = std::make_unique<PipelineStateObj>();
 	CreateTexturePSO();
-	CreatePrimitivePSO();
-
-	TextureManager::Init(dxCommon_.get());
+	CreatePrimitivePSO(primitivePso_, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 
 	ImGuiManager::getInstance()->Init(window_.get(), dxCommon_.get());
 
-	Model::Init();
-	Sprite::Init();
+	TextureManager::Init(dxCommon_.get());
 
 	standerdMaterial_ = std::make_unique<Material>();
 	standerdMaterial_->Init();
@@ -45,6 +44,10 @@ void System::Init() {
 	standerdLight_ = std::make_unique<LightBuffer>();
 	standerdLight_->Init();
 	standerdLight_->ConvertToBuffer();
+
+	Model::Init();
+	Sprite::Init();
+	PrimitiveDrawer::Init();
 }
 
 void System::Finalize() {
@@ -54,7 +57,13 @@ void System::Finalize() {
 	texturePso_->Finalize();
 	input_->Finalize();
 
+	PrimitiveDrawer::Finalize();
+	Sprite::Finalize();
 	TextureManager::Finalize();
+
+	standerdMaterial_->Finalize();
+	standerdLight_->Finalize();
+
 #ifdef _DEBUG
 	ImGuiManager::getInstance()->Finalize();
 #endif // _DEBUG
@@ -500,7 +509,7 @@ void System::Finalize() {
 //	dxCommon_->getCommandList()->DrawIndexedInstanced((UINT)(kSubDivision * kSubDivision * 6), 1, 0, 0, 0);
 //}
 
-void System::CreatePrimitivePSO() {
+void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso, D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType) {
 	HRESULT hr;
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc {};
 	D3D12_BLEND_DESC blendDesc {};
@@ -509,7 +518,6 @@ void System::CreatePrimitivePSO() {
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature {};
 	descriptionRootSignature.Flags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
 
 	D3D12_ROOT_PARAMETER rootParameters[4] = {};
 	// CBV を使う
@@ -557,7 +565,7 @@ void System::CreatePrimitivePSO() {
 		0,
 		signatureBlob->GetBufferPointer(),
 		signatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(&primitivePso_->rootSignature)
+		IID_PPV_ARGS(&pso->rootSignature)
 	);
 	assert(SUCCEEDED(hr));
 
@@ -592,7 +600,7 @@ void System::CreatePrimitivePSO() {
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3d.PS.hlsl", L"ps_6_0");
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc {};
-	graphicsPipelineStateDesc.pRootSignature = primitivePso_->rootSignature.Get();
+	graphicsPipelineStateDesc.pRootSignature = pso->rootSignature.Get();
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;
 	graphicsPipelineStateDesc.VS = {
 		vertexShaderBlob->GetBufferPointer(),
@@ -622,8 +630,7 @@ void System::CreatePrimitivePSO() {
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
 	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	// 利用するトポロジ(形状)タイプ。三角形を設定する
-	graphicsPipelineStateDesc.PrimitiveTopologyType =
-		D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	graphicsPipelineStateDesc.PrimitiveTopologyType = topologyType;
 	// どのように画面に色を打ち込むかの設定
 	graphicsPipelineStateDesc.SampleDesc.Count = 1;
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
@@ -631,7 +638,7 @@ void System::CreatePrimitivePSO() {
 	// 生成
 	hr = dxCommon_->getDevice()->CreateGraphicsPipelineState(
 		&graphicsPipelineStateDesc,
-		IID_PPV_ARGS(&primitivePso_->pipelineState)
+		IID_PPV_ARGS(&pso->pipelineState)
 	);
 	assert(SUCCEEDED(hr));
 }
@@ -817,6 +824,7 @@ void System::BeginFrame() {
 	ImGuiManager::getInstance()->Begin();
 	input_->Update();
 	dxCommon_->PreDraw();
+	PrimitiveDrawer::ResetInstanceVal();
 }
 
 void System::EndFrame() {

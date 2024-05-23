@@ -13,6 +13,10 @@ void Material::Init() {
 	materialData.enableLighting = 0;
 }
 
+void Material::Finalize() {
+	constBuff_.Reset();
+}
+
 void Material::ConvertToBuffer() {
 	mappingData_->color = materialData.color;
 	mappingData_->enableLighting = materialData.enableLighting;

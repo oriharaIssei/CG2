@@ -15,6 +15,7 @@ struct ConstBufferDataViewProjection {
 class ViewProjection {
 public:
 	void Init();
+	void Finalize();
 	void UpdateMatrix();
 	void ConvertToBuffer();
 	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList, UINT rootParameterNum)const;
@@ -33,7 +34,6 @@ public:
 	// 深度限界（奥側）
 	float farZ = 1000.0f;
 	Matrix4x4 projectionMat;
-
 private:
 	ConstBufferDataViewProjection *mappingData_ = nullptr;
 

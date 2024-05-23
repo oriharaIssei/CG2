@@ -22,8 +22,6 @@ private:
 };
 
 void ModelManager::Create(Model *model, const std::string &directoryPath, const std::string &filename) {
-	DirectXCommon *dxCommon = System::getInstance()->getDxCommon();
-
 	model->data_ = LoadObjFile(directoryPath, filename);
 
 	model->data_.vertSize = model->data_.vertices.size();

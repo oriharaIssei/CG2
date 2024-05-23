@@ -24,11 +24,11 @@ public:
 private:
 	Microsoft::WRL::ComPtr<IDirectInput8> directInput_ = nullptr;
 
-	Microsoft::WRL::ComPtr <IDirectInputDevice8>keyboard_ = nullptr;
+	Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard_ = nullptr;
 	BYTE keys_[256] = {};
 	BYTE preKeys_[256] = {};
 
-	Microsoft::WRL::ComPtr <IDirectInputDevice8>mouse_ = nullptr;
+	Microsoft::WRL::ComPtr <IDirectInputDevice8> mouse_ = nullptr;
 	DIMOUSESTATE2 currentMouseState_;
 	DIMOUSESTATE2 preMouseState_;
 	POINT mousePoint_;

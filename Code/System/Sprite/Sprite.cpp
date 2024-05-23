@@ -7,17 +7,21 @@
 #include <ShaderCompiler.h>
 
 std::unique_ptr<PipelineStateObj> Sprite::pso_ = nullptr;
-Matrix4x4 Sprite::ViewPortMat_;
+Matrix4x4 Sprite::viewPortMat_;
 
 void Sprite::Init() {
 	pso_ = std::make_unique<PipelineStateObj>();
 	CreatePSO();
 	WinApp *window = System::getInstance()->getWinApp();
-	ViewPortMat_ = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);
+	viewPortMat_ = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);
+}
+
+void Sprite::Finalize() {
+	pso_->Finalize();
+	pso_.release();
 }
 
 Sprite *Sprite::Create(const Vector2 &pos, const Vector2 &size, const std::string &textureFilePath) {
-
 	Sprite *result = new Sprite();
 	result->th_ = TextureManager::LoadTexture(textureFilePath);
 
@@ -212,7 +216,7 @@ void Sprite::Draw() {
 	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &meshBuff_->vbView);
 	dxCommon_->getCommandList()->IASetIndexBuffer(&meshBuff_->ibView);
 
-	mappingConstBufferData_->mat_ = worldMat_ * ViewPortMat_;
+	mappingConstBufferData_->mat_ = worldMat_ * viewPortMat_;
 
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
 		0, constBuff_->GetGPUVirtualAddress()

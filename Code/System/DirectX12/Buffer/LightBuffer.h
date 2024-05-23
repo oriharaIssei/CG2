@@ -14,12 +14,14 @@ struct DirectionalLight {
 
 class LightBuffer {
 public:
+	void Init();
+	void Finalize();
+	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList, UINT rootParameterNum)const;
+	void ConvertToBuffer();
+
 	Vector4 color = { 1.0f,1.0f,1.0f,1.0f };
 	Vector3 direction = { 1.0f,1.0f,1.0f };
 	float intensity = 1.0f;
-	void Init();
-	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList, UINT rootParameterNum)const;
-	void ConvertToBuffer();
 private:
 	DirectionalLight *directionalLigh_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
