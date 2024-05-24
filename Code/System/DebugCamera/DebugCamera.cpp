@@ -25,31 +25,50 @@ void DebugCamera::Neutral::Update() {
 	if(!(host_->input_->isPressKey(DIK_LALT) || host_->input_->isPressKey(DIK_RALT))) {
 		return;
 	}
-	if(host_->input_->isTriggerMouseButton(0)) {
+	if(host_->input_->isTriggerMouseButton(0) || host_->input_->isWheel()) {
 		host_->currentState_.reset(new TranslationState(host_));
 		return;
-	}
-	if(host_->input_->isTriggerMouseButton(1)) {
+	} else if(host_->input_->isTriggerMouseButton(1)) {
 		host_->currentState_.reset(new RotationState(host_));
 		return;
 	}
 }
 
 void DebugCamera::TranslationState::Update() {
-	if(!host_->input_->isTriggerMouseButton(0) || !(host_->input_->isPressKey(DIK_LALT) || host_->input_->isPressKey(DIK_RALT))) {
-		host_->currentState_.reset(new Neutral(host_));
-		return;
+	uint32_t state = 0;
+	bool a = host_->input_->isPreWheel();
+	bool b = host_->input_->isPressMouseButton(0);
+	uint32_t c = (host_->input_->isPressKey(DIK_LALT) | host_->input_->isPressKey(DIK_RALT));
+	state = (a)+(b * 2);
+	state *= c;
+	Vector3 velo = {};
+	switch((TranslationType)state) {
+	case NONE:
+	host_->currentState_.reset(new Neutral(host_));
+	return;
+	case Z_WHEEL:
+	velo = {0.0f,0.0f,(float)host_->input_->getPreWheel() * 0.007f};
+	break;
+	case XY_MOUSEMOVE:
+	velo = {host_->input_->getMouseVelocity() * 0.01f,0.0f};
+	break;
+	case XYZ_ALL:
+	velo = {host_->input_->getMouseVelocity() * 0.01f,(float)host_->input_->getPreWheel() * 0.007f};
+	break;
+	default:
+	break;
 	}
-	Vector3 velo = {host_->input_->getMouseVelocity().x,host_->input_->getMouseVelocity().y,0.0f};
-	host_->viewProj_.translate += velo * 0.01f;
+	velo.y *= -1.0f;
+	host_->viewProj_.translate += velo;
+
 }
 
 void DebugCamera::RotationState::Update() {
-	if(!host_->input_->isTriggerMouseButton(1) ||
+	if(!host_->input_->isPressMouseButton(1) ||
 	   !(host_->input_->isPressKey(DIK_LALT) ||
 		 host_->input_->isPressKey(DIK_RALT))) {
 		host_->currentState_.reset(new Neutral(host_));
 		return;
 	}
-	host_->viewProj_.rotate += Vector3(host_->input_->getMouseVelocity().x,host_->input_->getMouseVelocity().y,0.0f) * 0.01f;
+	host_->viewProj_.rotate += Vector3(host_->input_->getMouseVelocity().y,host_->input_->getMouseVelocity().x,0.0f) * 0.01f;
 }

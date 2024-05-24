@@ -31,12 +31,17 @@ class DebugCamera {
 	};
 	class TranslationState :
 		public IState {
+		enum TranslationType{
+		NONE,
+		Z_WHEEL,
+		XY_MOUSEMOVE,
+		XYZ_ALL
+		};
 	public:
 		TranslationState(DebugCamera *host):IState(host) {};
 		void Update()override;
 	};
 #pragma endregion
-
 public:
 	void Init();
 	void DebugUpdate();

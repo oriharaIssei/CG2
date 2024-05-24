@@ -40,8 +40,13 @@ public:
 	bool isReleaseKey(const uint32_t &key)const { return (keys_[key] && !preKeys_[key]); }
 
 	bool isPressMouseButton(const uint32_t &key)const { return currentMouseState_.rgbButtons[key]; }
-	bool isTriggerMouseButton(const uint32_t &key)const { return currentMouseState_.rgbButtons[key] && preMouseState_.rgbButtons[key]; }
-	bool isReleaseMouseButton(const uint32_t &key)const { return currentMouseState_.rgbButtons[key] && preMouseState_.rgbButtons[key]; }
+	bool isTriggerMouseButton(const uint32_t &key)const { return currentMouseState_.rgbButtons[key] && !preMouseState_.rgbButtons[key]; }
+	bool isReleaseMouseButton(const uint32_t &key)const { return !currentMouseState_.rgbButtons[key] && preMouseState_.rgbButtons[key]; }
+
+	bool isWheel()const { return currentMouseState_.lZ != 0; }
+	bool isPreWheel()const { return preMouseState_.lZ != 0; }
+	int getWheel()const { return static_cast<int>(currentMouseState_.lZ); }
+	int getPreWheel()const { return static_cast<int>(preMouseState_.lZ); }
 
 	const Vector2 &getCurrentMousePos()const { return currentMousePos_; }
 	const Vector2 &getPreMousePos()const { return preMousePos_; }
