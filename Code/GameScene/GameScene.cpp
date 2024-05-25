@@ -26,6 +26,8 @@ void GameScene::Init() {
 
 	worldTransform_.Init();
 	viewProj_.Init();
+
+	model.reset(Model::Create("resource","multiMesh.obj"));
 }
 
 void GameScene::Update() {
@@ -52,8 +54,5 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	for(float i = 0; i < 32; i++) {
-		PrimitiveDrawer::Line({i * 2,0.0f,i},{i * 3,i,0.0f},worldTransform_,viewProj_);
-		PrimitiveDrawer::Quad({i,i + 1.0f,i},{i,i,i},{i + 1.0f,i + 1.0f,i + 1.0f},{i + 1.0f,i,i + 1.0f},worldTransform_,viewProj_);
-	}
+	model->Draw(worldTransform_,viewProj_);
 }
