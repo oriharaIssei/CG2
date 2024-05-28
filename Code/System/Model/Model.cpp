@@ -211,7 +211,7 @@ void Model::Draw(const WorldTransform &world,const ViewProjection &view) {
 			dxCommon_->getCommandList()->SetDescriptorHeaps(1,ppHeaps);
 			dxCommon_->getCommandList()->SetGraphicsRootDescriptorTable(
 				4,
-				TextureManager::getGpuHandle(*model->materialData.textureNumber.get())
+				TextureManager::getDescriptorGpuHandle(*model->materialData.textureNumber.get())
 			);
 		}
 

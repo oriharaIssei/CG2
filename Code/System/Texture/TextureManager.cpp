@@ -3,22 +3,36 @@
 #include <cassert>
 #include <combaseapi.h>
 
+#include <iostream>
+
 #include "DirectXCommon.h"
 #include "Logger.h"
 #include "ShaderCompiler.h"
 
 DirectXCommon *TextureManager::dxCommon_ = nullptr;
-std::vector<std::unique_ptr<TextureManager::Texture>> TextureManager::textures_;
+
+uint64_t TextureManager::cpuDescriptorHandleStart_;
+uint64_t TextureManager::gpuDescriptorHandleStart_;
+uint32_t TextureManager::handleIncrementSize_;
+
+const uint32_t TextureManager::maxTextureSize_;
+std::array<std::unique_ptr<TextureManager::Texture>,TextureManager::maxTextureSize_> TextureManager::textures_;
+
+bool TextureManager::stopLoadingThread_;
+std::thread TextureManager::loadingThread_;
+std::queue<std::pair<std::string,uint32_t>> TextureManager::loadingQueue_;
+std::mutex TextureManager::queueMutex_;
+std::condition_variable TextureManager::queueCondition_;
 
 #pragma region Texture
-void TextureManager::Texture::Init(const std::string &filePath, int textureIndex) {
+void TextureManager::Texture::Init(const std::string &filePath,int textureIndex) {
 	path_ = filePath;
 	//==================================================
 	// Textureを読み込んで転送する
 	//==================================================
 	DirectX::ScratchImage mipImages = Load(filePath);
 	const DirectX::TexMetadata &metadata = mipImages.GetMetadata();
-	CreateTextureResource(dxCommon_, metadata);
+	CreateTextureResource(dxCommon_,metadata);
 	UploadTextureData(mipImages);
 
 	//==================================================
@@ -33,17 +47,10 @@ void TextureManager::Texture::Init(const std::string &filePath, int textureIndex
 
 	/// SRV を作成する  の場所を決める
 	/// 先頭は ImGui が使用しているので その次を使う
-	srvHandleCPU_ = dxCommon_->GetCPUDescriptorHandle(
-		dxCommon_->getSrv(),
-		dxCommon_->getDevice()->GetDescriptorHandleIncrementSize(
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV),
-		textureIndex);
+	srvHandleCPU_ = D3D12_CPU_DESCRIPTOR_HANDLE(cpuDescriptorHandleStart_ + (handleIncrementSize_ * textureIndex));
 
-	srvHandleGPU_ = dxCommon_->GetGPUDescriptorHandle(
-		dxCommon_->getSrv(),
-		dxCommon_->getDevice()->GetDescriptorHandleIncrementSize(
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV),
-		textureIndex);
+
+	srvHandleGPU_ = D3D12_GPU_DESCRIPTOR_HANDLE(gpuDescriptorHandleStart_ + (handleIncrementSize_ * textureIndex));
 
 	/// SRV の作成
 	dxCommon_->getDevice()->CreateShaderResourceView(
@@ -68,7 +75,10 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath)
 		nullptr,
 		image
 	);
-	assert(SUCCEEDED(hr));
+	if(FAILED(hr)) {
+		std::cerr << "Failed to load texture file: " << filePath << std::endl;
+		assert(SUCCEEDED(hr));
+	}
 
 	// ミップマップの作成
 	DirectX::ScratchImage mipImages {};
@@ -80,11 +90,15 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath)
 		0,
 		mipImages
 	);
+	if(FAILED(hr)) {
+		std::cerr << "Failed to generate mipmaps for: " << filePath << std::endl;
+		assert(SUCCEEDED(hr));
+	}
 
 	return mipImages;
 }
 
-void TextureManager::Texture::CreateTextureResource(DirectXCommon *dxCommon, const DirectX::TexMetadata &metadata) {
+void TextureManager::Texture::CreateTextureResource(DirectXCommon *dxCommon,const DirectX::TexMetadata &metadata) {
 	//================================================
 	// 1. metadata を基に Resource を設定
 	D3D12_RESOURCE_DESC resourceDesc {};
@@ -132,6 +146,7 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 	);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = nullptr;
+
 	dxCommon_->CreateBufferResource(
 		intermediateResource,
 		intermediateSize
@@ -154,7 +169,7 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-	dxCommon_->getCommandList()->ResourceBarrier(1, &barrier);
+	dxCommon_->getCommandList()->ResourceBarrier(1,&barrier);
 
 	ID3D12GraphicsCommandList *commandList = dxCommon_->getCommandList();
 
@@ -167,28 +182,78 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 
 #pragma region "Manager"
 void TextureManager::Init(DirectXCommon *dxCommon) {
-	CoInitializeEx(0, COINIT_MULTITHREADED);
+	CoInitializeEx(0,COINIT_MULTITHREADED);
 	dxCommon_ = dxCommon;
+
+	cpuDescriptorHandleStart_ = dxCommon->getSrv()->GetCPUDescriptorHandleForHeapStart().ptr;
+	gpuDescriptorHandleStart_ = dxCommon->getSrv()->GetGPUDescriptorHandleForHeapStart().ptr;
+	handleIncrementSize_ = dxCommon_->getDevice()->GetDescriptorHandleIncrementSize(
+		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+	);
+
+	stopLoadingThread_ = false;
+	loadingThread_ = std::thread(&TextureManager::LoadLoop);
 }
 
 void TextureManager::Finalize() {
+	{
+		std::unique_lock<std::mutex> lock(queueMutex_);
+		stopLoadingThread_ = true;
+	}
+	queueCondition_.notify_all();
+	if(loadingThread_.joinable()) {
+		loadingThread_.join();
+	}
+
 	CoUninitialize();
 	for(auto &texture : textures_) {
-		texture->Finalize();
+		if(texture != nullptr) {
+			texture->Finalize();
+		}
 	}
 }
 
-int TextureManager::LoadTexture(const std::string &filePath) {
-	for(size_t i = 0; i < textures_.size(); ++i) {
-		if(textures_[i] == nullptr) {
+uint32_t TextureManager::LoadTexture(const std::string &filePath) {
+	uint32_t index = 0;
+	for(index = 0; index < textures_.size(); ++index) {
+		if(textures_[index] == nullptr) {
+			textures_[index] = std::make_unique<Texture>();
 			break;
-		}
-		if(filePath == textures_[i]->getPath()) {
-			return i;
+		} else if(filePath == textures_[index]->path_) {
+			return index;
 		}
 	}
-	textures_.push_back(std::make_unique<Texture>());
-	textures_.back()->Init(filePath, textures_.size());
-	return static_cast<int>(textures_.size() - 1);
+
+	{
+		std::unique_lock<std::mutex> lock(queueMutex_);// {}を抜けるまでロック
+		loadingQueue_.emplace(filePath,index);// loadingQueue_に追加
+	}
+	queueCondition_.notify_one();//threadに通知
+
+	return index;
+}
+
+void TextureManager::LoadLoop() {
+	while(true) {
+		std::pair<std::string,uint32_t> task;
+		{
+			std::unique_lock<std::mutex> lock(queueMutex_);
+			queueCondition_.wait(lock,[] { return !loadingQueue_.empty() || stopLoadingThread_; });
+
+			if(stopLoadingThread_ && loadingQueue_.empty()) {
+				return;
+			}
+
+			task = loadingQueue_.front();
+			loadingQueue_.pop();
+		}
+
+		textures_[task.second]->Init(task.first,task.second + 1);
+	}
+}
+
+void TextureManager::UnloadTexture(uint32_t id) {
+	textures_[id]->Finalize();
+	textures_[id].reset();
 }
 #pragma endregion
