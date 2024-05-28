@@ -18,7 +18,7 @@ System *System::getInstance() {
 
 void System::Init() {
 	window_ = std::make_unique<WinApp>();
-	window_->CreateGameWindow(L"title", WS_OVERLAPPEDWINDOW, 1280, 720);
+	window_->CreateGameWindow(L"title",WS_OVERLAPPEDWINDOW,1280,720);
 
 	input_ = Input::getInstance();
 	input_->Init();
@@ -32,9 +32,9 @@ void System::Init() {
 	primitivePso_ = std::make_unique<PipelineStateObj>();
 	texturePso_ = std::make_unique<PipelineStateObj>();
 	CreateTexturePSO();
-	CreatePrimitivePSO(primitivePso_, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+	CreatePrimitivePSO(primitivePso_,D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 
-	ImGuiManager::getInstance()->Init(window_.get(), dxCommon_.get());
+	ImGuiManager::getInstance()->Init(window_.get(),dxCommon_.get());
 
 	TextureManager::Init(dxCommon_.get());
 
@@ -60,6 +60,7 @@ void System::Finalize() {
 	PrimitiveDrawer::Finalize();
 	Sprite::Finalize();
 	TextureManager::Finalize();
+	Model::Finalize();
 
 	standerdMaterial_->Finalize();
 	standerdLight_->Finalize();
@@ -509,7 +510,7 @@ void System::Finalize() {
 //	dxCommon_->getCommandList()->DrawIndexedInstanced((UINT)(kSubDivision * kSubDivision * 6), 1, 0, 0, 0);
 //}
 
-void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso, D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType) {
+void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType) {
 	HRESULT hr;
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc {};
 	D3D12_BLEND_DESC blendDesc {};
@@ -594,10 +595,10 @@ void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso, D3D12_PR
 	ShaderCompiler compiler;
 	compiler.Init();
 
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3d.VS.hlsl", L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3d.VS.hlsl",L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3d.PS.hlsl", L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3d.PS.hlsl",L"ps_6_0");
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc {};
 	graphicsPipelineStateDesc.pRootSignature = pso->rootSignature.Get();
@@ -761,10 +762,10 @@ void System::CreateTexturePSO() {
 	ShaderCompiler compiler;
 	compiler.Init();
 
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3dTexture.VS.hlsl", L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3dTexture.VS.hlsl",L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3dTexture.PS.hlsl", L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3dTexture.PS.hlsl",L"ps_6_0");
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc {};
 	graphicsPipelineStateDesc.pRootSignature = texturePso_->rootSignature.Get();
@@ -811,9 +812,9 @@ void System::CreateTexturePSO() {
 	assert(SUCCEEDED(hr));
 }
 
-void System::SetStanderdForRootparameter(UINT materialRootparameter, UINT lightRootParameter) {
-	standerdMaterial_->SetForRootParameter(dxCommon_->getCommandList(), materialRootparameter);
-	standerdLight_->SetForRootParameter(dxCommon_->getCommandList(), lightRootParameter);
+void System::SetStanderdForRootparameter(UINT materialRootparameter,UINT lightRootParameter) {
+	standerdMaterial_->SetForRootParameter(dxCommon_->getCommandList(),materialRootparameter);
+	standerdLight_->SetForRootParameter(dxCommon_->getCommandList(),lightRootParameter);
 }
 
 bool System::ProcessMessage() {

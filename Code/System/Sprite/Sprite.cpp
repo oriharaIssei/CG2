@@ -226,9 +226,9 @@ void Sprite::Draw() {
 	dxCommon_->getCommandList()->SetDescriptorHeaps(1, ppHeaps);
 	dxCommon_->getCommandList()->SetGraphicsRootDescriptorTable(
 		1,
-		TextureManager::getGpuHandle(th_)
+		TextureManager::getDescriptorGpuHandle(th_)
 	);
-	dxCommon_->getCommandList()->SetGraphicsRootDescriptorTable(1, TextureManager::getGpuHandle(th_));
+	dxCommon_->getCommandList()->SetGraphicsRootDescriptorTable(1, TextureManager::getDescriptorGpuHandle(th_));
 	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(0, constBuff_->GetGPUVirtualAddress());
 
 	dxCommon_->getCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
