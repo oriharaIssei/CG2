@@ -47,6 +47,7 @@ private:
         DirectX::ScratchImage Load(const std::string &filePath);
         void CreateTextureResource(DirectXCommon *dxCommon,const DirectX::TexMetadata &metadata);
         void UploadTextureData(DirectX::ScratchImage &mipImg);
+        void ExecuteCommnad();
     };
 
 private:
@@ -65,8 +66,16 @@ private:
     static std::condition_variable queueCondition_;
     static bool stopLoadingThread_;
 
+    // バックグラウンドスレッド用
+    static Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
+    static Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
+    static Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
+
 public:
     static const D3D12_GPU_DESCRIPTOR_HANDLE &getDescriptorGpuHandle(uint32_t handleId) {
-        return textures_[handleId]->srvHandleGPU_;
+        if(textures_[handleId]) {
+            return textures_[handleId]->srvHandleGPU_;
+        }
+        return textures_[0]->srvHandleGPU_;
     }
 };

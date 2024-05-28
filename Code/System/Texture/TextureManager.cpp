@@ -24,6 +24,10 @@ std::queue<std::pair<std::string,uint32_t>> TextureManager::loadingQueue_;
 std::mutex TextureManager::queueMutex_;
 std::condition_variable TextureManager::queueCondition_;
 
+Microsoft::WRL::ComPtr<ID3D12CommandQueue> TextureManager::commandQueue_;
+Microsoft::WRL::ComPtr<ID3D12CommandAllocator> TextureManager::commandAllocator_;
+Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> TextureManager::commandList_;
+
 #pragma region Texture
 void TextureManager::Texture::Init(const std::string &filePath,int textureIndex) {
 	path_ = filePath;
@@ -49,7 +53,6 @@ void TextureManager::Texture::Init(const std::string &filePath,int textureIndex)
 	/// 先頭は ImGui が使用しているので その次を使う
 	srvHandleCPU_ = D3D12_CPU_DESCRIPTOR_HANDLE(cpuDescriptorHandleStart_ + (handleIncrementSize_ * textureIndex));
 
-
 	srvHandleGPU_ = D3D12_GPU_DESCRIPTOR_HANDLE(gpuDescriptorHandleStart_ + (handleIncrementSize_ * textureIndex));
 
 	/// SRV の作成
@@ -58,6 +61,8 @@ void TextureManager::Texture::Init(const std::string &filePath,int textureIndex)
 		&srvDesc,
 		srvHandleCPU_
 	);
+	// load中のテクスチャにはこれをはっつける
+	LoadTexture("resource/uvChecker.png");
 }
 
 void TextureManager::Texture::Finalize() {
@@ -146,14 +151,17 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 	);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = nullptr;
+	dxCommon_->CreateBufferResource(intermediateResource,intermediateSize);
 
-	dxCommon_->CreateBufferResource(
-		intermediateResource,
-		intermediateSize
-	);
+	HRESULT hr;
+	hr = commandAllocator_->Reset();
+	assert(SUCCEEDED(hr));
+
+	hr = commandList_->Reset(commandAllocator_.Get(),nullptr);
+	assert(SUCCEEDED(hr));
 
 	UpdateSubresources(
-		dxCommon_->getCommandList(),
+		commandList_.Get(),
 		resource_.Get(),
 		intermediateResource.Get(),
 		0,
@@ -161,7 +169,9 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 		UINT(subResources.size()),
 		subResources.data()
 	);
-
+	ExecuteCommnad();
+}
+void TextureManager::Texture::ExecuteCommnad() {
 	D3D12_RESOURCE_BARRIER barrier {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -169,14 +179,31 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-	dxCommon_->getCommandList()->ResourceBarrier(1,&barrier);
+	commandList_->ResourceBarrier(1,&barrier);
 
-	ID3D12GraphicsCommandList *commandList = dxCommon_->getCommandList();
+	HRESULT hr = commandList_->Close();
+	assert(SUCCEEDED(hr));
 
-	commandList->Close();
-	dxCommon_->ExecuteCommandList();
-	dxCommon_->Wait4ExecuteCommand();
-	dxCommon_->ResetCommand();
+	ID3D12CommandList *ppCommandLists[] = {commandList_.Get()};
+	commandQueue_->ExecuteCommandLists(_countof(ppCommandLists),ppCommandLists);
+
+	// フェンスを使ってGPUが完了するのを待つ
+	Microsoft::WRL::ComPtr<ID3D12Fence> fence;
+	UINT64 fenceValue = 1;
+	hr = dxCommon_->getDevice()->CreateFence(0,D3D12_FENCE_FLAG_NONE,IID_PPV_ARGS(&fence));
+	assert(SUCCEEDED(hr));
+
+	hr = commandQueue_->Signal(fence.Get(),fenceValue);
+	assert(SUCCEEDED(hr));
+
+	HANDLE eventHandle = CreateEvent(nullptr,false,false,nullptr);
+	assert(eventHandle != nullptr);
+
+	hr = fence->SetEventOnCompletion(fenceValue,eventHandle);
+	assert(SUCCEEDED(hr));
+
+	WaitForSingleObject(eventHandle,INFINITE);
+	CloseHandle(eventHandle);
 }
 #pragma endregion
 
@@ -193,6 +220,36 @@ void TextureManager::Init(DirectXCommon *dxCommon) {
 
 	stopLoadingThread_ = false;
 	loadingThread_ = std::thread(&TextureManager::LoadLoop);
+
+	// コマンドキュー、コマンドアロケーター、コマンドリストの初期化
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	queueDesc.NodeMask = 0;
+
+	// コマンドキューの作成
+	HRESULT hr = dxCommon_->getDevice()->CreateCommandQueue(&queueDesc,IID_PPV_ARGS(&commandQueue_));
+	assert(SUCCEEDED(hr));
+
+	// コマンドアロケーターの作成
+	hr = dxCommon_->getDevice()->CreateCommandAllocator(
+		D3D12_COMMAND_LIST_TYPE_DIRECT,
+		IID_PPV_ARGS(&commandAllocator_)
+	);
+	assert(SUCCEEDED(hr));
+
+	// コマンドリストの作成
+	hr = dxCommon_->getDevice()->CreateCommandList(
+		0,
+		D3D12_COMMAND_LIST_TYPE_DIRECT,
+		commandAllocator_.Get(),
+		nullptr,
+		IID_PPV_ARGS(&commandList_)
+	);
+	assert(SUCCEEDED(hr));
+
+	commandList_->Close();
 }
 
 void TextureManager::Finalize() {
@@ -206,6 +263,11 @@ void TextureManager::Finalize() {
 	}
 
 	CoUninitialize();
+
+	commandList_.Reset();
+	commandAllocator_.Reset();
+	commandQueue_.Reset();
+
 	for(auto &texture : textures_) {
 		if(texture != nullptr) {
 			texture->Finalize();
