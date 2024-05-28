@@ -26,56 +26,63 @@
 class DirectXCommon;
 class TextureManager {
 public:
-    static void Init(DirectXCommon *dxCommon);
-    static void Finalize();
+	static void Init(DirectXCommon *dxCommon);
+	static void Finalize();
 
-    static uint32_t LoadTexture(const std::string &filePath);
-    static void UnloadTexture(uint32_t id);
+	static uint32_t LoadTexture(const std::string &filePath);
+	static void UnloadTexture(uint32_t id);
 
-    static void LoadLoop();
-
-private:
-    struct Texture {
-        void Init(const std::string &filePath,int textureIndex);
-        void Finalize();
-
-        std::string path_;
-        Microsoft::WRL::ComPtr<ID3D12Resource> resource_ = nullptr;
-        D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU_;
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU_;
-    private:
-        DirectX::ScratchImage Load(const std::string &filePath);
-        void CreateTextureResource(DirectXCommon *dxCommon,const DirectX::TexMetadata &metadata);
-        void UploadTextureData(DirectX::ScratchImage &mipImg);
-        void ExecuteCommnad();
-    };
+	static void LoadLoop();
 
 private:
-    static const uint32_t maxTextureSize_ = 512;
+	struct Texture {
+		enum class LoadState {
+			Loading,
+			Loaded,
+			Error
+		};
+		void Init(const std::string &filePath,int textureIndex);
+		void Finalize();
 
-    static uint64_t cpuDescriptorHandleStart_;
-    static uint64_t gpuDescriptorHandleStart_;
-    static uint32_t handleIncrementSize_;
+		std::string path_;
+		Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
+		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
+		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
 
-    static DirectXCommon *dxCommon_;
-    static std::array<std::unique_ptr<Texture>,maxTextureSize_> textures_;
+		LoadState loadState;
+	private:
+		DirectX::ScratchImage Load(const std::string &filePath);
+		void CreateTextureResource(DirectXCommon *dxCommon,const DirectX::TexMetadata &metadata);
+		void UploadTextureData(DirectX::ScratchImage &mipImg);
+		void ExecuteCommnad();
+	};
 
-    static std::thread loadingThread_;
-    static std::queue<std::pair<std::string,uint32_t>> loadingQueue_;
-    static std::mutex queueMutex_;
-    static std::condition_variable queueCondition_;
-    static bool stopLoadingThread_;
+private:
+	static const uint32_t maxTextureSize_ = 512;
 
-    // バックグラウンドスレッド用
-    static Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
-    static Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
-    static Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
+	static uint64_t cpuDescriptorHandleStart_;
+	static uint64_t gpuDescriptorHandleStart_;
+	static uint32_t handleIncrementSize_;
+
+	static DirectXCommon *dxCommon_;
+	static std::array<std::unique_ptr<Texture>,maxTextureSize_> textures_;
+
+	static std::thread loadingThread_;
+	static std::queue<std::pair<std::string,uint32_t>> loadingQueue_;
+	static std::mutex queueMutex_;
+	static std::condition_variable queueCondition_;
+	static bool stopLoadingThread_;
+
+	// バックグラウンドスレッド用
+	static Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
+	static Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
+	static Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
 
 public:
-    static const D3D12_GPU_DESCRIPTOR_HANDLE &getDescriptorGpuHandle(uint32_t handleId) {
-        if(textures_[handleId]) {
-            return textures_[handleId]->srvHandleGPU_;
-        }
-        return textures_[0]->srvHandleGPU_;
-    }
+	static const D3D12_GPU_DESCRIPTOR_HANDLE &getDescriptorGpuHandle(uint32_t handleId) {
+		if(textures_[handleId]->loadState == Texture::LoadState::Loaded) {
+			return textures_[handleId]->srvHandleGPU;
+		}
+		return textures_[0]->srvHandleGPU;
+	}
 };

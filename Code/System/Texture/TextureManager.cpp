@@ -30,6 +30,7 @@ Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> TextureManager::commandList_;
 
 #pragma region Texture
 void TextureManager::Texture::Init(const std::string &filePath,int textureIndex) {
+	loadState = LoadState::Loading;
 	path_ = filePath;
 	//==================================================
 	// Textureを読み込んで転送する
@@ -51,22 +52,21 @@ void TextureManager::Texture::Init(const std::string &filePath,int textureIndex)
 
 	/// SRV を作成する  の場所を決める
 	/// 先頭は ImGui が使用しているので その次を使う
-	srvHandleCPU_ = D3D12_CPU_DESCRIPTOR_HANDLE(cpuDescriptorHandleStart_ + (handleIncrementSize_ * textureIndex));
+	srvHandleCPU = D3D12_CPU_DESCRIPTOR_HANDLE(cpuDescriptorHandleStart_ + (handleIncrementSize_ * textureIndex));
 
-	srvHandleGPU_ = D3D12_GPU_DESCRIPTOR_HANDLE(gpuDescriptorHandleStart_ + (handleIncrementSize_ * textureIndex));
+	srvHandleGPU = D3D12_GPU_DESCRIPTOR_HANDLE(gpuDescriptorHandleStart_ + (handleIncrementSize_ * textureIndex));
 
 	/// SRV の作成
 	dxCommon_->getDevice()->CreateShaderResourceView(
-		resource_.Get(),
+		resource.Get(),
 		&srvDesc,
-		srvHandleCPU_
+		srvHandleCPU
 	);
-	// load中のテクスチャにはこれをはっつける
-	LoadTexture("resource/uvChecker.png");
+	loadState = LoadState::Loaded;
 }
 
 void TextureManager::Texture::Finalize() {
-	resource_.Reset();
+	resource.Reset();
 }
 
 DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath) {
@@ -129,7 +129,7 @@ void TextureManager::Texture::CreateTextureResource(DirectXCommon *dxCommon,cons
 		&resourceDesc,
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		nullptr,// Clear最適値
-		IID_PPV_ARGS(&resource_)
+		IID_PPV_ARGS(&resource)
 	);
 	assert(SUCCEEDED(hr));
 }
@@ -145,7 +145,7 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 	);
 
 	uint64_t intermediateSize = GetRequiredIntermediateSize(
-		resource_.Get(),
+		resource.Get(),
 		0,
 		UINT(subResources.size())
 	);
@@ -162,7 +162,7 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 
 	UpdateSubresources(
 		commandList_.Get(),
-		resource_.Get(),
+		resource.Get(),
 		intermediateResource.Get(),
 		0,
 		0,
@@ -175,7 +175,7 @@ void TextureManager::Texture::ExecuteCommnad() {
 	D3D12_RESOURCE_BARRIER barrier {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = resource_.Get();
+	barrier.Transition.pResource = resource.Get();
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
@@ -250,6 +250,9 @@ void TextureManager::Init(DirectXCommon *dxCommon) {
 	assert(SUCCEEDED(hr));
 
 	commandList_->Close();
+
+	// load中のテクスチャにはこれをはっつける
+	LoadTexture("resource/uvChecker.png");
 }
 
 void TextureManager::Finalize() {
