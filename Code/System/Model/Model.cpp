@@ -18,7 +18,7 @@ public:
 	void Create(Model *model,const std::string &directoryPath,const std::string &filename);
 private:
 	void LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,const std::string &directoryPath,const std::string &filename);
-	ModelMtl LoadMtlFile(const std::string &directoryPath,const std::string &filename);
+	ModelMtl LoadMtlFile(const std::string &directoryPath,const std::string &filename,const std::string &materialName);
 	void ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices);
 };
 
@@ -98,10 +98,10 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 			std::string materialFileName;
 			s >> currentMaterial;
 		} else if(identifier == "usemtl") {
-			//std::string materialName;
-			//s >> materialName;
+			std::string materialName;
+			s >> materialName;
 			if(!data.empty()) {
-				data.back()->materialData = LoadMtlFile(directoryPath,currentMaterial);
+				data.back()->materialData = LoadMtlFile(directoryPath,currentMaterial,materialName);
 			}
 		} else if(identifier == "o") {
 			if(!firstObject) {
@@ -146,8 +146,10 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 	modelData->vertSize = vertices.size();
 }
 
-ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::string &filename) {
+ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::string &filename,const std::string &materialName) {
 	ModelMtl data {};
+
+	bool isMatchingName = false;
 
 	std::ifstream file(directoryPath + "/" + filename);
 
@@ -158,8 +160,14 @@ ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::s
 		std::string identifier;
 		std::istringstream s(line);
 		s >> identifier;
-
-		if(identifier == "map_Kd") {
+		if(identifier == "newmtl") {
+			std::string mtlName;
+			s >> mtlName;
+			isMatchingName = mtlName == materialName ? true : false;
+		} else if(identifier == "map_Kd") {
+			if(!isMatchingName) {
+				continue;
+			}
 			std::string textureFilename;
 			s >> textureFilename;
 			data.textureNumber = std::make_unique<int>(TextureManager::LoadTexture(directoryPath + "/" + textureFilename));

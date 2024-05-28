@@ -27,7 +27,7 @@ void GameScene::Init() {
 	worldTransform_.Init();
 	viewProj_.Init();
 
-	model.reset(Model::Create("resource","multiMesh.obj"));
+	model.reset(Model::Create("resource","multiMaterial.obj"));
 }
 
 void GameScene::Update() {
