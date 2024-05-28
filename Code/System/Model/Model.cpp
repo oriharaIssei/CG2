@@ -11,19 +11,72 @@
 #include <stdint.h>
 
 std::unique_ptr<Matrix4x4> Model::fovMa_ = nullptr;
+std::unique_ptr<ModelManager> Model::manager_ = nullptr;
 
 #pragma region"ModelManager"
 class ModelManager {
 public:
 	void Create(Model *model,const std::string &directoryPath,const std::string &filename);
+	void Init();
+	void Finalize();
 private:
+	void LoadLoop();
+
 	void LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,const std::string &directoryPath,const std::string &filename);
 	ModelMtl LoadMtlFile(const std::string &directoryPath,const std::string &filename,const std::string &materialName);
 	void ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices);
+private:
+	std::thread loadingThread_;
+	std::queue<std::tuple<Model *,std::string,std::string>> loadingQueue_;
+	std::mutex queueMutex_;
+	std::condition_variable queueCondition_;
+	bool stopLoadingThread_;
 };
 
 void ModelManager::Create(Model *model,const std::string &directoryPath,const std::string &filename) {
-	LoadObjFile(model->data_,directoryPath,filename);
+	{
+		std::unique_lock<std::mutex> lock(queueMutex_);
+		loadingQueue_.emplace(model,directoryPath,filename);
+	}
+	queueCondition_.notify_one();//threadに通知
+}
+
+void ModelManager::Init() {
+	stopLoadingThread_ = false;
+	loadingThread_ = std::thread(&ModelManager::LoadLoop,this);
+}
+
+void ModelManager::Finalize() {
+	{
+		std::unique_lock<std::mutex> lock(queueMutex_);
+		stopLoadingThread_ = true;
+	}
+	queueCondition_.notify_all();
+	if(loadingThread_.joinable()) {
+		loadingThread_.join();
+	}
+}
+
+void ModelManager::LoadLoop() {
+	while(true) {
+		std::tuple<Model *,std::string,std::string> task;
+		{
+			std::unique_lock<std::mutex> lock(queueMutex_);
+			queueCondition_.wait(lock,[this] { return !loadingQueue_.empty() || stopLoadingThread_; });
+
+			if(stopLoadingThread_ && loadingQueue_.empty()) {
+				return;
+			}
+
+			task = loadingQueue_.front();
+			loadingQueue_.pop();
+		}
+
+		Model *model = std::get<0>(task);
+		model->currentState_ = Model::LoadState::Loading;
+		LoadObjFile(model->data_,std::get<1>(task),std::get<2>(task));
+		model->currentState_ = Model::LoadState::Loaded;
+	}
 }
 
 void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,const std::string &directoryPath,const std::string &filename) {
@@ -177,16 +230,17 @@ ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::s
 }
 #pragma endregion
 
-
 #pragma region"Model"
 Model *Model::Create(const std::string &directoryPath,const std::string &filename) {
-	static ModelManager modelManager;
 	Model *model = new Model();
-	modelManager.Create(model,directoryPath,filename);
+	manager_->Create(model,directoryPath,filename);
 	return model;
 }
 
 void Model::Init() {
+	manager_ = std::make_unique<ModelManager>();
+	manager_->Init();
+
 	fovMa_ = std::make_unique<Matrix4x4>();
 	Matrix4x4 *maPtr = new Matrix4x4();
 	*maPtr = MakeMatrix::PerspectiveFov(
@@ -201,7 +255,11 @@ void Model::Init() {
 	);
 }
 
-void Model::Draw(const WorldTransform &world,const ViewProjection &view) {
+void Model::Finalize() {
+	manager_->Finalize();
+}
+
+void Model::DrawThis(const WorldTransform &world,const ViewProjection &view) {
 	DirectXCommon *dxCommon_ = System::getInstance()->getDxCommon();
 	for(auto &model : data_) {
 		dxCommon_->getCommandList()->SetGraphicsRootSignature(model->usePso_->rootSignature.Get());
@@ -226,5 +284,9 @@ void Model::Draw(const WorldTransform &world,const ViewProjection &view) {
 		// 描画!!!
 		dxCommon_->getCommandList()->DrawInstanced((UINT)(model->vertSize),1,0,0);
 	}
+}
+
+void Model::Draw(const WorldTransform &world,const ViewProjection &view) {
+	drawFuncTable_[(size_t)currentState_](world,view);
 }
 #pragma endregion
