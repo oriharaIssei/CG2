@@ -1,10 +1,10 @@
 #include "ViewProjection.h"
 
 #include <System.h>
+#include "DXFunctionHelper.h"
 
 void ViewProjection::Init() {
-	DirectXCommon *dxCommon = System::getInstance()->getDxCommon();
-	dxCommon->CreateBufferResource(buff_, sizeof(ConstBufferDataViewProjection));
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),buff_, sizeof(ConstBufferDataViewProjection));
 	buff_->Map(0, nullptr, reinterpret_cast<void **>(&mappingData_));
 }
 

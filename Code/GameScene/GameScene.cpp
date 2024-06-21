@@ -7,6 +7,8 @@
 #include <imgui.h>
 
 GameScene::~GameScene() {
+	viewProj_.Finalize();
+	worldTransform_.Finalize();
 }
 
 void GameScene::Init() {

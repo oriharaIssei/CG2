@@ -17,16 +17,16 @@
 #include <wrl.h>
 
 #include "PipelineStateObj.h"
+#include "DXCommand.h"
 
 #include <condition_variable>
 #include <future>
 #include <mutex>
 #include <queue>
 
-class DirectXCommon;
 class TextureManager {
 public:
-	static void Init(DirectXCommon *dxCommon);
+	static void Init();
 	static void Finalize();
 
 	static uint32_t LoadTexture(const std::string &filePath);
@@ -52,7 +52,7 @@ private:
 		LoadState loadState;
 	private:
 		DirectX::ScratchImage Load(const std::string &filePath);
-		void CreateTextureResource(DirectXCommon *dxCommon,const DirectX::TexMetadata &metadata);
+		void CreateTextureResource(const DirectX::TexMetadata &metadata);
 		void UploadTextureData(DirectX::ScratchImage &mipImg);
 		void ExecuteCommnad();
 	};
@@ -64,7 +64,6 @@ private:
 	static uint64_t gpuDescriptorHandleStart_;
 	static uint32_t handleIncrementSize_;
 
-	static DirectXCommon *dxCommon_;
 	static std::array<std::unique_ptr<Texture>,maxTextureSize_> textures_;
 
 	static std::thread loadingThread_;
@@ -74,9 +73,10 @@ private:
 	static bool stopLoadingThread_;
 
 	// バックグラウンドスレッド用
-	static Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
+	static std::unique_ptr<DXCommand> dxCommand_;
+	/*static Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
 	static Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
-	static Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
+	static Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;*/
 
 public:
 	static const D3D12_GPU_DESCRIPTOR_HANDLE &getDescriptorGpuHandle(uint32_t handleId) {

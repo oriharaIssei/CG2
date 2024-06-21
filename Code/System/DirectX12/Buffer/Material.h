@@ -1,13 +1,12 @@
 #pragma once
 
-#include <DirectXCommon.h>
-
 #include <wrl.h>
+
+#include <d3d12.h>
 
 #include "Matrix4x4.h"
 #include "stdint.h"
 #include "Vector4.h"
-
 
 struct ConstBufferMaterial {
 	Vector4 color;

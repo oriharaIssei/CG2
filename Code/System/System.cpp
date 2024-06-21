@@ -1,5 +1,7 @@
 #include "System.h"
 
+#include "DXFunctionHelper.h"
+
 #include <imgui.h>
 #include <ImGuiManager.h>
 #include <PrimitiveDrawer.h>
@@ -10,6 +12,12 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+
+//.hに書いてはいけない
+#pragma comment(lib,"d3d12.lib")
+#pragma comment(lib,"dxgi.lib")
+#pragma comment(lib,"dxguid.lib")
+#pragma comment(lib,"dinput8.lib")
 
 System *System::getInstance() {
 	static System instance;
@@ -23,8 +31,25 @@ void System::Init() {
 	input_ = Input::getInstance();
 	input_->Init();
 
-	dxCommon_ = std::make_unique<DirectXCommon>(window_.get());
-	dxCommon_->Init();
+	dxDevice_ = std::make_unique<DXDevice>();
+	dxDevice_->Init();
+
+	dxCommand_ = std::make_unique<DXCommand>();
+	dxCommand_->Init(dxDevice_->getDevice(),"main","main");
+
+	dxSwapChain_ = std::make_unique<DXSwapChain>();
+	dxSwapChain_->Init(window_.get(),dxDevice_.get(),dxCommand_.get());
+
+	DXHeap::getInstance()->Init(dxDevice_->getDevice());
+
+	dxRenderTarget_ = std::make_unique<DXRenterTarget>();
+	dxRenderTarget_->Init(dxDevice_->getDevice(),dxSwapChain_.get());
+
+	dxFence_ = std::make_unique<DXFence>();
+	dxFence_->Init(dxDevice_->getDevice());
+
+	dxDepthStencil_ = std::make_unique<DXDepthStencil>();
+	dxDepthStencil_->Init(dxDevice_->getDevice(),DXHeap::getInstance()->getDsvHeap(),window_->getWidth(),window_->getHeight());
 
 	shaderCompiler_ = std::make_unique<ShaderCompiler>();
 	shaderCompiler_->Init();
@@ -34,9 +59,9 @@ void System::Init() {
 	CreateTexturePSO();
 	CreatePrimitivePSO(primitivePso_,D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 
-	ImGuiManager::getInstance()->Init(window_.get(),dxCommon_.get());
+	ImGuiManager::getInstance()->Init(window_.get(),dxDevice_.get(),dxSwapChain_.get());
 
-	TextureManager::Init(dxCommon_.get());
+	TextureManager::Init();
 
 	standerdMaterial_ = std::make_unique<Material>();
 	standerdMaterial_->Init();
@@ -51,16 +76,25 @@ void System::Init() {
 }
 
 void System::Finalize() {
-	dxCommon_->Finalize();
 	shaderCompiler_->Finalize();
 	primitivePso_->Finalize();
 	texturePso_->Finalize();
-	input_->Finalize();
 
 	PrimitiveDrawer::Finalize();
 	Sprite::Finalize();
-	TextureManager::Finalize();
 	Model::Finalize();
+	TextureManager::Finalize();
+
+	dxDevice_->Finalize();
+	DXHeap::getInstance()->Finalize();
+	dxDepthStencil_->Finalize();
+	dxRenderTarget_->Finalize();
+	dxSwapChain_->Finalize();
+	dxCommand_->Finalize();
+	DXCommand::ResetAll();
+	dxFence_->Finalize();
+
+	input_->Finalize();
 
 	standerdMaterial_->Finalize();
 	standerdLight_->Finalize();
@@ -562,7 +596,7 @@ void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRI
 	}
 
 	//バイナリをもとに作成
-	dxCommon_->getDevice()->CreateRootSignature(
+	dxDevice_->getDevice()->CreateRootSignature(
 		0,
 		signatureBlob->GetBufferPointer(),
 		signatureBlob->GetBufferSize(),
@@ -637,7 +671,7 @@ void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRI
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 
 	// 生成
-	hr = dxCommon_->getDevice()->CreateGraphicsPipelineState(
+	hr = dxDevice_->getDevice()->CreateGraphicsPipelineState(
 		&graphicsPipelineStateDesc,
 		IID_PPV_ARGS(&pso->pipelineState)
 	);
@@ -724,7 +758,7 @@ void System::CreateTexturePSO() {
 	}
 
 	//バイナリをもとに作成
-	dxCommon_->getDevice()->CreateRootSignature(
+	dxDevice_->getDevice()->CreateRootSignature(
 		0,
 		signatureBlob->GetBufferPointer(),
 		signatureBlob->GetBufferSize(),
@@ -805,16 +839,16 @@ void System::CreateTexturePSO() {
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 
 	// 生成
-	hr = dxCommon_->getDevice()->CreateGraphicsPipelineState(
+	hr = dxDevice_->getDevice()->CreateGraphicsPipelineState(
 		&graphicsPipelineStateDesc,
 		IID_PPV_ARGS(&texturePso_->pipelineState)
 	);
 	assert(SUCCEEDED(hr));
 }
 
-void System::SetStanderdForRootparameter(UINT materialRootparameter,UINT lightRootParameter) {
-	standerdMaterial_->SetForRootParameter(dxCommon_->getCommandList(),materialRootparameter);
-	standerdLight_->SetForRootParameter(dxCommon_->getCommandList(),lightRootParameter);
+void System::SetStanderdForRootparameter(ID3D12GraphicsCommandList *commandList,UINT materialRootparameter,UINT lightRootParameter) {
+	standerdMaterial_->SetForRootParameter(commandList,materialRootparameter);
+	standerdLight_->SetForRootParameter(commandList,lightRootParameter);
 }
 
 bool System::ProcessMessage() {
@@ -824,14 +858,14 @@ bool System::ProcessMessage() {
 void System::BeginFrame() {
 	ImGuiManager::getInstance()->Begin();
 	input_->Update();
-	dxCommon_->PreDraw();
 	PrimitiveDrawer::ResetInstanceVal();
+	DXFH::PreDraw(dxCommand_.get(),dxSwapChain_.get());
 }
 
 void System::EndFrame() {
 	ImGuiManager::getInstance()->End();
-	ImGuiManager::getInstance()->Draw(dxCommon_.get());
-	dxCommon_->PostDraw();
+	ImGuiManager::getInstance()->Draw();
+	DXFH::PostDraw(dxCommand_.get(),dxFence_.get(),dxSwapChain_.get());
 }
 
 int System::LoadTexture(const std::string &filePath) {

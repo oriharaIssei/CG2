@@ -1,6 +1,5 @@
 #pragma once
 
-#include <DirectXCommon.h>
 #include <Input.h>
 
 #include "Sprite.h"

@@ -2,16 +2,23 @@
 
 #include <cassert>
 
+#include "DXFunctionHelper.h"
 #include "TextureManager.h"
 #include <System.h>
+
+#include "DXHeap.h"
 
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
 #include <stdint.h>
 
+uint32_t Model::drawCount_;
+
 std::unique_ptr<Matrix4x4> Model::fovMa_ = nullptr;
 std::unique_ptr<ModelManager> Model::manager_ = nullptr;
+
+std::unique_ptr<DXCommand> Model::dxCommand_;
 
 #pragma region"ModelManager"
 class ModelManager {
@@ -178,7 +185,7 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 
 		modelData->dataSize = sizeof(TextureVertexData) * vertices.size();
 
-		textureMesh->Create(vertices.size());
+		textureMesh->Create(static_cast<UINT>(vertices.size()));
 		memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
 		modelData->meshBuff_.reset(textureMesh);
 	} else {
@@ -192,7 +199,7 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 
 		modelData->dataSize = sizeof(PrimitiveVertexData) * primVert.size();
 
-		primitiveMesh->Create(primVert.size());
+		primitiveMesh->Create(static_cast<UINT>(primVert.size()));
 		memcpy(primitiveMesh->vertData,primVert.data(),primVert.size() * sizeof(PrimitiveVertexData));
 		modelData->meshBuff_.reset(primitiveMesh);
 	}
@@ -253,37 +260,42 @@ void Model::Init() {
 	fovMa_.reset(
 		maPtr
 	);
+	dxCommand_ = std::make_unique<DXCommand>();
+	dxCommand_->Init(System::getInstance()->getDXDevice()->getDevice(),"main","main");
 }
 
 void Model::Finalize() {
 	manager_->Finalize();
+	dxCommand_->Finalize();
 }
 
 void Model::DrawThis(const WorldTransform &world,const ViewProjection &view) {
-	DirectXCommon *dxCommon_ = System::getInstance()->getDxCommon();
+	auto *commandList = dxCommand_->getCommandList();
+
 	for(auto &model : data_) {
-		dxCommon_->getCommandList()->SetGraphicsRootSignature(model->usePso_->rootSignature.Get());
-		dxCommon_->getCommandList()->SetPipelineState(model->usePso_->pipelineState.Get());
+		commandList->SetGraphicsRootSignature(model->usePso_->rootSignature.Get());
+		commandList->SetPipelineState(model->usePso_->pipelineState.Get());
 
-		dxCommon_->getCommandList()->IASetVertexBuffers(0,1,&model->meshBuff_->vbView);
+		commandList->IASetVertexBuffers(0,1,&model->meshBuff_->vbView);
 
-		world.SetForRootParameter(dxCommon_->getCommandList(),0);
-		view.SetForRootParameter(dxCommon_->getCommandList(),1);
+		world.SetForRootParameter(commandList,0);
+		view.SetForRootParameter(commandList,1);
 
-		System::getInstance()->SetStanderdForRootparameter(2,3);
+		System::getInstance()->SetStanderdForRootparameter(commandList,2,3);
 
 		if(model->materialData.textureNumber != nullptr) {
-			ID3D12DescriptorHeap *ppHeaps[] = {dxCommon_->getSrv()};
-			dxCommon_->getCommandList()->SetDescriptorHeaps(1,ppHeaps);
-			dxCommon_->getCommandList()->SetGraphicsRootDescriptorTable(
+			ID3D12DescriptorHeap *ppHeaps[] = {DXHeap::getInstance()->getSrvHeap()};
+			commandList->SetDescriptorHeaps(1,ppHeaps);
+			commandList->SetGraphicsRootDescriptorTable(
 				4,
 				TextureManager::getDescriptorGpuHandle(*model->materialData.textureNumber.get())
 			);
 		}
 
 		// 描画!!!
-		dxCommon_->getCommandList()->DrawInstanced((UINT)(model->vertSize),1,0,0);
+		commandList->DrawInstanced((UINT)(model->vertSize),1,0,0);
 	}
+	drawCount_++;
 }
 
 void Model::Draw(const WorldTransform &world,const ViewProjection &view) {

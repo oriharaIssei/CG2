@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 
-#include <DirectXCommon.h>
+#include "DXCommand.h"
 #include <PipelineStateObj.h>
 
 #include <Object3dMesh.h>
@@ -37,7 +37,12 @@ public:
 	static void Init();
 	static void Finalize();
 private:
+	static uint32_t drawCount_;
+
 	static std::unique_ptr<ModelManager> manager_;
+
+	static std::unique_ptr<DXCommand> dxCommand_;
+
 	static std::unique_ptr<Matrix4x4> fovMa_;
 public:
 	Model() = default;

@@ -8,6 +8,8 @@
 #include <ViewProjection.h>
 #include <WorldTransform.h>
 
+#include "DXCommand.h"
+
 #include <memory>
 #include <wrl.h>
 
@@ -19,12 +21,12 @@ public:
 	static void Init();
 	static void Finalize();
 
-	static void Line(const Vector3 &p0, const Vector3 &p1, const WorldTransform &transform, const ViewProjection &viewProj);
-	static void Line(const Vector3 &p0, const Vector3 &p1, const WorldTransform &transform, const ViewProjection &viewProj, const Material &material);
-	static void Triangle(const Vector3 &p0, const Vector3 &p1, const Vector3 &p2, const WorldTransform &transform, const ViewProjection &viewProj);
-	static void Triangle(const Vector3 &p0, const Vector3 &p1, const Vector3 &p2, const WorldTransform &transform, const ViewProjection &viewProj, const Material &material);
-	static void Quad(const Vector3 &p0, const Vector3 &p1, const Vector3 &p2, const Vector3 &p3, const WorldTransform &transform, const ViewProjection &viewProj);
-	static void Quad(const Vector3 &p0, const Vector3 &p1, const Vector3 &p2, const Vector3 &p3, const WorldTransform &transform, const ViewProjection &viewProj, const Material &material);
+	static void Line(const Vector3 &p0,const Vector3 &p1,const WorldTransform &transform,const ViewProjection &viewProj);
+	static void Line(const Vector3 &p0,const Vector3 &p1,const WorldTransform &transform,const ViewProjection &viewProj,const Material &material);
+	static void Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const WorldTransform &transform,const ViewProjection &viewProj);
+	static void Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const WorldTransform &transform,const ViewProjection &viewProj,const Material &material);
+	static void Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const WorldTransform &transform,const ViewProjection &viewProj);
+	static void Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const WorldTransform &transform,const ViewProjection &viewProj,const Material &material);
 
 	static void ResetInstanceVal() {
 		lineInstanceVal_ = 0; triangleInstanceVal_ = 0; quadInstanceVal_ = 0;
@@ -32,13 +34,11 @@ public:
 private:
 	static void CreateLinePso(System *system = System::getInstance());
 private:
-	static WorldTransform transform;
-	static ViewProjection viewProj;
+	static std::unique_ptr<DXCommand> dxCommand_;
 
 	static Material *standerdMaterial_;
 	static PipelineStateObj *trianglePso_;
 	static std::unique_ptr<PipelineStateObj> linePso_;
-	static Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
 
 	static std::unique_ptr<PrimitiveObject3dMesh> lineMesh_;
 	static uint32_t lineInstanceVal_;
