@@ -82,19 +82,41 @@ void DXFunctionHelper::SetRenderTargets(const DXCommand *dxCommand,const DXSwapC
 	dxCommand->getCommandList()->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
 }
 
-void DXFunctionHelper::PreDraw(const DXCommand *command,const DXSwapChain *swapChain) {
+void DXFunctionHelper::PreDraw(const DXCommand *command,const WinApp* window,const DXSwapChain *swapChain) {
 	///=========================================
 	//	TransitionBarrierの設定
 	///=========================================
+	ID3D12GraphicsCommandList *commandList = command->getCommandList();
+	
 	D3D12_RESOURCE_BARRIER barrier {};
 	barrier = ResourceBarrierManager::Barrier(
 		swapChain->getCurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
-
-	ID3D12GraphicsCommandList *commandList = command->getCommandList();
-
 	commandList->ResourceBarrier(1,&barrier);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DXHeap::getInstance()->getRtvHandle(swapChain->getCurrentBackBufferIndex());
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DXHeap::getInstance()->getDsvHandle(0);
+	commandList->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
+
+	//ビューポートの設定
+	D3D12_VIEWPORT viewPort {};
+	viewPort.Width = static_cast<float>(window->getWidth());
+	viewPort.Height = static_cast<float>(window->getHeight());
+	viewPort.TopLeftX = 0;
+	viewPort.TopLeftY = 0;
+	viewPort.MinDepth = 0.0f;
+	viewPort.MaxDepth = 1.0f;
+
+	commandList->RSSetViewports(1,&viewPort);
+
+	D3D12_RECT scissorRect {};
+	scissorRect.left = 0;
+	scissorRect.right = window->getWidth();
+	scissorRect.top = 0;
+	scissorRect.bottom = window->getHeight();
+
+	commandList->RSSetScissorRects(1,&scissorRect);
 
 	ClearRenderTarget(command,swapChain);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

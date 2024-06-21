@@ -63,9 +63,6 @@ void System::Init() {
 
 	TextureManager::Init();
 
-	standerdMaterial_ = std::make_unique<Material>();
-	standerdMaterial_->Init();
-	standerdMaterial_->Update();
 	standerdLight_ = std::make_unique<LightBuffer>();
 	standerdLight_->Init();
 	standerdLight_->ConvertToBuffer();
@@ -73,6 +70,8 @@ void System::Init() {
 	Model::Init();
 	Sprite::Init();
 	PrimitiveDrawer::Init();
+
+	materialManager_ = std::make_unique<MaterialManager>();
 }
 
 void System::Finalize() {
@@ -96,7 +95,7 @@ void System::Finalize() {
 
 	input_->Finalize();
 
-	standerdMaterial_->Finalize();
+	materialManager_->Finalize();
 	standerdLight_->Finalize();
 
 #ifdef _DEBUG
@@ -846,11 +845,6 @@ void System::CreateTexturePSO() {
 	assert(SUCCEEDED(hr));
 }
 
-void System::SetStanderdForRootparameter(ID3D12GraphicsCommandList *commandList,UINT materialRootparameter,UINT lightRootParameter) {
-	standerdMaterial_->SetForRootParameter(commandList,materialRootparameter);
-	standerdLight_->SetForRootParameter(commandList,lightRootParameter);
-}
-
 bool System::ProcessMessage() {
 	return window_->ProcessMessage();
 }
@@ -859,7 +853,7 @@ void System::BeginFrame() {
 	ImGuiManager::getInstance()->Begin();
 	input_->Update();
 	PrimitiveDrawer::ResetInstanceVal();
-	DXFH::PreDraw(dxCommand_.get(),dxSwapChain_.get());
+	DXFH::PreDraw(dxCommand_.get(),window_.get(),dxSwapChain_.get());
 }
 
 void System::EndFrame() {

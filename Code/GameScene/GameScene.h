@@ -34,4 +34,5 @@ private:
 	WorldTransform worldTransform_;
 
 	std::unique_ptr<Model> model = nullptr;
+	std::shared_ptr<Material> material;
 };

@@ -4,8 +4,8 @@
 #include "DXFunctionHelper.h"
 
 void ViewProjection::Init() {
-	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),buff_, sizeof(ConstBufferDataViewProjection));
-	buff_->Map(0, nullptr, reinterpret_cast<void **>(&mappingData_));
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),buff_,sizeof(ConstBufferDataViewProjection));
+	buff_->Map(0,nullptr,reinterpret_cast<void **>(&mappingData_));
 }
 
 void ViewProjection::Finalize() {
@@ -13,8 +13,8 @@ void ViewProjection::Finalize() {
 }
 
 void ViewProjection::UpdateMatrix() {
-	viewMat = MakeMatrix::Affine({ 1.0f,1.0f,1.0f }, rotate, translate);
-	projectionMat = MakeMatrix::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
+	viewMat = MakeMatrix::Affine({1.0f,1.0f,1.0f},rotate,translate).Inverse();
+	projectionMat = MakeMatrix::PerspectiveFov(fovAngleY,aspectRatio,nearZ,farZ);
 }
 
 void ViewProjection::ConvertToBuffer() {
@@ -22,6 +22,6 @@ void ViewProjection::ConvertToBuffer() {
 	mappingData_->projection = projectionMat;
 }
 
-void ViewProjection::SetForRootParameter(ID3D12GraphicsCommandList *cmdList, UINT rootParameterNum)const {
-	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_->GetGPUVirtualAddress());
+void ViewProjection::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const {
+	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,buff_->GetGPUVirtualAddress());
 }

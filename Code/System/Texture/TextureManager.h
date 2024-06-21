@@ -33,7 +33,6 @@ public:
 	static void UnloadTexture(uint32_t id);
 
 	static void LoadLoop();
-
 private:
 	struct Texture {
 		enum class LoadState {
@@ -74,9 +73,6 @@ private:
 
 	// バックグラウンドスレッド用
 	static std::unique_ptr<DXCommand> dxCommand_;
-	/*static Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
-	static Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
-	static Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;*/
 
 public:
 	static const D3D12_GPU_DESCRIPTOR_HANDLE &getDescriptorGpuHandle(uint32_t handleId) {

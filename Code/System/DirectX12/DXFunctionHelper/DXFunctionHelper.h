@@ -22,7 +22,7 @@ public:
 
 	static void SetViewportsAndScissor(const DXCommand *dxCommand,const WinApp *window);
 	static void SetRenderTargets(const DXCommand *dxCommand,const DXSwapChain *dxSwapChain);
-	static void PreDraw(const DXCommand *dxCommand,const DXSwapChain *dxSwapChain);
+	static void PreDraw(const DXCommand *dxCommand,const WinApp* window,const DXSwapChain *dxSwapChain);
 	static void PostDraw(DXCommand *dxCommands,DXFence *dxFence,DXSwapChain *dxSwapChain);
 };
 using DXFH = DXFunctionHelper;

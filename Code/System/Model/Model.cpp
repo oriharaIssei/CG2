@@ -174,6 +174,9 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	}
 	// 最後のメッシュデータを処理
 	if(!vertices.empty()) {
+		if(data.empty()) {
+			data.push_back(std::make_unique<ModelData>());
+		}
 		ProcessMeshData(data.back(),vertices);
 	}
 }
@@ -269,7 +272,7 @@ void Model::Finalize() {
 	dxCommand_->Finalize();
 }
 
-void Model::DrawThis(const WorldTransform &world,const ViewProjection &view) {
+void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,const Material *material) {
 	auto *commandList = dxCommand_->getCommandList();
 
 	for(auto &model : data_) {
@@ -281,7 +284,8 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view) {
 		world.SetForRootParameter(commandList,0);
 		view.SetForRootParameter(commandList,1);
 
-		System::getInstance()->SetStanderdForRootparameter(commandList,2,3);
+		material->SetForRootParameter(commandList,2);
+		System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
 
 		if(model->materialData.textureNumber != nullptr) {
 			ID3D12DescriptorHeap *ppHeaps[] = {DXHeap::getInstance()->getSrvHeap()};
@@ -291,14 +295,13 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view) {
 				TextureManager::getDescriptorGpuHandle(*model->materialData.textureNumber.get())
 			);
 		}
-
 		// 描画!!!
 		commandList->DrawInstanced((UINT)(model->vertSize),1,0,0);
 	}
 	drawCount_++;
 }
 
-void Model::Draw(const WorldTransform &world,const ViewProjection &view) {
-	drawFuncTable_[(size_t)currentState_](world,view);
+void Model::Draw(const WorldTransform &world,const ViewProjection &view,const Material *material) {
+	drawFuncTable_[(size_t)currentState_](world,view,material);
 }
 #pragma endregion

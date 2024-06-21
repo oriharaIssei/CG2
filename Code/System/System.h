@@ -64,7 +64,7 @@ private:
 	std::unique_ptr<PipelineStateObj> texturePso_;
 	std::unique_ptr<PipelineStateObj> primitivePso_;
 
-	std::unique_ptr<Material> standerdMaterial_;
+	std::unique_ptr<MaterialManager> materialManager_;
 	std::unique_ptr<LightBuffer> standerdLight_;
 public:
 	WinApp *getWinApp() { return window_.get(); }
@@ -74,13 +74,13 @@ public:
 	DXFence *getDXFence()const { return dxFence_.get(); }
 	DXDepthStencil *getDXDepthStencil()const { return dxDepthStencil_.get(); }
 
+	MaterialManager *getMaterialManager()const { return materialManager_.get(); }
+	
 	PipelineStateObj *getPrimitivePso() { return primitivePso_.get(); }
 	PipelineStateObj *getTexturePso() { return texturePso_.get(); }
 
 	ShaderCompiler *getShaderCompiler() { return shaderCompiler_.get(); }
 
-	const std::unique_ptr<Material> &getStanderdMaterial()const { return standerdMaterial_; }
-	const std::unique_ptr<LightBuffer> &getStanderdLight()const { return standerdLight_; }
+	const LightBuffer *getStanderdLight()const { return standerdLight_.get(); }
 
-	void SetStanderdForRootparameter(ID3D12GraphicsCommandList *commandList,UINT materialRootparameter,UINT lightRootParameter);
 };
