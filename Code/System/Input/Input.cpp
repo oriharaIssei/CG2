@@ -1,6 +1,7 @@
 #include "Input.h"
 #include <Logger.h>
 
+#include <cassert>
 
 #include "System.h"
 #include <Windows.h>

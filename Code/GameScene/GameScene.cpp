@@ -7,6 +7,8 @@
 #include <imgui.h>
 
 GameScene::~GameScene() {
+	viewProj_.Finalize();
+	worldTransform_.Finalize();
 }
 
 void GameScene::Init() {
@@ -27,7 +29,9 @@ void GameScene::Init() {
 	worldTransform_.Init();
 	viewProj_.Init();
 
-	model.reset(Model::Create("resource","multiMaterial.obj"));
+	model.reset(Model::Create("resource","multiMesh.obj"));
+
+	material = System::getInstance()->getMaterialManager()->Create("White");
 }
 
 void GameScene::Update() {
@@ -54,5 +58,5 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	model->Draw(worldTransform_,viewProj_);
+	model->Draw(worldTransform_,viewProj_,material.get());
 }

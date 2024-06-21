@@ -1,13 +1,17 @@
 #pragma once
 
-#include <DirectXCommon.h>
-
+#include <memory>
 #include <wrl.h>
+
+#include <unordered_map>
+
+#include <d3d12.h>
+
+#include <string>
 
 #include "Matrix4x4.h"
 #include "stdint.h"
 #include "Vector4.h"
-
 
 struct ConstBufferMaterial {
 	Vector4 color;
@@ -36,7 +40,6 @@ struct ConstBufferMaterial {
 	となっているらしい。
 	この誤差を埋めるためにc++側で隙間のメモリを上手く埋める。
 	*/
-
 };
 
 struct MaterialData {
@@ -45,19 +48,40 @@ struct MaterialData {
 	Matrix4x4 uvTransform;
 };
 
+class MaterialManager;
 class Material {
+	friend class MaterialManager;
 public:
-	void Init();
 	void Finalize();
-	void ConvertToBuffer();
-	void Update();
-	void UpdateMatrix();
 
 	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const;
-
-	Transform uvTransformData = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
-	MaterialData materialData;
+private:
+	void Init();
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
 	ConstBufferMaterial *mappingData_ = nullptr;
+};
+
+class MaterialManager {
+public:
+	std::shared_ptr<Material> Create(const std::string &materialName);
+	std::shared_ptr<Material> Create(const std::string &materialName,const MaterialData &data);
+
+	void Finalize();
+private:
+	std::unordered_map<std::string,std::shared_ptr<Material>> materialPallete_;
+public:
+	const Material *getMaterial(const std::string &materialName) const {
+		auto it = materialPallete_.find(materialName);
+		if(it != materialPallete_.end()) {
+			return it->second.get();
+		} else {
+			// キーが存在しない場合の処理
+			return nullptr; // または適切なエラー処理を行う
+		}
+	}
+	void Edit(const std::string &materialName,const MaterialData &data);
+	void EditColor(const std::string &materialName,const Vector4 &color);
+	void EditUvTransform(const std::string &materialName,const Transform &transform);
+	void EditEnableLighting(const std::string &materialName,bool enableLighting);
 };

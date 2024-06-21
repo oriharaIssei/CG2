@@ -1,64 +1,71 @@
 #include "Sprite.h"
 
-#include "DirectXCommon.h"
+#include "DXFunctionHelper.h"
 #include "System.h"
 #include "TextureManager.h"
 #include <Logger.h>
 #include <ShaderCompiler.h>
 
 std::unique_ptr<PipelineStateObj> Sprite::pso_ = nullptr;
+std::unique_ptr<DXCommand> Sprite::dxCommand_;
+uint32_t Sprite::drawCount_;
 Matrix4x4 Sprite::viewPortMat_;
 
 void Sprite::Init() {
 	pso_ = std::make_unique<PipelineStateObj>();
+	dxCommand_ = std::make_unique<DXCommand>();
+	dxCommand_->Init(System::getInstance()->getDXDevice()->getDevice(),"main","main");
 	CreatePSO();
 	WinApp *window = System::getInstance()->getWinApp();
-	viewPortMat_ = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);
+	viewPortMat_ = MakeMatrix::Orthographic(0,0,(float)window->getWidth(),(float)window->getHeight(),0.0f,100.0f);
 }
 
 void Sprite::Finalize() {
 	pso_->Finalize();
 	pso_.release();
+
+	dxCommand_->Finalize();
 }
 
-Sprite *Sprite::Create(const Vector2 &pos, const Vector2 &size, const std::string &textureFilePath) {
+Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string &textureFilePath) {
 	Sprite *result = new Sprite();
 	result->th_ = TextureManager::LoadTexture(textureFilePath);
 
 	result->meshBuff_ = std::make_unique<SpriteMesh>();
 	result->meshBuff_->Init();
 
-	result->meshBuff_->vertexData[0] = { {0.0f, size.y, 0.0f, 1.0f}, {0.0f, 1.0f} };
-	result->meshBuff_->vertexData[1] = { {0, 0, 0.0f, 1.0f}, {0.0f, 0.0f} };
-	result->meshBuff_->vertexData[2] = { { size.x,  size.y, 0.0f, 1.0f}, {1.0f, 1.0f} };
-	result->meshBuff_->vertexData[3] = { {size.x, 0, 0.0f, 1.0f}, {1.0f, 0.0f} };
+	result->meshBuff_->vertexData[0] = {{0.0f,size.y,0.0f,1.0f},{0.0f,1.0f}};
+	result->meshBuff_->vertexData[1] = {{0,0,0.0f,1.0f},{0.0f,0.0f}};
+	result->meshBuff_->vertexData[2] = {{size.x,size.y,0.0f,1.0f},{1.0f,1.0f}};
+	result->meshBuff_->vertexData[3] = {{size.x,0,0.0f,1.0f},{1.0f,0.0f}};
 
 	result->mappingConstBufferData_ = nullptr;
-	System::getInstance()->getDxCommon()->CreateBufferResource(result->constBuff_, sizeof(SpritConstBuffer));
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),result->constBuff_,sizeof(SpritConstBuffer));
 
 	result->constBuff_->Map(
-		0, nullptr, reinterpret_cast<void **>(&result->mappingConstBufferData_)
+		0,nullptr,reinterpret_cast<void **>(&result->mappingConstBufferData_)
 	);
-	result->mappingConstBufferData_->color_ = { 1.0f,1.0f,1.0f,1.0f };
+	result->mappingConstBufferData_->color_ = {1.0f,1.0f,1.0f,1.0f};
 
-	result->worldMat_ = MakeMatrix::Affine({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { pos.x,pos.y,1.0f });
+	result->worldMat_ = MakeMatrix::Affine({1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{pos.x,pos.y,1.0f});
 
 	return result;
 }
 
 void Sprite::PreDraw() {
-	DirectXCommon *dxCommon_ = System::getInstance()->getDxCommon();
+	drawCount_ = 0;
+	DXFH::SetViewportsAndScissor(dxCommand_.get(),System::getInstance()->getWinApp());
+	dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
 
-	dxCommon_->getCommandList()->SetGraphicsRootSignature(pso_->rootSignature.Get());
-	dxCommon_->getCommandList()->SetPipelineState(pso_->pipelineState.Get());
-	dxCommon_->getCommandList()->IASetPrimitiveTopology(
-		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-	);
+void Sprite::PostDraw() {
+	if(drawCount_ <= 0) {
+		return;
+	}
+	//System::getInstance()->RegisterActiveCommand(dxCommand_.get());
 }
 
 void Sprite::CreatePSO() {
-	DirectXCommon *dxCommon = System::getInstance()->getDxCommon();
-
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;
 	descriptorRange[0].NumDescriptors = 1;
@@ -126,7 +133,7 @@ void Sprite::CreatePSO() {
 	}
 
 	//バイナリをもとに作成
-	dxCommon->getDevice()->CreateRootSignature(
+	System::getInstance()->getDXDevice()->getDevice()->CreateRootSignature(
 		0,
 		signatureBlob->GetBufferPointer(),
 		signatureBlob->GetBufferSize(),
@@ -159,10 +166,10 @@ void Sprite::CreatePSO() {
 	ShaderCompiler compiler;
 	compiler.Init();
 
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Sprite.VS.hlsl", L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Sprite.VS.hlsl",L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Sprite.PS.hlsl", L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Sprite.PS.hlsl",L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc {};
@@ -203,7 +210,7 @@ void Sprite::CreatePSO() {
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 
 	// 生成
-	hr = dxCommon->getDevice()->CreateGraphicsPipelineState(
+	hr = System::getInstance()->getDXDevice()->getDevice()->CreateGraphicsPipelineState(
 		&graphicsPipelineStateDesc,
 		IID_PPV_ARGS(&pso_->pipelineState)
 	);
@@ -211,38 +218,38 @@ void Sprite::CreatePSO() {
 }
 
 void Sprite::Draw() {
-	DirectXCommon *dxCommon_ = System::getInstance()->getDxCommon();
+	auto commandList = dxCommand_->getCommandList();
 
-	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &meshBuff_->vbView);
-	dxCommon_->getCommandList()->IASetIndexBuffer(&meshBuff_->ibView);
+	commandList->IASetVertexBuffers(0,1,&meshBuff_->vbView);
+	commandList->IASetIndexBuffer(&meshBuff_->ibView);
 
 	mappingConstBufferData_->mat_ = worldMat_ * viewPortMat_;
 
-	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
-		0, constBuff_->GetGPUVirtualAddress()
+	commandList->SetGraphicsRootConstantBufferView(
+		0,constBuff_->GetGPUVirtualAddress()
 	);
 
-	ID3D12DescriptorHeap *ppHeaps[] = { dxCommon_->getSrv() };
-	dxCommon_->getCommandList()->SetDescriptorHeaps(1, ppHeaps);
-	dxCommon_->getCommandList()->SetGraphicsRootDescriptorTable(
+	ID3D12DescriptorHeap *ppHeaps[] = {DXHeap::getInstance()->getSrvHeap()};
+	commandList->SetDescriptorHeaps(1,ppHeaps);
+	commandList->SetGraphicsRootDescriptorTable(
 		1,
 		TextureManager::getDescriptorGpuHandle(th_)
 	);
-	dxCommon_->getCommandList()->SetGraphicsRootDescriptorTable(1, TextureManager::getDescriptorGpuHandle(th_));
-	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(0, constBuff_->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootDescriptorTable(1,TextureManager::getDescriptorGpuHandle(th_));
+	commandList->SetGraphicsRootConstantBufferView(0,constBuff_->GetGPUVirtualAddress());
 
-	dxCommon_->getCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	commandList->DrawIndexedInstanced(6,1,0,0,0);
 }
 
 void Sprite::SpriteMesh::Init() {
-	DirectXCommon *dxCommon = System::getInstance()->getDxCommon();
 
 	const size_t vertexBufferSize = sizeof(SpriteVertexData) * 6;
 	const size_t indexBufferSize = sizeof(uint32_t) * 6;
 
 	// バッファのリソースを作成
-	dxCommon->CreateBufferResource(vertBuff, vertexBufferSize);
-	dxCommon->CreateBufferResource(indexBuff, indexBufferSize);
+	auto dxDevice = System::getInstance()->getDXDevice();
+	DXFH::CreateBufferResource(dxDevice,vertBuff,vertexBufferSize);
+	DXFH::CreateBufferResource(dxDevice,indexBuff,indexBufferSize);
 
 	// 頂点バッファビューの設定
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
@@ -250,7 +257,7 @@ void Sprite::SpriteMesh::Init() {
 	vbView.StrideInBytes = sizeof(SpriteVertexData);
 
 	// 頂点バッファをマップ
-	vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&vertexData));
+	vertBuff->Map(0,nullptr,reinterpret_cast<void **>(&vertexData));
 
 	// インデックスバッファビューの設定
 	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
@@ -258,7 +265,7 @@ void Sprite::SpriteMesh::Init() {
 	ibView.Format = DXGI_FORMAT_R32_UINT;
 
 	// インデックスバッファをマップ
-	indexBuff->Map(0, nullptr, reinterpret_cast<void **>(&indexData));
+	indexBuff->Map(0,nullptr,reinterpret_cast<void **>(&indexData));
 
 	// インデックスデータの設定
 	indexData[0] = 0;
