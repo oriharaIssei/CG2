@@ -1,7 +1,9 @@
 #include "Material.h"
 
-#include <System.h>
 #include "DXFunctionHelper.h"
+#include <System.h>
+
+#include <imgui.h>
 
 void Material::Init() {
 	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),constBuff_,sizeof(ConstBufferMaterial));
@@ -41,6 +43,23 @@ std::shared_ptr<Material> MaterialManager::Create(const std::string &materialNam
 	};
 
 	return materialPallete_[materialName];
+}
+
+void MaterialManager::DebugUpdate() {
+#ifdef _DEBUG
+	ImGui::Begin("Materials");
+	bool isEnableLighting = false;
+	for(auto &material : materialPallete_) {
+		if(ImGui::TreeNode(material.first.c_str())) {
+			ImGui::TreePop();
+			ImGui::ColorEdit4(std::string(material.first + "Color").c_str(),&material.second->mappingData_->color.x);
+			isEnableLighting = static_cast<bool>(material.second->mappingData_->enableLighting);
+			ImGui::Checkbox(std::string(material.first + "is EnableLighting").c_str(),&isEnableLighting);
+			material.second->mappingData_->enableLighting = static_cast<uint32_t>(isEnableLighting);
+		}
+	}
+	ImGui::End();
+#endif // _DEBUG
 }
 
 void MaterialManager::Finalize() {

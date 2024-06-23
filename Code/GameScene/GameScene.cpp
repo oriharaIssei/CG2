@@ -35,6 +35,8 @@ void GameScene::Init() {
 }
 
 void GameScene::Update() {
+	System::getInstance()->getMaterialManager()->DebugUpdate();
+
 	ImGui::Begin("Mouse");
 	ImGui::Text("Mouse Pos x : %f, y : %f",input_->getCurrentMousePos().x,input_->getCurrentMousePos().y);
 	ImGui::Text("Mouse Velocity x : %f, y : %f",input_->getMouseVelocity().x,input_->getMouseVelocity().y);

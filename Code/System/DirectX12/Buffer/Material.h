@@ -67,6 +67,8 @@ public:
 	std::shared_ptr<Material> Create(const std::string &materialName);
 	std::shared_ptr<Material> Create(const std::string &materialName,const MaterialData &data);
 
+	void DebugUpdate();
+
 	void Finalize();
 private:
 	std::unordered_map<std::string,std::shared_ptr<Material>> materialPallete_;
