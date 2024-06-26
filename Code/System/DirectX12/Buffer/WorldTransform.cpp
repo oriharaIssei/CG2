@@ -4,10 +4,11 @@
 #include "DXFunctionHelper.h"
 
 void WorldTransform::Init() {
-	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),buff_, sizeof(ConstantBufferWorldMatrix));
-	buff_->Map(0, nullptr, reinterpret_cast<void **>(&mappingWorldMat_));
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),buff_,sizeof(ConstantBufferWorldMatrix));
+	buff_->Map(0,nullptr,reinterpret_cast<void **>(&mappingWorldMat_));
 
-	worldMat = MakeMatrix::Identity();
+	transformData.scale = {1.0f,1.0f,1.0f}; 
+	worldMat = MakeMatrix::Affine(transformData);
 }
 
 void WorldTransform::Finalize() {
@@ -27,6 +28,6 @@ void WorldTransform::ConvertToBuffer() {
 	mappingWorldMat_->world = worldMat;
 }
 
-void WorldTransform::SetForRootParameter(ID3D12GraphicsCommandList *cmdList, UINT rootParameterNum) const {
-	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_->GetGPUVirtualAddress());
+void WorldTransform::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum) const {
+	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,buff_->GetGPUVirtualAddress());
 }

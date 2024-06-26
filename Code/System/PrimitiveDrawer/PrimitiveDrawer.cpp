@@ -27,15 +27,15 @@ void PrimitiveDrawer::Init() {
 	CreateLinePso();
 
 	lineMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	lineMesh_->Create(2 * 600);
+	lineMesh_->Create(2 * 600,0);
 	lineInstanceVal_ = 0;
 
 	triangleMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	triangleMesh_->Create(3 * 400);
+	triangleMesh_->Create(3 * 400,0);
 	triangleInstanceVal_ = 0;
 
 	quadMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	quadMesh_->Create(6 * 200);
+	quadMesh_->Create(4 * 200,6 * 200);
 	quadInstanceVal_ = 0;
 }
 
@@ -59,9 +59,6 @@ void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const WorldTransf
 	lineMesh_->vertData[startIndex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
 	lineMesh_->vertData[startIndex + 1].normal = p1;
 
-	lineMesh_->indexData[startIndex] = startIndex;
-	lineMesh_->indexData[startIndex + 1] = startIndex + 1;
-
 	commandList->SetGraphicsRootSignature(linePso_->rootSignature.Get());
 	commandList->SetPipelineState(linePso_->pipelineState.Get());
 
@@ -74,8 +71,8 @@ void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const WorldTransf
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 
-	commandList->DrawIndexedInstanced(
-		2,1,startIndex * 2,0,0
+	commandList->DrawInstanced(
+		2,1,startIndex * 2,0
 	);
 	++lineInstanceVal_;
 }
@@ -91,25 +88,20 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	triangleMesh_->vertData[startIndex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
 	triangleMesh_->vertData[startIndex + 2].normal = p2;
 
-	triangleMesh_->indexData[startIndex] = startIndex;
-	triangleMesh_->indexData[startIndex + 1] = startIndex + 1;
-	triangleMesh_->indexData[startIndex + 2] = startIndex + 2;
-
 	commandList->SetGraphicsRootSignature(trianglePso_->rootSignature.Get());
 	commandList->SetPipelineState(trianglePso_->pipelineState.Get());
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	commandList->IASetVertexBuffers(0,1,&triangleMesh_->vbView);
-	commandList->IASetIndexBuffer(&triangleMesh_->ibView);
 
 	transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 	System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
 
-	commandList->DrawIndexedInstanced(
-		3,1,startIndex * 3,0,0
+	commandList->DrawInstanced(
+		3,1,startIndex * 3,0
 	);
 	++triangleInstanceVal_;
 }
@@ -117,23 +109,24 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material) {
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
-	const uint32_t startIndex = quadInstanceVal_ * 6;
 	const uint32_t startVertex = quadInstanceVal_ * 4;
-	quadMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
-	quadMesh_->vertData[startIndex].normal = p0;
-	quadMesh_->vertData[startIndex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
-	quadMesh_->vertData[startIndex + 1].normal = p1;
-	quadMesh_->vertData[startIndex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
-	quadMesh_->vertData[startIndex + 2].normal = p2;
-	quadMesh_->vertData[startIndex + 3].pos = {p3.x,p3.y,p3.z,1.0f};
-	quadMesh_->vertData[startIndex + 3].normal = p3;
+	const uint32_t startIndex = quadInstanceVal_ * 6;
 
-	quadMesh_->indexData[startIndex] = startIndex;
-	quadMesh_->indexData[startIndex + 1] = startIndex + 1;
-	quadMesh_->indexData[startIndex + 2] = startIndex + 2;
-	quadMesh_->indexData[startIndex + 3] = startIndex + 1;
-	quadMesh_->indexData[startIndex + 4] = startIndex + 3;
-	quadMesh_->indexData[startIndex + 5] = startIndex + 2;
+	quadMesh_->vertData[startVertex].pos = {p0.x,p0.y,p0.z,1.0f};
+	quadMesh_->vertData[startVertex].normal = p0;
+	quadMesh_->vertData[startVertex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
+	quadMesh_->vertData[startVertex + 1].normal = p1;
+	quadMesh_->vertData[startVertex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
+	quadMesh_->vertData[startVertex + 2].normal = p2;
+	quadMesh_->vertData[startVertex + 3].pos = {p3.x,p3.y,p3.z,1.0f};
+	quadMesh_->vertData[startVertex + 3].normal = p3;
+
+	quadMesh_->indexData[startIndex] = startVertex;
+	quadMesh_->indexData[startIndex + 1] = startVertex + 1;
+	quadMesh_->indexData[startIndex + 2] = startVertex + 2;
+	quadMesh_->indexData[startIndex + 3] = startVertex + 1;
+	quadMesh_->indexData[startIndex + 4] = startVertex + 3;
+	quadMesh_->indexData[startIndex + 5] = startVertex + 2;
 
 	commandList->SetGraphicsRootSignature(trianglePso_->rootSignature.Get());
 	commandList->SetPipelineState(trianglePso_->pipelineState.Get());
@@ -148,9 +141,7 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	material->SetForRootParameter(commandList,2);
 	System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
 
-	commandList->DrawIndexedInstanced(
-		6,1,startIndex,startVertex,0
-	);
+	commandList->DrawIndexedInstanced(6,1,0,startVertex,0);
 	++quadInstanceVal_;
 }
 

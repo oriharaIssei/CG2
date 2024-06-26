@@ -53,7 +53,7 @@
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/System/MyImGui/ImGuiFileSystem;$(ProjectDir)/Code/System/MyImGui/ImGuiManager;$(ProjectDir)/Code/System/MyImGui;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code/GameScene/Map/Editor;$(ProjectDir)/Code/GameScene/Map;$(ProjectDir)/Code/GameScene/GameObject;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -94,6 +94,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\GameScene\GameObject\GameObject.cpp" />
+    <ClCompile Include="Code\GameScene\Map\Editor\AllViewState.cpp" />
+    <ClCompile Include="Code\GameScene\Map\Editor\ChipEditState.cpp" />
+    <ClCompile Include="Code\GameScene\Map\Editor\MapEditor.cpp" />
+    <ClCompile Include="Code\GameScene\Map\GameMap.cpp" />
+    <ClCompile Include="Code\GameScene\Map\MapChip.cpp" />
     <ClCompile Include="Code\main.cpp" />
     <ClCompile Include="Code\Math\Matrix4x4.cpp" />
     <ClCompile Include="Code\System\DebugCamera\DebugCamera.cpp" />
@@ -114,11 +120,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\ShaderCompiler.cpp" />
     <ClCompile Include="Code\System\Input\Input.cpp" />
     <ClCompile Include="Code\System\Model\Model.cpp" />
+    <ClCompile Include="Code\System\MyImGui\ImGuiFileSystem\ImGuiFileSystem.cpp" />
     <ClCompile Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="Code\System\Sprite\Sprite.cpp" />
     <ClCompile Include="Code\System\Texture\TextureManager.cpp" />
     <ClCompile Include="Code\GameScene\GameScene.cpp" />
-    <ClCompile Include="Code\System\ImGuiManager\ImGuiManager.cpp" />
+    <ClCompile Include="Code\System\MyImGui\ImGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="Code\System\Logger\Logger.cpp" />
     <ClCompile Include="Code\System\WinApp\WinApp.cpp" />
     <ClCompile Include="Code\System\System.cpp" />
@@ -133,6 +140,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\Buffer\Object3dMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\GameScene\GameObject\GameObject.h" />
+    <ClInclude Include="Code\GameScene\Map\Editor\AllViewState.h" />
+    <ClInclude Include="Code\GameScene\Map\Editor\ChipEditState.h" />
+    <ClInclude Include="Code\GameScene\Map\Editor\IMapEditState.h" />
+    <ClInclude Include="Code\GameScene\Map\Editor\MapEditor.h" />
+    <ClInclude Include="Code\GameScene\Map\GameMap.h" />
+    <ClInclude Include="Code\GameScene\Map\MapChip.h" />
     <ClInclude Include="Code\Math\Matrix4x4.h" />
     <ClInclude Include="Code\Math\Transform.h" />
     <ClInclude Include="Code\Math\Vector2.h" />
@@ -155,11 +169,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\System\DirectX12\ShaderCompiler.h" />
     <ClInclude Include="Code\System\Input\Input.h" />
     <ClInclude Include="Code\System\Model\Model.h" />
+    <ClInclude Include="Code\System\MyImGui\ImGuiFileSystem\ImGuiFileSystem.h" />
     <ClInclude Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="Code\System\Sprite\Sprite.h" />
     <ClInclude Include="Code\System\Texture\TextureManager.h" />
     <ClInclude Include="Code\GameScene\GameScene.h" />
-    <ClInclude Include="Code\System\ImGuiManager\ImGuiManager.h" />
+    <ClInclude Include="Code\System\MyImGui\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="Code\System\Logger\Logger.h" />
     <ClInclude Include="Code\Math\Vector3.h" />
     <ClInclude Include="Code\System\WinApp\WinApp.h" />

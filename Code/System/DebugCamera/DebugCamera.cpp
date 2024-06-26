@@ -7,6 +7,14 @@ void DebugCamera::Init() {
 	currentState_.reset(new Neutral(this));
 }
 
+void DebugCamera::Init(const Vector3&viewRotate,const Vector3&viewPos) {
+	viewProj_.rotate= viewRotate;
+	viewProj_.translate=viewPos;
+
+	input_ = Input::getInstance();
+	currentState_.reset(new Neutral(this));
+}
+
 void DebugCamera::DebugUpdate() {
 	ImGui::Begin("DebugCamera");
 	ImGui::SliderFloat3("Rotate",&viewProj_.rotate.x,-3,3);

@@ -58,6 +58,16 @@ void MaterialManager::DebugUpdate() {
 			material.second->mappingData_->enableLighting = static_cast<uint32_t>(isEnableLighting);
 		}
 	}
+
+	ImGui::InputText("New Material Name",inputNewMaterialName_,32);
+	if(ImGui::Button("Create New")) {
+		std::string newMaterial(inputNewMaterialName_);
+		if(materialPallete_.count(newMaterial) == 0) {
+			Create(newMaterial);
+			newMaterial.clear();
+		}
+	}
+
 	ImGui::End();
 #endif // _DEBUG
 }

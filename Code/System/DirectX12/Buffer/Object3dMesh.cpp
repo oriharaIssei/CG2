@@ -3,37 +3,48 @@
 #include <System.h>
 #include "DXFunctionHelper.h"
 
-void TextureObject3dMesh::Create(UINT vertexSize) {
-	UINT vertDataSize= sizeof(TextureVertexData);
-	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),vertBuff, vertDataSize * vertexSize);
+void TextureObject3dMesh::Create(UINT vertexSize,UINT indexSize) {
+	UINT vertDataSize = sizeof(TextureVertexData);
+	UINT indexDataSize = sizeof(uint32_t);
 
-	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),vertBuff, sizeof(TextureVertexData) * vertexSize);
-	vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&vertData));
-	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
-	vbView.SizeInBytes = vertDataSize * vertexSize;
-	vbView.StrideInBytes = vertDataSize;
+	if(vertexSize != 0) {
+		DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),vertBuff,vertDataSize * vertexSize);
 
-	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),indexBuff, sizeof(uint32_t) * vertexSize);
-	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
-	ibView.SizeInBytes = sizeof(uint32_t) * vertexSize;
-	ibView.Format = DXGI_FORMAT_R32_UINT;
-	indexBuff->Map(0, nullptr, reinterpret_cast<void **>(&indexData));
+		vertBuff->Map(0,nullptr,reinterpret_cast<void **>(&vertData));
+
+		vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
+		vbView.SizeInBytes = vertDataSize * vertexSize;
+		vbView.StrideInBytes = vertDataSize;
+	}
+
+	if(indexSize != 0) {
+		DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),indexBuff,indexDataSize * indexSize);
+		ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
+		ibView.SizeInBytes = indexDataSize * indexSize;
+		ibView.Format = DXGI_FORMAT_R32_UINT;
+		indexBuff->Map(0,nullptr,reinterpret_cast<void **>(&indexData));
+	}
 }
 
-void PrimitiveObject3dMesh::Create(UINT vertexSize) {
+void PrimitiveObject3dMesh::Create(UINT vertexSize,UINT indexSize) {
 	UINT vertDataSize = sizeof(PrimitiveVertexData);
+	UINT indexDataSize = sizeof(uint32_t);
 
-	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),vertBuff, sizeof(PrimitiveVertexData) * vertexSize);
+	if(vertexSize != 0) {
+		DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),vertBuff,vertDataSize * vertexSize);
 
-	vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&vertData));
-	
-	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
-	vbView.SizeInBytes = vertDataSize * vertexSize;
-	vbView.StrideInBytes = vertDataSize;
+		vertBuff->Map(0,nullptr,reinterpret_cast<void **>(&vertData));
 
-	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),indexBuff, sizeof(uint32_t) * vertexSize);
-	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
-	ibView.SizeInBytes = sizeof(uint32_t) * vertexSize;
-	ibView.Format = DXGI_FORMAT_R32_UINT;
-	indexBuff->Map(0, nullptr, reinterpret_cast<void **>(&indexData));
+		vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
+		vbView.SizeInBytes = vertDataSize * vertexSize;
+		vbView.StrideInBytes = vertDataSize;
+	}
+
+	if(indexSize != 0) {
+		DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),indexBuff,indexDataSize * indexSize);
+		ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
+		ibView.SizeInBytes = indexDataSize * indexSize;
+		ibView.Format = DXGI_FORMAT_R32_UINT;
+		indexBuff->Map(0,nullptr,reinterpret_cast<void **>(&indexData));
+	}
 }

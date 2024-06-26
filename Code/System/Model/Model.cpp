@@ -188,7 +188,7 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 
 		modelData->dataSize = sizeof(TextureVertexData) * vertices.size();
 
-		textureMesh->Create(static_cast<UINT>(vertices.size()));
+		textureMesh->Create(static_cast<UINT>(vertices.size()),0);
 		memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
 		modelData->meshBuff_.reset(textureMesh);
 	} else {
@@ -202,7 +202,7 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 
 		modelData->dataSize = sizeof(PrimitiveVertexData) * primVert.size();
 
-		primitiveMesh->Create(static_cast<UINT>(primVert.size()));
+		primitiveMesh->Create(static_cast<UINT>(primVert.size()),0);
 		memcpy(primitiveMesh->vertData,primVert.data(),primVert.size() * sizeof(PrimitiveVertexData));
 		modelData->meshBuff_.reset(primitiveMesh);
 	}
@@ -243,6 +243,8 @@ ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::s
 #pragma region"Model"
 Model *Model::Create(const std::string &directoryPath,const std::string &filename) {
 	Model *model = new Model();
+	model->directory_ = directoryPath;
+	model->fileName_ = filename;
 	manager_->Create(model,directoryPath,filename);
 	return model;
 }

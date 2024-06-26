@@ -4,6 +4,8 @@
 
 #include "ViewProjection.h"
 
+#include "Transform.h"
+
 #include <memory>
 
 class DebugCamera {
@@ -31,11 +33,11 @@ class DebugCamera {
 	};
 	class TranslationState :
 		public IState {
-		enum TranslationType{
-		NONE,
-		Z_WHEEL,
-		XY_MOUSEMOVE,
-		XYZ_ALL
+		enum TranslationType {
+			NONE,
+			Z_WHEEL,
+			XY_MOUSEMOVE,
+			XYZ_ALL
 		};
 	public:
 		TranslationState(DebugCamera *host):IState(host) {};
@@ -44,6 +46,7 @@ class DebugCamera {
 #pragma endregion
 public:
 	void Init();
+	void Init(const Vector3 &viewRotate,const Vector3 &viewPos);
 	void DebugUpdate();
 	void Update();
 private:

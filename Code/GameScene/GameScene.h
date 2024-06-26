@@ -2,8 +2,8 @@
 
 #include <Input.h>
 
+#include "Model.h"
 #include "Sprite.h"
-#include <Model.h>
 
 #include <ViewProjection.h>
 #include <WorldTransform.h>
@@ -13,6 +13,8 @@
 #include <Matrix4x4.h>
 #include <Transform.h>
 #include <Vector3.h>
+
+#include "MapEditor.h"
 
 class GameScene {
 public:
@@ -26,13 +28,7 @@ private:
 	DebugCamera debugCamera;
 	Input *input_;
 
-	Transform camera;
-	Transform uv;
-	Transform sphere;
-
 	ViewProjection viewProj_;
-	WorldTransform worldTransform_;
 
-	std::unique_ptr<Model> model = nullptr;
-	std::shared_ptr<Material> material;
+	std::unique_ptr<MapEditor> mapEditor_;
 };

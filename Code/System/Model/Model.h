@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <string>
 
 #include "DXCommand.h"
 #include <PipelineStateObj.h>
@@ -56,6 +57,10 @@ private:
 	void DrawThis(const WorldTransform &world,const ViewProjection &view,const Material *material);
 private:
 	std::vector<std::unique_ptr<ModelData>> data_;
+
+	std::string directory_;
+	std::string fileName_;
+
 	enum class LoadState {
 		Loading,
 		Loaded,
@@ -65,4 +70,7 @@ private:
 		[this](const WorldTransform &world,const ViewProjection &view,const Material *material) { NotDraw(world,view,material); },
 		[this](const WorldTransform &world,const ViewProjection &view,const Material *material) { DrawThis(world,view,material); }
 	};
+public:
+	const std::string &getDirectory()const { return directory_; }
+	const std::string &getName()const { return fileName_; }
 };

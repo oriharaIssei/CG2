@@ -60,6 +60,9 @@ private:
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
 	ConstBufferMaterial *mappingData_ = nullptr;
+#ifdef _DEBUG
+	char inputMaterialName_[32];
+#endif // _DEBUG
 };
 
 class MaterialManager {
@@ -72,11 +75,24 @@ public:
 	void Finalize();
 private:
 	std::unordered_map<std::string,std::shared_ptr<Material>> materialPallete_;
+#ifdef _DEBUG
+	char inputNewMaterialName_[32];
+#endif // _DEBUG
+
 public:
 	const Material *getMaterial(const std::string &materialName) const {
 		auto it = materialPallete_.find(materialName);
 		if(it != materialPallete_.end()) {
 			return it->second.get();
+		} else {
+			// キーが存在しない場合の処理
+			return nullptr; // または適切なエラー処理を行う
+		}
+	}
+	std::shared_ptr<Material> getMaterialShared(const std::string &materialName) const {
+		auto it = materialPallete_.find(materialName);
+		if(it != materialPallete_.end()) {
+			return it->second;
 		} else {
 			// キーが存在しない場合の処理
 			return nullptr; // または適切なエラー処理を行う

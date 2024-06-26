@@ -8,39 +8,20 @@
 
 GameScene::~GameScene() {
 	viewProj_.Finalize();
-	worldTransform_.Finalize();
 }
 
 void GameScene::Init() {
 	input_ = Input::getInstance();
-	camera = {
-		{1.0f,1.0f,1.0f},
-		{0.0f,0.0f,0.0f},
-		{0.0f,0.0f,0.0f}
-	};
-	sphere = {
-		{1.0f,1.0f,1.0f},
-		{0.0f,0.0f,0.0f},
-		{0.0f,0.0f,0.0f}
-	};
 
-	debugCamera.Init();
-
-	worldTransform_.Init();
+	debugCamera.Init({1.3f,0.0f,0.0f},{2.5f,8.0f,2.5f});
 	viewProj_.Init();
 
-	model.reset(Model::Create("resource","multiMesh.obj"));
-
-	material = System::getInstance()->getMaterialManager()->Create("White");
+	mapEditor_ = std::make_unique<MapEditor>();
+	mapEditor_->Init();
 }
 
 void GameScene::Update() {
 	System::getInstance()->getMaterialManager()->DebugUpdate();
-
-	ImGui::Begin("Mouse");
-	ImGui::Text("Mouse Pos x : %f, y : %f",input_->getCurrentMousePos().x,input_->getCurrentMousePos().y);
-	ImGui::Text("Mouse Velocity x : %f, y : %f",input_->getMouseVelocity().x,input_->getMouseVelocity().y);
-	ImGui::End();
 
 	debugCamera.DebugUpdate();
 	debugCamera.Update();
@@ -49,16 +30,9 @@ void GameScene::Update() {
 	viewProj_.projectionMat = debugCamera.getViewProjection().projectionMat;
 	viewProj_.ConvertToBuffer();
 
-	ImGui::Begin("sphere");
-	ImGui::DragFloat3("scale",&sphere.scale.x,0.01f);
-	ImGui::DragFloat3("rotate",&sphere.rotate.x,0.01f);
-	ImGui::DragFloat3("translate",&sphere.translate.x,0.01f);
-	ImGui::End();
-
-	worldTransform_.transformData = sphere;
-	worldTransform_.Update();
+	mapEditor_->Update();
 }
 
 void GameScene::Draw() {
-	model->Draw(worldTransform_,viewProj_,material.get());
+	mapEditor_->Draw(viewProj_);
 }
