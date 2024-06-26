@@ -14,6 +14,6 @@ private:
 	void EditRow();
 private:
 	std::pair<uint32_t,uint32_t> currentAddress_;
-	std::pair<uint32_t,uint32_t> mapSize_;
 	std::pair<uint32_t,uint32_t> preMapSize_;
+	std::pair<uint32_t,uint32_t> mapSize_;
 };

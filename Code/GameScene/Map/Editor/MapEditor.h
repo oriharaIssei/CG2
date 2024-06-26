@@ -25,8 +25,10 @@ public:
 	struct EditChip {
 		static Vector2 size;
 
-		void Init(std::pair<uint32_t,uint32_t> address);
+		void Init(MapEditor *host,std::pair<uint32_t,uint32_t> address);
 		void Draw(const ViewProjection &viewProj);
+
+		MapEditor *host_;
 
 		std::vector<std::unique_ptr<GameObject>> gameObjects_;
 		WorldTransform transform_;
@@ -41,8 +43,12 @@ private:
 
 	std::vector<std::vector<std::unique_ptr<EditChip>>> chips_;
 
+	std::unique_ptr<MaterialManager> materialManager_;
+
 	std::unique_ptr<IMapEditState> currentState_;
 public:
+	MaterialManager *getMaterialManager()const { return materialManager_.get(); }
+
 	void TransitionState(IMapEditState *nextState);
 
 	const std::vector<std::vector<std::unique_ptr<EditChip>>> &getChipList() const {

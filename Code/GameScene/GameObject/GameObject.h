@@ -16,7 +16,7 @@
 class GameObject {
 public:
 	void Init(const std::string &modelName,const std::string &directoryPath,const std::string &materialName,const Transform &transform);
-	void DebugUpdate();
+	void DebugUpdate(MaterialManager* materialManager);
 	void Draw(const ViewProjection &viewProj);
 private:
 	std::unique_ptr<Model> model_;

@@ -38,7 +38,7 @@ void ChipEditState::Update() {
 		std::string nodeName = std::to_string(windowNumber++) + '.' + isActiveEdit.first->getModel()->getName();
 		if(isActiveEdit.second) {
 			ImGui::Begin(nodeName.c_str());
-			isActiveEdit.first->DebugUpdate();
+			isActiveEdit.first->DebugUpdate(host_->getMaterialManager());
 			ImGui::End();
 		}
 	}

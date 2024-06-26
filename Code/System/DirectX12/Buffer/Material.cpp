@@ -47,7 +47,7 @@ std::shared_ptr<Material> MaterialManager::Create(const std::string &materialNam
 
 void MaterialManager::DebugUpdate() {
 #ifdef _DEBUG
-	ImGui::Begin("Materials");
+	ImGui::Begin(managerName_.c_str());
 	bool isEnableLighting = false;
 	for(auto &material : materialPallete_) {
 		if(ImGui::TreeNode(material.first.c_str())) {

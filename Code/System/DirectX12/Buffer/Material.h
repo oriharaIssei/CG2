@@ -67,6 +67,7 @@ private:
 
 class MaterialManager {
 public:
+	MaterialManager(const std::string &managerName):managerName_(managerName) {};
 	std::shared_ptr<Material> Create(const std::string &materialName);
 	std::shared_ptr<Material> Create(const std::string &materialName,const MaterialData &data);
 
@@ -74,6 +75,7 @@ public:
 
 	void Finalize();
 private:
+	std::string managerName_;
 	std::unordered_map<std::string,std::shared_ptr<Material>> materialPallete_;
 #ifdef _DEBUG
 	char inputNewMaterialName_[32];

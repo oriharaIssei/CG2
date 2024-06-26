@@ -22,7 +22,8 @@ void AllViewState::Update() {
 		EditCol();
 	}
 
-	ImGui::InputInt2("Focus to :",(int *)&currentAddress_.first);
+	ImGui::InputInt("Focus Col :",(int *)&currentAddress_.second);
+	ImGui::InputInt("Focus Row :",(int *)&currentAddress_.first);
 	currentAddress_ = {
 		(std::clamp<uint32_t>)(currentAddress_.first,0,host_->getChipList()[0].size() - 1),
 		(std::clamp<uint32_t>)(currentAddress_.second,0,host_->getChipList().size() - 1)
@@ -48,13 +49,13 @@ void AllViewState::EditCol() {
 			host_->PushBackChipList(std::vector<std::unique_ptr<MapEditor::EditChip>>());
 			for(uint32_t row = 0; row < host_->getChipList()[0].size(); ++row) {
 				host_->PushBackChip(newCol,std::make_unique< MapEditor::EditChip>());
-				host_->getChipList()[newCol].back()->Init({row,newCol});
+				host_->getChipList()[newCol].back()->Init(host_,{row,newCol});
 			}
 		}
 		// Col -
 	} else if(mapSize_.second < preMapSize_.second) {
-		for(uint32_t col = preMapSize_.second; col >= mapSize_.second; --col) {
-			if(col - 1 < host_->getChipList().size()) {
+		for(uint32_t col = preMapSize_.second; col > mapSize_.second; --col) {
+			if(col < host_->getChipList().size()) {
 				host_->PopBackChipList();
 			}
 		}
@@ -65,16 +66,16 @@ void AllViewState::EditRow() {
 	// Row +
 	if(mapSize_.first > preMapSize_.first) {
 		for(uint32_t col = 0; col <= mapSize_.second; ++col) {
-			for(uint32_t row = preMapSize_.first; row <= mapSize_.first; ++row) {
+			for(uint32_t row = preMapSize_.first + 1; row <= mapSize_.first; ++row) {
 				host_->PushBackChip(col,std::make_unique<MapEditor::EditChip>());
-				host_->getChipList()[col].back()->Init({row,col});
+				host_->getChipList()[col].back()->Init(host_,{row,col});
 			}
 		}
 		// Row -
 	} else if(mapSize_.first < preMapSize_.first) {
 		for(uint32_t col = 0; col <= mapSize_.second; ++col) {
-			for(uint32_t row = preMapSize_.first; row >= mapSize_.first; --row) {
-				if(row - 1 < host_->getChipList()[col].size()) {
+			for(uint32_t row = preMapSize_.first; row > mapSize_.first; --row) {
+				if(row < host_->getChipList()[col].size()) {
 					host_->PopBackChip(col);
 				}
 			}

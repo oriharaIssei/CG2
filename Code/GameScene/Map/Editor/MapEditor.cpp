@@ -15,10 +15,12 @@
 Vector2 MapEditor::EditChip::size;
 
 void MapEditor::Init() {
+	materialManager_ = std::make_unique<MaterialManager>("MapMaterialManager");
+
 	chips_.resize(1);
 	chips_[0].push_back(std::make_unique<EditChip>());
 	EditChip::size = {5.0f,5.0f};
-	chips_[0].back()->Init({0,0});
+	chips_[0].back()->Init(this,{0,0});
 
 	currentState_ = std::make_unique <AllViewState>(this);
 }
@@ -34,14 +36,14 @@ void MapEditor::Update() {
 		}
 		ImGui::EndMenuBar();
 	}
-
+	materialManager_->DebugUpdate();
 	currentState_->Update();
 
 	ImGui::End();
 }
 
 void MapEditor::SaveToFile() {
-	std::string saveFolderPath= "./resource/Map";
+	std::string saveFolderPath = "./resource/Map";
 
 	std::filesystem::create_directories(saveFolderPath);
 
@@ -91,13 +93,14 @@ void MapEditor::TransitionState(IMapEditState *nextState) {
 	currentState_ = std::unique_ptr<IMapEditState>(nextState);
 }
 
-void MapEditor::EditChip::Init(std::pair<uint32_t,uint32_t> address) {
+void MapEditor::EditChip::Init(MapEditor *host,std::pair<uint32_t,uint32_t> address) {
 	address_ = address;
 	transform_.Init();
 	transform_.transformData.translate = {static_cast<float>(address.first * size.x),0.0f,static_cast<float>(address.second * size.y)};
 	transform_.Update();
 
-	floorMaterial_ = System::getInstance()->getMaterialManager()->Create("Ground");
+	host_ = host;
+	floorMaterial_ = host_->materialManager_->Create("Ground");
 }
 
 void MapEditor::EditChip::Draw(const ViewProjection &viewProj) {

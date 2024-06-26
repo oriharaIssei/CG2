@@ -12,7 +12,7 @@ void GameObject::Init(const std::string &modelName,const std::string &directoryP
 	worldTransform_.Update();
 }
 
-void GameObject::DebugUpdate() {
+void GameObject::DebugUpdate(MaterialManager *materialManager) {
 #ifdef _DEBUG
 	ImGui::DragFloat3("Scale",&worldTransform_.transformData.scale.x);
 	ImGui::DragFloat3("Rotate",&worldTransform_.transformData.rotate.x);
@@ -23,7 +23,6 @@ void GameObject::DebugUpdate() {
 	if(ImGui::Button("Change Material")) {
 		try {
 			// 入力された名前のマテリアルを取得
-			auto materialManager = System::getInstance()->getMaterialManager();
 			std::shared_ptr<Material> newMaterial = materialManager->getMaterialShared(std::string(inputMaterialName_));
 
 			// 取得したマテリアルが有効で、現在のマテリアルと異なる場合のみ変更

@@ -71,7 +71,7 @@ void System::Init() {
 	Sprite::Init();
 	PrimitiveDrawer::Init();
 
-	materialManager_ = std::make_unique<MaterialManager>();
+	materialManager_ = std::make_unique<MaterialManager>("DefaultMaterialManager");
 }
 
 void System::Finalize() {
