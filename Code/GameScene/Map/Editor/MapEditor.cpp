@@ -60,7 +60,7 @@ void MapEditor::SaveMapInformation() {
 	mapFile << "ChipSize " << MapEditor::EditChip::size.x << ',' << MapEditor::EditChip::size.y << '\n';
 	mapFile << "MaxAddress " << chips_[0].size() << ',' << chips_.size() << '\n';
 
-	mapFile << MATERIAL_LIST_START;
+	mapFile << MATERIAL_LIST_START + "\n";
 	for(const auto &material : materialManager_->getMateriaList()) {
 		mapFile << "Name " << material.first << '\n';
 		const auto &color = material.second->getColor();
@@ -110,29 +110,27 @@ void MapEditor::SaveToFile() {
 
 void MapEditor::LoadMaterialList(std::ifstream &mapFile) {
 	std::string line;
+
+	MaterialData data;
+	std::string name;
 	while(std::getline(mapFile,line)) {
 		if(line == MATERIAL_LIST_END) {
 			break;
 		}
-
 		std::istringstream iss(line);
 		std::string key;
 		iss >> key;
 
 		if(key == "Name") {
-			std::string name;
 			iss >> name;
-			// Handle material name
 		} else if(key == "Color") {
 			char comma;
-			float r,g,b,a;
-			iss >> r >> comma >> g >> comma >> b >> comma >> a;
-			// Handle material color
+			iss >> data.color.x >> comma >> data.color.y >> comma >> data.color.z >> comma >> data.color.w;
 		} else if(key == "EnableLighting") {
-			bool enableLighting;
-			iss >> enableLighting;
-			// Handle material lighting
+			iss >> data.enableLighting;
 		}
+
+		materialManager_->Create(name,data);
 	}
 }
 
