@@ -18,8 +18,7 @@ void ChipEditState::Update() {
 	for(auto &fileName : fileSystem_->getFileList()) {
 		if(ImGui::Button(fileName.second.c_str())) {
 			std::unique_ptr<GameObject> object = std::make_unique<GameObject>();
-			object->Init(fileName.second,fileName.first,"WHITE",{{1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f}});
-			object->setTransformParent(&chip->transform_);
+			object->Init(fileName.second + ".obj",fileName.first,"WHITE",{{1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},chip->transform_.transformData.translate});
 			chip->gameObjects_.push_back(std::move(object));
 		}
 	}

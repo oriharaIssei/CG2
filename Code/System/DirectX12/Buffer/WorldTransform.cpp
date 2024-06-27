@@ -19,7 +19,7 @@ void WorldTransform::Update() {
 	worldMat = MakeMatrix::Affine(transformData);
 
 	if(parent != nullptr) {
-		worldMat *= parent->worldMat;
+		worldMat = parent->worldMat* worldMat;
 	}
 	ConvertToBuffer();
 }

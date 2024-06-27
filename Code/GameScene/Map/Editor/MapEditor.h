@@ -39,7 +39,16 @@ public:
 		std::pair<uint32_t,uint32_t> address_;
 	};
 private:
+	void WriteGameObjectInfo(std::ofstream &mapChipFile,GameObject &mapObj);
+	void SaveMapChips();
+	void SaveMapInformation();
 	void SaveToFile();
+
+	void LoadMaterialList(std::ifstream &mapFile);
+	void LoadMapInformation();
+	void LoadGameObjectInfo(std::ifstream &mapChipFile,size_t col,size_t row);
+	void LoadMapChips();
+	void Load();
 
 	std::vector<std::vector<std::unique_ptr<EditChip>>> chips_;
 

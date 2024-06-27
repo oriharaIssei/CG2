@@ -14,6 +14,13 @@
 
 Vector2 MapEditor::EditChip::size;
 
+const std::string SAVE_FOLDER_PATH = "./resource/Map";
+const std::string MAP_INFO_FILENAME = "mapInformation.gmp";
+const std::string MATERIAL_LIST_START = "MaterialList";
+const std::string MATERIAL_LIST_END = "EndMaterialList";
+const std::string CREATE_MODEL = "CreateModel";
+const std::string END_MODEL = "end";
+
 void MapEditor::Init() {
 	materialManager_ = std::make_unique<MaterialManager>("MapMaterialManager");
 
@@ -31,6 +38,8 @@ void MapEditor::Update() {
 		if(ImGui::BeginMenu("File")) {
 			if(ImGui::MenuItem("save")) {
 				SaveToFile();
+			} else if(ImGui::MenuItem("load")) {
+				Load();
 			}
 			ImGui::EndMenu();
 		}
@@ -42,46 +51,200 @@ void MapEditor::Update() {
 	ImGui::End();
 }
 
-void MapEditor::SaveToFile() {
-	std::string saveFolderPath = "./resource/Map";
-
-	std::filesystem::create_directories(saveFolderPath);
-
-	std::ofstream mapFile(saveFolderPath + "mapInformation.txt"); // ファイルを作成/開く
-	if(mapFile.is_open()) {
-		mapFile << "ChipSize ";
-		mapFile << std::to_string(MapEditor::EditChip::size.x) + ',' + std::to_string(MapEditor::EditChip::size.y) + '\n';
-		mapFile << "MaxAddress ";
-		mapFile << std::to_string(chips_[0].size()) + ',' + std::to_string(chips_.size()) + '\n';
+void MapEditor::SaveMapInformation() {
+	std::ofstream mapFile(SAVE_FOLDER_PATH + '/' + MAP_INFO_FILENAME);
+	if(!mapFile.is_open()) {
+		throw std::ios_base::failure("Failed to open map information file.");
 	}
 
-	for(size_t col = 0; col < chips_.size(); ++col) {
-		std::string colPath = saveFolderPath + "/" + std::to_string(col);
+	mapFile << "ChipSize " << MapEditor::EditChip::size.x << ',' << MapEditor::EditChip::size.y << '\n';
+	mapFile << "MaxAddress " << chips_[0].size() << ',' << chips_.size() << '\n';
 
+	mapFile << MATERIAL_LIST_START;
+	for(const auto &material : materialManager_->getMateriaList()) {
+		mapFile << "Name " << material.first << '\n';
+		const auto &color = material.second->getColor();
+		mapFile << "Color " << color.x << ',' << color.y << ',' << color.z << ',' << color.w << '\n';
+		mapFile << "EnableLighting " << material.second->getEnableLighting() << '\n';
+	}
+	mapFile << MATERIAL_LIST_END;
+}
+
+void MapEditor::SaveMapChips() {
+	for(size_t col = 0; col < chips_.size(); ++col) {
+		std::string colPath = SAVE_FOLDER_PATH + "/" + std::to_string(col);
 		std::filesystem::create_directories(colPath);
 
-		for(size_t row = 0; row < chips_[col].size(); row++) {
-			std::ofstream mapChipFile(colPath + '/' + std::to_string(row) + ".area");
-			assert(mapChipFile.is_open());
-			for(auto &mapObj : chips_[col][row]->gameObjects_) {
-				auto &transform = mapObj->getWorldTransform();
+		for(size_t row = 0; row < chips_[col].size(); ++row) {
+			std::ofstream mapChipFile(colPath + '/' + std::to_string(row) + ".gcp");
+			if(!mapChipFile.is_open()) {
+				throw std::ios_base::failure("Failed to open map chip file.");
+			}
 
-				mapChipFile << "CreateModel\n";
-				mapChipFile << "scale=" + std::to_string(transform.transformData.scale.x) + ","
-					+ std::to_string(transform.transformData.scale.y) + ","
-					+ std::to_string(transform.transformData.scale.z) + '\n';
-				mapChipFile << "rotate=" + std::to_string(transform.transformData.rotate.x) + ","
-					+ std::to_string(transform.transformData.rotate.y) + ","
-					+ std::to_string(transform.transformData.rotate.z) + '\n';
-				mapChipFile << "translate=" + std::to_string(transform.transformData.translate.x) + ","
-					+ std::to_string(transform.transformData.translate.y) + ","
-					+ std::to_string(transform.transformData.translate.z) + '\n';
-				mapChipFile << "modelDirectoryPath=" + mapObj->getModel()->getDirectory() + '\n';
-				mapChipFile << "modelName=" + mapObj->getModel()->getName() + '\n';
-				mapChipFile << "end\n";
+			for(const auto &mapObj : chips_[col][row]->gameObjects_) {
+				WriteGameObjectInfo(mapChipFile,*mapObj);
 			}
 		}
 	}
+}
+
+void MapEditor::WriteGameObjectInfo(std::ofstream &mapChipFile,GameObject &mapObj) {
+	const auto &transform = mapObj.getWorldTransform();
+	mapChipFile << CREATE_MODEL << '\n';
+	mapChipFile << "scale " << transform.transformData.scale.x << ' ' << transform.transformData.scale.y << ' ' << transform.transformData.scale.z << ' ' << '\n';
+	mapChipFile << "rotate " << transform.transformData.rotate.x << ' ' << transform.transformData.rotate.y << ' ' << transform.transformData.rotate.z << ' ' << '\n';
+	mapChipFile << "translate " << transform.transformData.translate.x << ' ' << transform.transformData.translate.y << ' ' << transform.transformData.translate.z << ' ' << '\n';
+	mapChipFile << "material " << mapObj.getMaterialName() << '\n';
+	mapChipFile << "modelDirectoryPath " << mapObj.getModel()->getDirectory() << '\n';
+	mapChipFile << "modelName " << mapObj.getModel()->getName() << '\n';
+	mapChipFile << END_MODEL + '\n';
+}
+
+void MapEditor::SaveToFile() {
+	std::uintmax_t deleted_count = std::filesystem::remove_all(SAVE_FOLDER_PATH);
+	std::filesystem::create_directories(SAVE_FOLDER_PATH);
+
+	SaveMapInformation();
+	SaveMapChips();
+}
+
+void MapEditor::LoadMaterialList(std::ifstream &mapFile) {
+	std::string line;
+	while(std::getline(mapFile,line)) {
+		if(line == MATERIAL_LIST_END) {
+			break;
+		}
+
+		std::istringstream iss(line);
+		std::string key;
+		iss >> key;
+
+		if(key == "Name") {
+			std::string name;
+			iss >> name;
+			// Handle material name
+		} else if(key == "Color") {
+			char comma;
+			float r,g,b,a;
+			iss >> r >> comma >> g >> comma >> b >> comma >> a;
+			// Handle material color
+		} else if(key == "EnableLighting") {
+			bool enableLighting;
+			iss >> enableLighting;
+			// Handle material lighting
+		}
+	}
+}
+
+void MapEditor::LoadMapInformation() {
+	std::ifstream mapFile(SAVE_FOLDER_PATH + '/' + MAP_INFO_FILENAME);
+	if(!mapFile.is_open()) {
+		throw std::ios_base::failure("Failed to open map information file.");
+	}
+
+	std::string line;
+	while(std::getline(mapFile,line)) {
+		std::istringstream iss(line);
+		std::string key;
+		iss >> key;
+
+		if(key == "ChipSize") {
+			char comma;
+			iss >> MapEditor::EditChip::size.x >> comma >> MapEditor::EditChip::size.y;
+		} else if(key == "MaxAddress") {
+			char comma;
+			size_t maxAddressX,maxAddressY;
+			iss >> maxAddressX >> comma >> maxAddressY;
+			chips_.resize(maxAddressY);
+			uint32_t col = 0;
+			uint32_t row = 0;
+			for(auto &column : chips_) {
+				column.resize(maxAddressX);
+				row = 0;
+				for(auto &chip : column) {
+					chip = std::make_unique<EditChip>();
+					chip->Init(this,{row,col});
+					++row;
+				}
+				++col;
+			}
+		} else if(key == MATERIAL_LIST_START) {
+			LoadMaterialList(mapFile);
+		}
+	}
+}
+
+void MapEditor::LoadMapChips() {
+	for(size_t col = 0; col < chips_.size(); ++col) {
+		std::string colPath = SAVE_FOLDER_PATH + "/" + std::to_string(col);
+
+		for(size_t row = 0; row < chips_[col].size(); ++row) {
+			std::ifstream mapChipFile(colPath + '/' + std::to_string(row) + ".gcp");
+
+			chips_[col][row]->Init(this,{row,col});
+
+			if(!mapChipFile.is_open()) {
+				throw std::ios_base::failure("Failed to open map chip file.");
+			}
+
+			while(mapChipFile) {
+				std::string line;
+				std::getline(mapChipFile,line);
+				if(line == CREATE_MODEL) {
+					LoadGameObjectInfo(mapChipFile,col,row);
+				}
+			}
+		}
+	}
+}
+
+void MapEditor::LoadGameObjectInfo(std::ifstream &mapChipFile,size_t col,size_t row) {
+	auto mapObj = std::make_unique<GameObject>();
+
+	Transform transform;
+	std::string materialName;
+	std::string modelFile[2];
+
+	std::string line;
+	while(std::getline(mapChipFile,line)) {
+		if(line == END_MODEL) {
+			break;
+		}
+
+		std::string identifier;
+		std::istringstream s(line);
+		s >> identifier;
+
+		if(identifier == "scale") {
+			s >> transform.scale.x >>
+				transform.scale.y >>
+				transform.scale.z;
+		} else if(identifier == "rotate") {
+			s >> transform.rotate.x
+				>> transform.rotate.y
+				>> transform.rotate.z;
+		} else if(identifier == "translate") {
+			char comma;
+			s >> transform.translate.x
+				>> transform.translate.y
+				>> transform.translate.z;
+		} else if(identifier == "material") {
+			s >> materialName;
+		} else if(identifier == "modelDirectoryPath") {
+			s >> modelFile[0];
+		} else if(identifier == "modelName") {
+			s >> modelFile[1];
+		}
+	}
+	mapObj->Init(modelFile[1],modelFile[0],materialName,transform);
+	chips_[col][row]->gameObjects_.emplace_back(std::move(mapObj));
+}
+
+void MapEditor::Load() {
+	TransitionState(new AllViewState(this));
+
+	LoadMapInformation();
+	LoadMapChips();
 }
 
 void MapEditor::Draw(const ViewProjection &viewProj) {

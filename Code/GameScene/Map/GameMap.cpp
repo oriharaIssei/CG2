@@ -26,7 +26,7 @@ void GameMap::Draw(const ViewProjection &viewProj) {
 }
 
 void GameMap::LoadMapFile() {
-	std::ifstream mapFile(directoryPath_ + '/' + "mapInformation.txt"); // ファイルを作成/開く
+	std::ifstream mapFile(directoryPath_ + '/' + "mapInformation.gmp"); // ファイルを作成/開く
 
 	std::string line;
 	assert(mapFile.is_open());
@@ -40,6 +40,31 @@ void GameMap::LoadMapFile() {
 			MapChip::setSize(size);
 		} else if(identifier == "MaxAddress") {
 			s >> maxAddress_.first >> maxAddress_.second;
+		} else if(identifier == "MaterialList") {
+			std::string materialName;
+			MaterialData materialData;
+			bool isFirst = true;
+			while(std::getline(mapFile,line,',')) {
+				std::istringstream tokenStream(line);
+				std::string token;
+				std::getline(tokenStream,token,',');
+				if(token == "Name") {
+					if(isFirst) {
+						isFirst = false;
+						tokenStream >> materialName;
+						continue;
+					}
+					materialManager_->Create(materialName,materialData);
+					tokenStream >> materialName;
+					materialData = MaterialData();
+				} else if(token == "Color") {
+					tokenStream >> materialData.color.x >> materialData.color.y >> materialData.color.z >> materialData.color.w;
+				} else if(token == "EnableLighting") {
+					tokenStream >> materialData.enableLighting;
+				} else if(token == "EndMaterialList") {
+					break;
+				}
+			}
 		}
 	}
 }

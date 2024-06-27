@@ -31,11 +31,11 @@ void PrimitiveDrawer::Init() {
 	lineInstanceVal_ = 0;
 
 	triangleMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	triangleMesh_->Create(3 * 400,0);
+	triangleMesh_->Create(3 * 600,0);
 	triangleInstanceVal_ = 0;
 
 	quadMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	quadMesh_->Create(4 * 200,6 * 200);
+	quadMesh_->Create(4 * 600,6 * 600);
 	quadInstanceVal_ = 0;
 }
 

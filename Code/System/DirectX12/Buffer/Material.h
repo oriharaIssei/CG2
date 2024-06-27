@@ -63,6 +63,9 @@ private:
 #ifdef _DEBUG
 	char inputMaterialName_[32];
 #endif // _DEBUG
+public:
+	const Vector4 &getColor()const { return mappingData_->color; }
+	const uint32_t getEnableLighting()const { return mappingData_->enableLighting; }
 };
 
 class MaterialManager {
@@ -82,6 +85,7 @@ private:
 #endif // _DEBUG
 
 public:
+	const std::unordered_map<std::string,std::shared_ptr<Material>> &getMateriaList()const { return materialPallete_; }
 	const Material *getMaterial(const std::string &materialName) const {
 		auto it = materialPallete_.find(materialName);
 		if(it != materialPallete_.end()) {
