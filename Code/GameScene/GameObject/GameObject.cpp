@@ -14,6 +14,17 @@ void GameObject::Init(const std::string &modelName,const std::string &directoryP
 	worldTransform_.Update();
 }
 
+void GameObject::Init(const std::string &modelName,const std::string &directoryPath,const std::string &materialName,MaterialManager *materialManager,const Transform &transform) {
+	model_.reset(Model::Create(directoryPath,modelName));
+
+	materialName_ = materialName;
+	material_ = materialManager->Create(materialName_);
+
+	worldTransform_.Init();
+	worldTransform_.transformData = transform;
+	worldTransform_.Update();
+}
+
 void GameObject::DebugUpdate(MaterialManager *materialManager) {
 #ifdef _DEBUG
 	ImGui::DragFloat3("Scale",&worldTransform_.transformData.scale.x,0.1f);

@@ -2,7 +2,8 @@
 
 #include <memory>
 
-#include <GameScene.h>
+#include "EditScene.h"
+#include "SceneManager.h"
 
 #include "DXDebug.h"
 
@@ -20,14 +21,13 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
 	System *system = System::getInstance();
 	system->Init();
 
-	std::unique_ptr<GameScene> scene = std::make_unique<GameScene>();
-	scene->Init();
+	std::unique_ptr<SceneManager> sceneManager = std::make_unique<SceneManager>();
+	sceneManager->Init(new EditScene(sceneManager.get()));
 
 	while(!system->ProcessMessage()) {
 		system->BeginFrame();
 
-		scene->Update();
-		scene->Draw();
+		sceneManager->Run();
 
 		system->EndFrame();
 	}

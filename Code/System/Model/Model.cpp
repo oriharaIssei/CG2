@@ -94,11 +94,17 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	std::string line;
 	std::vector<TextureVertexData> vertices;
 	std::string currentMaterial;
-	bool firstObject = true;
+
+	if(!data.empty()) {
+		data.clear();
+	}
+	std::unique_ptr<ModelData> modelData = std::make_unique<ModelData>();
 
 	// ファイルを開く
 	std::ifstream file(directoryPath + "/" + filename);
-	assert(file.is_open());
+	if(!file.is_open()) {
+		throw std::runtime_error("Failed to open file: " + directoryPath + "/" + filename);
+	}
 
 	// ファイル読み込み
 	while(std::getline(file,line)) {
@@ -106,7 +112,9 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 		std::istringstream s(line);
 		s >> identifier;
 
-		if(identifier == "v") {
+		if(identifier == "#") {
+			continue;
+		} else if(identifier == "v") {
 			Vector4 pos;
 			s >> pos.x >> pos.y >> pos.z;
 			pos.x *= -1.0f;
@@ -155,29 +163,24 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 			vertices.push_back(triangle[1]);
 			vertices.push_back(triangle[0]);
 		} else if(identifier == "mtllib") {
-			std::string materialFileName;
 			s >> currentMaterial;
 		} else if(identifier == "usemtl") {
 			std::string materialName;
 			s >> materialName;
-			if(!data.empty()) {
-				data.back()->materialData = LoadMtlFile(directoryPath,currentMaterial,materialName);
-			}
+			modelData->materialData = LoadMtlFile(directoryPath,currentMaterial,materialName);
 		} else if(identifier == "o") {
-			if(!firstObject) {
-				ProcessMeshData(data.back(),vertices);
+			if(!vertices.empty()) {
+				ProcessMeshData(modelData,vertices);
 				vertices.clear();
+				data.push_back(std::move(modelData));
+				modelData = std::make_unique<ModelData>();
 			}
-			firstObject = false;
-			data.push_back(std::make_unique<ModelData>());
 		}
 	}
 	// 最後のメッシュデータを処理
 	if(!vertices.empty()) {
-		if(data.empty()) {
-			data.push_back(std::make_unique<ModelData>());
-		}
-		ProcessMeshData(data.back(),vertices);
+		ProcessMeshData(modelData,vertices);
+		data.push_back(std::move(modelData));
 	}
 }
 

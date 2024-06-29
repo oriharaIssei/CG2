@@ -64,15 +64,15 @@ public:
 		return chips_;
 	}
 
-	void PushBackChipList(std::vector<std::unique_ptr<EditChip>> newCol) {
-		chips_.push_back(std::move(newCol));
+	void PushBackChipList(std::vector<std::unique_ptr<EditChip>> newRow) {
+		chips_.push_back(std::move(newRow));
 	}
 
-	void PushBackChip(UINT col,std::unique_ptr<EditChip> chip) {
-		if(col >= chips_.size()) {
-			chips_.resize(col + 1);
+	void PushBackChip(UINT row,std::unique_ptr<EditChip> chip) {
+		if(row >= chips_.size()) {
+			chips_.resize(row + 1);
 		}
-		chips_[col].push_back(std::move(chip));
+		chips_[row].push_back(std::move(chip));
 	}
 
 	void PopBackChipList() {
@@ -82,10 +82,10 @@ public:
 		}
 	}
 
-	void PopBackChip(UINT col) {
-		if(col < chips_.size() && !chips_[col].empty()) {
-			chips_[col].back().reset();
-			chips_[col].pop_back();
+	void PopBackChip(UINT row) {
+		if(row < chips_.size() && !chips_[row].empty()) {
+			chips_[row].back().reset();
+			chips_[row].pop_back();
 		}
 	}
 };

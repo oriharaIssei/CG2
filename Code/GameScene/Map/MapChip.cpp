@@ -6,11 +6,11 @@
 
 Vector2 MapChip::size_;
 
-void MapChip::Init(const uint32_t row,const uint32_t col,const std::string &directoryPath) {
+void MapChip::Init(const uint32_t row,const uint32_t col,MaterialManager *materialManager,const std::string &directoryPath) {
 	address_.first = row;
 	address_.second = col;
 
-	std::string filePath = directoryPath + '/' + std::to_string(address_.second) + '/' + std::to_string(address_.first) + ".area";
+	std::string filePath = directoryPath + '/' + std::to_string(address_.second) + '/' + std::to_string(address_.first) + ".gcp";
 	std::ifstream file(filePath);
 	assert(file.is_open());
 
@@ -21,40 +21,47 @@ void MapChip::Init(const uint32_t row,const uint32_t col,const std::string &dire
 		s >> identifier;
 
 		if(identifier == "CreateModel") {
-			std::string modelFileName_Path[2];
-			std::string materialName;
-			Transform transform;
-			while(std::getline(file,line)) {
-				std::istringstream tokenStream(line);
-				std::string token;
-				std::getline(tokenStream,token,'=');
+			auto mapObj = std::make_unique<GameObject>();
 
-				if(token == "scale") {
-					char comma;
-					tokenStream >> transform.scale.x >> comma >> transform.scale.y >> comma >> transform.scale.z;
-				} else if(token == "rotate") {
-					char comma;
-					tokenStream >> transform.rotate.x >> comma >> transform.rotate.y >> comma >> transform.rotate.z;
-				} else if(token == "translate") {
-					char comma;
-					tokenStream >> transform.translate.x >> comma >> transform.translate.y >> comma >> transform.translate.z;
-				} else if(token == "modelDirectoryPath") {
-					tokenStream >> modelFileName_Path[0];
-				} else if(token == "modelName") {
-					tokenStream >> modelFileName_Path[1];
-				} else if(token == "material") {
-					tokenStream >> materialName;
-				} else if(token == "end") {
+			Transform transform;
+			std::string materialName;
+			std::string modelFile[2];
+
+			std::string modelParamLine;
+			while(std::getline(file,modelParamLine)) {
+				std::istringstream modelParamStream(modelParamLine);
+				std::string modelParam;
+				modelParamStream >> modelParam;
+
+				if(modelParam == "end") {
 					break;
 				}
+				if(modelParam == "scale") {
+					modelParamStream >> transform.scale.x >>
+						transform.scale.y >>
+						transform.scale.z;
+				} else if(modelParam == "rotate") {
+					modelParamStream >> transform.rotate.x
+						>> transform.rotate.y
+						>> transform.rotate.z;
+				} else if(modelParam == "translate") {
+					modelParamStream >> transform.translate.x
+						>> transform.translate.y
+						>> transform.translate.z;
+				} else if(modelParam == "material") {
+					modelParamStream >> materialName;
+				} else if(modelParam == "modelDirectoryPath") {
+					modelParamStream >> modelFile[0];
+				} else if(modelParam == "modelName") {
+					modelParamStream >> modelFile[1];
+				}
 			}
-			gameObjects_.push_back(std::make_unique<GameObject>());
-			gameObjects_.back()->Init(modelFileName_Path[1],modelFileName_Path[0],materialName,transform);
+			mapObj->Init(modelFile[1],modelFile[0],materialName,materialManager,transform);
+			gameObjects_.push_back(std::move(mapObj));
 		}
+		isLoaded_ = true;
 	}
-	isLoaded_ = true;
 }
-
 void MapChip::Update() {
 }
 

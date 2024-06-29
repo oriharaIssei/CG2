@@ -1,34 +1,21 @@
 #pragma once
 
-#include <Input.h>
+#include "IScene.h"
 
-#include "Model.h"
-#include "Sprite.h"
+#include "GameMap.h"
+#include "Player.h"
 
-#include <ViewProjection.h>
-#include <WorldTransform.h>
-
-#include <DebugCamera.h>
-
-#include <Matrix4x4.h>
-#include <Transform.h>
-#include <Vector3.h>
-
-#include "MapEditor.h"
-
-class GameScene {
+class GameScene
+	:public IScene {
 public:
-	GameScene() = default;
-	~GameScene();
+	GameScene(SceneManager *host):IScene(host) {};
 
-	void Init();
-	void Update();
-	void Draw();
+	void Init()override;
+	void Update()override;
+	void Draw()override;
 private:
-	DebugCamera debugCamera;
-	Input *input_;
+	float eyeSpeed_ = 0.008f;
 
-	ViewProjection viewProj_;
-
-	std::unique_ptr<MapEditor> mapEditor_;
+	std::unique_ptr<GameMap> gameMap_;
+	std::unique_ptr<Player> player_;
 };

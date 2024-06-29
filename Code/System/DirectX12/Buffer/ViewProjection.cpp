@@ -13,7 +13,7 @@ void ViewProjection::Finalize() {
 }
 
 void ViewProjection::UpdateMatrix() {
-	viewMat = MakeMatrix::Affine({1.0f,1.0f,1.0f},rotate,translate).Inverse();
+	viewMat = MakeMatrix::Affine({1.0f,1.0f,1.0f},rotate,translate).inverse();
 	projectionMat = MakeMatrix::PerspectiveFov(fovAngleY,aspectRatio,nearZ,farZ);
 }
 

@@ -6,6 +6,7 @@
 
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include "Material.h"
 
 #include <stdint.h>
 
@@ -13,7 +14,7 @@
 
 class MapChip {
 public:
-	void Init(const uint32_t row,const uint32_t col,const std::string &mapDirectory);
+	void Init(const uint32_t row,const uint32_t col,MaterialManager *materialManager,const std::string &mapDirectory);
 	void Update();
 	void Draw(const ViewProjection &viewProj);
 private:

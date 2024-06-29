@@ -16,12 +16,12 @@
 
 class GameMap {
 public:
-	void Init(const std::string &directoryPath,Vector3 *playerPos);
+	void Init(const std::string &directoryPath,const Vector3 &playerPos,float loadDistance);
 	void Update(const Vector3 &playerPos);
 	void Draw(const ViewProjection &viewProj);
 private:
 	void LoadMapFile();
-	void SwapActiveChip();
+	void SwapActiveChip(const Vector3 &playerPos);
 
 	struct pair_hash {
 		template <class T1,class T2>
@@ -32,6 +32,8 @@ private:
 		}
 	};
 private:
+	float loadDistance_;
+
 	std::vector<std::unique_ptr<MapChip>> activeChips_;
 
 	std::unique_ptr<MaterialManager> materialManager_;

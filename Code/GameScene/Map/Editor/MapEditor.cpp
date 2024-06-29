@@ -57,31 +57,31 @@ void MapEditor::SaveMapInformation() {
 		throw std::ios_base::failure("Failed to open map information file.");
 	}
 
-	mapFile << "ChipSize " << MapEditor::EditChip::size.x << ',' << MapEditor::EditChip::size.y << '\n';
-	mapFile << "MaxAddress " << chips_[0].size() << ',' << chips_.size() << '\n';
+	mapFile << "ChipSize " << MapEditor::EditChip::size.x << ' ' << MapEditor::EditChip::size.y << '\n';
+	mapFile << "MaxAddress " << chips_.size() << ' ' << chips_[0].size() << '\n';
 
 	mapFile << MATERIAL_LIST_START + "\n";
 	for(const auto &material : materialManager_->getMateriaList()) {
 		mapFile << "Name " << material.first << '\n';
 		const auto &color = material.second->getColor();
-		mapFile << "Color " << color.x << ',' << color.y << ',' << color.z << ',' << color.w << '\n';
+		mapFile << "color " << color.x << ' ' << color.y << ' ' << color.z << ' ' << color.w << '\n';
 		mapFile << "EnableLighting " << material.second->getEnableLighting() << '\n';
 	}
 	mapFile << MATERIAL_LIST_END;
 }
 
 void MapEditor::SaveMapChips() {
-	for(size_t col = 0; col < chips_.size(); ++col) {
-		std::string colPath = SAVE_FOLDER_PATH + "/" + std::to_string(col);
-		std::filesystem::create_directories(colPath);
+	for(size_t row = 0; row < chips_.size(); ++row) {
+		std::string rowPath = SAVE_FOLDER_PATH + "/" + std::to_string(row);
+		std::filesystem::create_directories(rowPath);
 
-		for(size_t row = 0; row < chips_[col].size(); ++row) {
-			std::ofstream mapChipFile(colPath + '/' + std::to_string(row) + ".gcp");
+		for(size_t col = 0; col < chips_[col].size(); ++col) {
+			std::ofstream mapChipFile(rowPath + '/' + std::to_string(col) + ".gcp");
 			if(!mapChipFile.is_open()) {
 				throw std::ios_base::failure("Failed to open map chip file.");
 			}
 
-			for(const auto &mapObj : chips_[col][row]->gameObjects_) {
+			for(const auto &mapObj : chips_[row][col]->gameObjects_) {
 				WriteGameObjectInfo(mapChipFile,*mapObj);
 			}
 		}
@@ -123,14 +123,15 @@ void MapEditor::LoadMaterialList(std::ifstream &mapFile) {
 
 		if(key == "Name") {
 			iss >> name;
+			continue;
 		} else if(key == "Color") {
-			char comma;
-			iss >> data.color.x >> comma >> data.color.y >> comma >> data.color.z >> comma >> data.color.w;
+			iss >> data.color.x >> data.color.y >> data.color.z >> data.color.w;
+			continue;
 		} else if(key == "EnableLighting") {
 			iss >> data.enableLighting;
+			data.uvTransform = MakeMatrix::Identity();
+			materialManager_->Create(name,data);
 		}
-
-		materialManager_->Create(name,data);
 	}
 }
 
@@ -147,24 +148,22 @@ void MapEditor::LoadMapInformation() {
 		iss >> key;
 
 		if(key == "ChipSize") {
-			char comma;
-			iss >> MapEditor::EditChip::size.x >> comma >> MapEditor::EditChip::size.y;
+			iss >> MapEditor::EditChip::size.x >> MapEditor::EditChip::size.y;
 		} else if(key == "MaxAddress") {
-			char comma;
 			size_t maxAddressX,maxAddressY;
-			iss >> maxAddressX >> comma >> maxAddressY;
+			iss >> maxAddressX >> maxAddressY;
 			chips_.resize(maxAddressY);
-			uint32_t col = 0;
-			uint32_t row = 0;
-			for(auto &column : chips_) {
-				column.resize(maxAddressX);
-				row = 0;
-				for(auto &chip : column) {
+			uint32_t rowNum = 0;
+			uint32_t colNum = 0;
+			for(auto &row : chips_) {
+				row.resize(maxAddressX);
+				colNum = 0;
+				for(auto &chip : row) {
 					chip = std::make_unique<EditChip>();
-					chip->Init(this,{row,col});
-					++row;
+					chip->Init(this,{rowNum,colNum});
+					++rowNum;
 				}
-				++col;
+				++rowNum;
 			}
 		} else if(key == MATERIAL_LIST_START) {
 			LoadMaterialList(mapFile);
@@ -173,13 +172,13 @@ void MapEditor::LoadMapInformation() {
 }
 
 void MapEditor::LoadMapChips() {
-	for(size_t col = 0; col < chips_.size(); ++col) {
-		std::string colPath = SAVE_FOLDER_PATH + "/" + std::to_string(col);
+	for(size_t row = 0; row < chips_.size(); ++row) {
+		std::string rowPath = SAVE_FOLDER_PATH + "/" + std::to_string(row);
 
-		for(size_t row = 0; row < chips_[col].size(); ++row) {
-			std::ifstream mapChipFile(colPath + '/' + std::to_string(row) + ".gcp");
+		for(size_t col = 0; col < chips_[row].size(); ++col) {
+			std::ifstream mapChipFile(rowPath + '/' + std::to_string(col) + ".gcp");
 
-			chips_[col][row]->Init(this,{row,col});
+			chips_[row][col]->Init(this,{row,col});
 
 			if(!mapChipFile.is_open()) {
 				throw std::ios_base::failure("Failed to open map chip file.");
@@ -189,14 +188,14 @@ void MapEditor::LoadMapChips() {
 				std::string line;
 				std::getline(mapChipFile,line);
 				if(line == CREATE_MODEL) {
-					LoadGameObjectInfo(mapChipFile,col,row);
+					LoadGameObjectInfo(mapChipFile,row,col);
 				}
 			}
 		}
 	}
 }
 
-void MapEditor::LoadGameObjectInfo(std::ifstream &mapChipFile,size_t col,size_t row) {
+void MapEditor::LoadGameObjectInfo(std::ifstream &mapChipFile,size_t row,size_t col) {
 	auto mapObj = std::make_unique<GameObject>();
 
 	Transform transform;
@@ -222,7 +221,6 @@ void MapEditor::LoadGameObjectInfo(std::ifstream &mapChipFile,size_t col,size_t 
 				>> transform.rotate.y
 				>> transform.rotate.z;
 		} else if(identifier == "translate") {
-			char comma;
 			s >> transform.translate.x
 				>> transform.translate.y
 				>> transform.translate.z;
@@ -234,8 +232,8 @@ void MapEditor::LoadGameObjectInfo(std::ifstream &mapChipFile,size_t col,size_t 
 			s >> modelFile[1];
 		}
 	}
-	mapObj->Init(modelFile[1],modelFile[0],materialName,transform);
-	chips_[col][row]->gameObjects_.emplace_back(std::move(mapObj));
+	mapObj->Init(modelFile[1],modelFile[0],materialName,materialManager_.get(),transform);
+	chips_[row][col]->gameObjects_.emplace_back(std::move(mapObj));
 }
 
 void MapEditor::Load() {
@@ -257,7 +255,7 @@ void MapEditor::TransitionState(IMapEditState *nextState) {
 void MapEditor::EditChip::Init(MapEditor *host,std::pair<uint32_t,uint32_t> address) {
 	address_ = address;
 	transform_.Init();
-	transform_.transformData.translate = {static_cast<float>(address.first * size.x),0.0f,static_cast<float>(address.second * size.y)};
+	transform_.transformData.translate = {static_cast<float>(address.second * size.x),0.0f,static_cast<float>(address.first * size.y)};
 	transform_.Update();
 
 	host_ = host;
@@ -265,7 +263,7 @@ void MapEditor::EditChip::Init(MapEditor *host,std::pair<uint32_t,uint32_t> addr
 }
 
 void MapEditor::EditChip::Draw(const ViewProjection &viewProj) {
-	transform_.transformData.translate = {static_cast<float>(address_.first * size.x),0.0f,static_cast<float>(address_.second * size.y)};
+	transform_.transformData.translate = {static_cast<float>(address_.second * size.y),0.0f,static_cast<float>(address_.first * size.x)};
 	transform_.Update();
 
 	PrimitiveDrawer::Quad(

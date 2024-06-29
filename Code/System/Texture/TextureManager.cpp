@@ -218,7 +218,7 @@ void TextureManager::Init() {
 	dxCommand_ = std::make_unique<DXCommand>();
 	dxCommand_->Init(device,"TextureManager","TextureManager");
 	// load中のテクスチャにはこれをはっつける
-	LoadTexture("resource/uvChecker.png");
+	LoadTexture("./resource/uvChecker.png");
 }
 
 void TextureManager::Finalize() {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <DirectXMath.h>
+
 #include <Transform.h>
 #include <Vector3.h>
 
@@ -23,7 +25,16 @@ struct Matrix4x4 {
 
 	// Determinant
 	float det() const;
-	Matrix4x4 Inverse() const;
+	Matrix4x4 inverse() const;
+private:
+	DirectX::XMMATRIX MatrixToXMMATRIX()const {
+		return DirectX::XMLoadFloat4x4(reinterpret_cast<const DirectX::XMFLOAT4X4 *>(this));
+	}
+
+	Matrix4x4 *XMMATRIXToMatrix(const DirectX::XMMATRIX &xmmat) {
+		XMStoreFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4 *>(this),xmmat);
+		return this;
+	}
 };
 
 namespace MakeMatrix {
@@ -35,14 +46,14 @@ namespace MakeMatrix {
 	Matrix4x4 RotateY(const float &radian);
 	Matrix4x4 RotateZ(const float &radian);
 	Matrix4x4 RotateXYZ(const Vector3 &radian);
-	Matrix4x4 RotateXYZ(const Matrix4x4 &x, const Matrix4x4 &y, const Matrix4x4 &z);
-	Matrix4x4 Affine(const Vector3 &scale, const Vector3 &rotate, const Vector3 &translate);
+	Matrix4x4 RotateXYZ(const Matrix4x4 &x,const Matrix4x4 &y,const Matrix4x4 &z);
+	Matrix4x4 Affine(const Vector3 &scale,const Vector3 &rotate,const Vector3 &translate);
 	Matrix4x4 Affine(const Transform &transform);
 
-	Matrix4x4 PerspectiveFov(const float &fovY, const float &aspectRatio, const float &nearClip, const float &farClip);
-	Matrix4x4 Orthographic(const float &left, const float &top, const float &right, const float &bottom, const float &nearClip, const float &farClip);
-	Matrix4x4 ViewPort(const float &left, const float &top, const float &width, const float &height, const float &minDepth, const float &maxDepth);
+	Matrix4x4 PerspectiveFov(const float &fovY,const float &aspectRatio,const float &nearClip,const float &farClip);
+	Matrix4x4 Orthographic(const float &left,const float &top,const float &right,const float &bottom,const float &nearClip,const float &farClip);
+	Matrix4x4 ViewPort(const float &left,const float &top,const float &width,const float &height,const float &minDepth,const float &maxDepth);
 } // namespace MakeMatrix
 
-Vector3 TransformVector(const Vector3 &vec, const Matrix4x4 &matrix);
-Vector3 TransformNormal(const Vector3 &v, const Matrix4x4 &m);
+Vector3 TransformVector(const Vector3 &vec,const Matrix4x4 &matrix);
+Vector3 TransformNormal(const Vector3 &v,const Matrix4x4 &m);

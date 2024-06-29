@@ -16,6 +16,7 @@
 class GameObject {
 public:
 	void Init(const std::string &modelName,const std::string &directoryPath,const std::string &materialName,const Transform &transform);
+	void Init(const std::string &modelName,const std::string &directoryPath,const std::string &materialName,MaterialManager *materialManager,const Transform &transform);
 	void DebugUpdate(MaterialManager *materialManager);
 	void Draw(const ViewProjection &viewProj);
 private:
