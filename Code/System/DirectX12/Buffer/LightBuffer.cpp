@@ -1,11 +1,12 @@
 #include "LightBuffer.h"
 
+#include "DXFunctionHelper.h"
 #include "System.h"
 
 void LightBuffer::Init() {
 	directionalLigh_ = nullptr;
 
-	System::getInstance()->getDxCommon()->CreateBufferResource(constBuff_, sizeof(DirectionalLight));
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),constBuff_, sizeof(DirectionalLight));
 
 	constBuff_->Map(
 		0, nullptr, reinterpret_cast<void **>(&directionalLigh_)

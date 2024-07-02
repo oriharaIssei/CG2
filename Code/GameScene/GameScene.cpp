@@ -7,6 +7,8 @@
 #include <imgui.h>
 
 GameScene::~GameScene() {
+	viewProj_.Finalize();
+	worldTransform_.Finalize();
 }
 
 void GameScene::Init() {
@@ -27,10 +29,14 @@ void GameScene::Init() {
 	worldTransform_.Init();
 	viewProj_.Init();
 
-	model.reset(Model::Create("resource","multiMaterial.obj"));
+	model.reset(Model::Create("resource","multiMesh.obj"));
+
+	material = System::getInstance()->getMaterialManager()->Create("White");
 }
 
 void GameScene::Update() {
+	System::getInstance()->getMaterialManager()->DebugUpdate();
+
 	ImGui::Begin("Mouse");
 	ImGui::Text("Mouse Pos x : %f, y : %f",input_->getCurrentMousePos().x,input_->getCurrentMousePos().y);
 	ImGui::Text("Mouse Velocity x : %f, y : %f",input_->getMouseVelocity().x,input_->getMouseVelocity().y);
@@ -54,5 +60,5 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	model->Draw(worldTransform_,viewProj_);
+	model->Draw(worldTransform_,viewProj_,material.get());
 }

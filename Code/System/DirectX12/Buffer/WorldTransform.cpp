@@ -1,11 +1,10 @@
 #include "WorldTransform.h"
 
 #include <System.h>
+#include "DXFunctionHelper.h"
 
 void WorldTransform::Init() {
-	DirectXCommon *dxCommon_ = System::getInstance()->getDxCommon();
-
-	dxCommon_->CreateBufferResource(buff_, sizeof(ConstantBufferWorldMatrix));
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),buff_, sizeof(ConstantBufferWorldMatrix));
 	buff_->Map(0, nullptr, reinterpret_cast<void **>(&mappingWorldMat_));
 
 	worldMat = MakeMatrix::Identity();

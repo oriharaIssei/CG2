@@ -5,11 +5,14 @@
 
 #include <iostream>
 
-#include "DirectXCommon.h"
+#include "DXFunctionHelper.h"
+#include "System.h"
+
+#include "DXHeap.h"
+#include "ResourceBarrierManager.h"
+
 #include "Logger.h"
 #include "ShaderCompiler.h"
-
-DirectXCommon *TextureManager::dxCommon_ = nullptr;
 
 uint64_t TextureManager::cpuDescriptorHandleStart_;
 uint64_t TextureManager::gpuDescriptorHandleStart_;
@@ -24,9 +27,7 @@ std::queue<std::pair<std::string,uint32_t>> TextureManager::loadingQueue_;
 std::mutex TextureManager::queueMutex_;
 std::condition_variable TextureManager::queueCondition_;
 
-Microsoft::WRL::ComPtr<ID3D12CommandQueue> TextureManager::commandQueue_;
-Microsoft::WRL::ComPtr<ID3D12CommandAllocator> TextureManager::commandAllocator_;
-Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> TextureManager::commandList_;
+std::unique_ptr<DXCommand> TextureManager::dxCommand_;
 
 #pragma region Texture
 void TextureManager::Texture::Init(const std::string &filePath,int textureIndex) {
@@ -37,7 +38,7 @@ void TextureManager::Texture::Init(const std::string &filePath,int textureIndex)
 	//==================================================
 	DirectX::ScratchImage mipImages = Load(filePath);
 	const DirectX::TexMetadata &metadata = mipImages.GetMetadata();
-	CreateTextureResource(dxCommon_,metadata);
+	CreateTextureResource(metadata);
 	UploadTextureData(mipImages);
 
 	//==================================================
@@ -57,7 +58,8 @@ void TextureManager::Texture::Init(const std::string &filePath,int textureIndex)
 	srvHandleGPU = D3D12_GPU_DESCRIPTOR_HANDLE(gpuDescriptorHandleStart_ + (handleIncrementSize_ * textureIndex));
 
 	/// SRV の作成
-	dxCommon_->getDevice()->CreateShaderResourceView(
+	auto device = System::getInstance()->getDXDevice()->getDevice();
+	device->CreateShaderResourceView(
 		resource.Get(),
 		&srvDesc,
 		srvHandleCPU
@@ -103,7 +105,7 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath)
 	return mipImages;
 }
 
-void TextureManager::Texture::CreateTextureResource(DirectXCommon *dxCommon,const DirectX::TexMetadata &metadata) {
+void TextureManager::Texture::CreateTextureResource(const DirectX::TexMetadata &metadata) {
 	//================================================
 	// 1. metadata を基に Resource を設定
 	D3D12_RESOURCE_DESC resourceDesc {};
@@ -123,7 +125,8 @@ void TextureManager::Texture::CreateTextureResource(DirectXCommon *dxCommon,cons
 	//================================================
 	// 3. Resource の作成
 	HRESULT hr;
-	hr = dxCommon->getDevice()->CreateCommittedResource(
+	auto device = System::getInstance()->getDXDevice()->getDevice();
+	hr = device->CreateCommittedResource(
 		&heapProperties,// heap の設定
 		D3D12_HEAP_FLAG_NONE,
 		&resourceDesc,
@@ -136,8 +139,9 @@ void TextureManager::Texture::CreateTextureResource(DirectXCommon *dxCommon,cons
 
 void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources;
+	auto dxDevice = System::getInstance()->getDXDevice();
 	DirectX::PrepareUpload(
-		dxCommon_->getDevice(),
+		dxDevice->getDevice(),
 		mipImg.GetImages(),
 		mipImg.GetImageCount(),
 		mipImg.GetMetadata(),
@@ -151,17 +155,10 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 	);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = nullptr;
-	dxCommon_->CreateBufferResource(intermediateResource,intermediateSize);
-
-	HRESULT hr;
-	hr = commandAllocator_->Reset();
-	assert(SUCCEEDED(hr));
-
-	hr = commandList_->Reset(commandAllocator_.Get(),nullptr);
-	assert(SUCCEEDED(hr));
+	DXFH::CreateBufferResource(dxDevice,intermediateResource,intermediateSize);
 
 	UpdateSubresources(
-		commandList_.Get(),
+		dxCommand_->getCommandList(),
 		resource.Get(),
 		intermediateResource.Get(),
 		0,
@@ -179,42 +176,32 @@ void TextureManager::Texture::ExecuteCommnad() {
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-	commandList_->ResourceBarrier(1,&barrier);
+	dxCommand_->ResourceBarrier(1,&barrier);
 
-	HRESULT hr = commandList_->Close();
-	assert(SUCCEEDED(hr));
+	dxCommand_->Close();
 
-	ID3D12CommandList *ppCommandLists[] = {commandList_.Get()};
-	commandQueue_->ExecuteCommandLists(_countof(ppCommandLists),ppCommandLists);
+	dxCommand_->ExecuteCommand();
 
 	// フェンスを使ってGPUが完了するのを待つ
-	Microsoft::WRL::ComPtr<ID3D12Fence> fence;
-	UINT64 fenceValue = 1;
-	hr = dxCommon_->getDevice()->CreateFence(0,D3D12_FENCE_FLAG_NONE,IID_PPV_ARGS(&fence));
-	assert(SUCCEEDED(hr));
+	DXFence fence;
+	fence.Init(System::getInstance()->getDXDevice()->getDevice());
 
-	hr = commandQueue_->Signal(fence.Get(),fenceValue);
-	assert(SUCCEEDED(hr));
-
-	HANDLE eventHandle = CreateEvent(nullptr,false,false,nullptr);
-	assert(eventHandle != nullptr);
-
-	hr = fence->SetEventOnCompletion(fenceValue,eventHandle);
-	assert(SUCCEEDED(hr));
-
-	WaitForSingleObject(eventHandle,INFINITE);
-	CloseHandle(eventHandle);
+	fence.Signal(dxCommand_->getCommandQueue());
+	fence.WaitForFence();
+	dxCommand_->CommandReset();
 }
 #pragma endregion
 
 #pragma region "Manager"
-void TextureManager::Init(DirectXCommon *dxCommon) {
+void TextureManager::Init() {
 	CoInitializeEx(0,COINIT_MULTITHREADED);
-	dxCommon_ = dxCommon;
 
-	cpuDescriptorHandleStart_ = dxCommon->getSrv()->GetCPUDescriptorHandleForHeapStart().ptr;
-	gpuDescriptorHandleStart_ = dxCommon->getSrv()->GetGPUDescriptorHandleForHeapStart().ptr;
-	handleIncrementSize_ = dxCommon_->getDevice()->GetDescriptorHandleIncrementSize(
+	DXHeap *heap = DXHeap::getInstance();
+	auto *device = System::getInstance()->getDXDevice()->getDevice();
+
+	cpuDescriptorHandleStart_ = heap->getSrvHeap()->GetCPUDescriptorHandleForHeapStart().ptr;
+	gpuDescriptorHandleStart_ = heap->getSrvHeap()->GetGPUDescriptorHandleForHeapStart().ptr;
+	handleIncrementSize_ = device->GetDescriptorHandleIncrementSize(
 		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
 	);
 
@@ -228,29 +215,8 @@ void TextureManager::Init(DirectXCommon *dxCommon) {
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.NodeMask = 0;
 
-	// コマンドキューの作成
-	HRESULT hr = dxCommon_->getDevice()->CreateCommandQueue(&queueDesc,IID_PPV_ARGS(&commandQueue_));
-	assert(SUCCEEDED(hr));
-
-	// コマンドアロケーターの作成
-	hr = dxCommon_->getDevice()->CreateCommandAllocator(
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		IID_PPV_ARGS(&commandAllocator_)
-	);
-	assert(SUCCEEDED(hr));
-
-	// コマンドリストの作成
-	hr = dxCommon_->getDevice()->CreateCommandList(
-		0,
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		commandAllocator_.Get(),
-		nullptr,
-		IID_PPV_ARGS(&commandList_)
-	);
-	assert(SUCCEEDED(hr));
-
-	commandList_->Close();
-
+	dxCommand_ = std::make_unique<DXCommand>();
+	dxCommand_->Init(device,"TextureManager","TextureManager");
 	// load中のテクスチャにはこれをはっつける
 	LoadTexture("resource/uvChecker.png");
 }
@@ -267,9 +233,7 @@ void TextureManager::Finalize() {
 
 	CoUninitialize();
 
-	commandList_.Reset();
-	commandAllocator_.Reset();
-	commandQueue_.Reset();
+	dxCommand_->Finalize();
 
 	for(auto &texture : textures_) {
 		if(texture != nullptr) {

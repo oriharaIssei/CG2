@@ -6,9 +6,10 @@
 #include <fstream>
 #include <sstream>
 
-#include <DirectXCommon.h>
+#include "DXCommand.h"
 #include <PipelineStateObj.h>
 
+#include "Material.h"
 #include <Object3dMesh.h>
 #include <ViewProjection.h>
 #include <WorldTransform.h>
@@ -37,17 +38,22 @@ public:
 	static void Init();
 	static void Finalize();
 private:
+	static uint32_t drawCount_;
+
 	static std::unique_ptr<ModelManager> manager_;
+
+	static std::unique_ptr<DXCommand> dxCommand_;
+
 	static std::unique_ptr<Matrix4x4> fovMa_;
 public:
 	Model() = default;
 
-	void Draw(const WorldTransform &world,const ViewProjection &view);
+	void Draw(const WorldTransform &world,const ViewProjection &view,const Material *material);
 private:
-	void NotDraw(const WorldTransform &world,const ViewProjection &view) {
-		world; view;
+	void NotDraw(const WorldTransform &world,const ViewProjection &view,const Material *material) {
+		world; view; material;
 	}
-	void DrawThis(const WorldTransform &world,const ViewProjection &view);
+	void DrawThis(const WorldTransform &world,const ViewProjection &view,const Material *material);
 private:
 	std::vector<std::unique_ptr<ModelData>> data_;
 	enum class LoadState {
@@ -55,8 +61,8 @@ private:
 		Loaded,
 	};
 	LoadState currentState_;
-	std::array<std::function<void(const WorldTransform &,const ViewProjection &)>,2> drawFuncTable_ = {
-		[this](const WorldTransform &world,const ViewProjection &view) { NotDraw(world,view); },
-		[this](const WorldTransform &world,const ViewProjection &view) { DrawThis(world,view); }
+	std::array<std::function<void(const WorldTransform &,const ViewProjection &,const Material *)>,2> drawFuncTable_ = {
+		[this](const WorldTransform &world,const ViewProjection &view,const Material *material) { NotDraw(world,view,material); },
+		[this](const WorldTransform &world,const ViewProjection &view,const Material *material) { DrawThis(world,view,material); }
 	};
 };

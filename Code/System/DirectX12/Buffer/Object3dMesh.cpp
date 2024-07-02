@@ -1,18 +1,19 @@
 #include "Object3dMesh.h"
 
 #include <System.h>
+#include "DXFunctionHelper.h"
 
 void TextureObject3dMesh::Create(UINT vertexSize) {
 	UINT vertDataSize= sizeof(TextureVertexData);
-	System::getInstance()->getDxCommon()->CreateBufferResource(vertBuff, vertDataSize * vertexSize);
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),vertBuff, vertDataSize * vertexSize);
 
-	System::getInstance()->getDxCommon()->CreateBufferResource(vertBuff, sizeof(TextureVertexData) * vertexSize);
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),vertBuff, sizeof(TextureVertexData) * vertexSize);
 	vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&vertData));
 	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
 	vbView.SizeInBytes = vertDataSize * vertexSize;
 	vbView.StrideInBytes = vertDataSize;
 
-	System::getInstance()->getDxCommon()->CreateBufferResource(indexBuff, sizeof(uint32_t) * vertexSize);
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),indexBuff, sizeof(uint32_t) * vertexSize);
 	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
 	ibView.SizeInBytes = sizeof(uint32_t) * vertexSize;
 	ibView.Format = DXGI_FORMAT_R32_UINT;
@@ -22,7 +23,7 @@ void TextureObject3dMesh::Create(UINT vertexSize) {
 void PrimitiveObject3dMesh::Create(UINT vertexSize) {
 	UINT vertDataSize = sizeof(PrimitiveVertexData);
 
-	System::getInstance()->getDxCommon()->CreateBufferResource(vertBuff, sizeof(PrimitiveVertexData) * vertexSize);
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),vertBuff, sizeof(PrimitiveVertexData) * vertexSize);
 
 	vertBuff->Map(0, nullptr, reinterpret_cast<void **>(&vertData));
 	
@@ -30,7 +31,7 @@ void PrimitiveObject3dMesh::Create(UINT vertexSize) {
 	vbView.SizeInBytes = vertDataSize * vertexSize;
 	vbView.StrideInBytes = vertDataSize;
 
-	System::getInstance()->getDxCommon()->CreateBufferResource(indexBuff, sizeof(uint32_t) * vertexSize);
+	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),indexBuff, sizeof(uint32_t) * vertexSize);
 	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
 	ibView.SizeInBytes = sizeof(uint32_t) * vertexSize;
 	ibView.Format = DXGI_FORMAT_R32_UINT;

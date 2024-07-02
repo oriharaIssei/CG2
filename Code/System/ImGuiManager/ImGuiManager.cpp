@@ -1,8 +1,13 @@
 #include "ImGuiManager.h"
 
 #ifdef _DEBUG
-#include <WinApp.h>
-#include <DirectXCommon.h>
+#include "System.h"
+#include "WinApp.h"
+
+#include "DXCommand.h"
+#include "DXDevice.h"
+#include "DXSwapChain.h"
+#include "DXHeap.h"
 
 #include <imgui.h>
 #include <imgui_impl_dx12.h>
@@ -14,9 +19,12 @@ ImGuiManager *ImGuiManager::getInstance() {
 	return &instance;
 }
 
-void ImGuiManager::Init(const WinApp *window, DirectXCommon *dxCommon) {
+void ImGuiManager::Init(const WinApp *window,const DXDevice *dxDevice,const DXSwapChain *dxSwapChain) {
 #ifdef _DEBUG
-	srvHeap_ = dxCommon->getSrv();
+	srvHeap_ = DXHeap::getInstance()->getSrvHeap();
+
+	dxCommand_ = std::make_unique<DXCommand>();
+	dxCommand_->Init(System::getInstance()->getDXDevice()->getDevice(),"main","main");
 
 	///=============================================
 	/// imgui の初期化
@@ -26,8 +34,8 @@ void ImGuiManager::Init(const WinApp *window, DirectXCommon *dxCommon) {
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(window->getHwnd());
 	ImGui_ImplDX12_Init(
-		dxCommon->getDevice(),
-		dxCommon->getSwapChainBufferCount(),
+		dxDevice->getDevice(),
+		dxSwapChain->getBufferCount(),
 		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
 		srvHeap_,
 		srvHeap_->GetCPUDescriptorHandleForHeapStart(),
@@ -41,6 +49,8 @@ void ImGuiManager::Init(const WinApp *window, DirectXCommon *dxCommon) {
 
 void ImGuiManager::Finalize() {
 #ifdef _DEBUG
+	dxCommand_->Finalize();
+
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
@@ -62,13 +72,11 @@ void ImGuiManager::End() {
 #endif
 }
 
-void ImGuiManager::Draw(DirectXCommon *dxCommon) {
+void ImGuiManager::Draw() {
 #ifdef _DEBUG
-	ID3D12GraphicsCommandList *commandList = dxCommon->getCommandList();
+	ID3D12DescriptorHeap *ppHeaps[] = {srvHeap_};
+	dxCommand_->getCommandList()->SetDescriptorHeaps(1,ppHeaps);
 
-	ID3D12DescriptorHeap *ppHeaps[] = { srvHeap_ };
-	commandList->SetDescriptorHeaps(1, ppHeaps);
-
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(),dxCommand_->getCommandList());
 #endif // _DEBUG
 }
