@@ -3,6 +3,8 @@
 #include <Transform.h>
 #include <Vector3.h>
 
+#include <DirectXMath.h>
+
 struct Matrix4x4 {
 	float m[4][4];
 
@@ -21,9 +23,16 @@ struct Matrix4x4 {
 
 	Matrix4x4 Transpose();
 
-	// Determinant
-	float det() const;
 	Matrix4x4 Inverse() const;
+private:
+	DirectX::XMMATRIX MatrixToXMMATRIX()const {
+		return DirectX::XMLoadFloat4x4(reinterpret_cast<const DirectX::XMFLOAT4X4 *>(this));
+	}
+
+	Matrix4x4 *XMMATRIXToMatrix(const DirectX::XMMATRIX &xmmat) {
+		XMStoreFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4 *>(this),xmmat);
+		return this;
+	}
 };
 
 namespace MakeMatrix {
