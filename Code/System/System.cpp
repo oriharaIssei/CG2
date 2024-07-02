@@ -714,7 +714,7 @@ void System::CreateTexturePSO() {
 	descriptionRootSignature.pStaticSamplers = staticSamplers;
 	descriptionRootSignature.NumStaticSamplers = _countof(staticSamplers);
 
-	D3D12_ROOT_PARAMETER rootParameters[5] = {};
+	D3D12_ROOT_PARAMETER rootParameters[6] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
@@ -736,6 +736,10 @@ void System::CreateTexturePSO() {
 	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[4].DescriptorTable.pDescriptorRanges = descriptorRange;
 	rootParameters[4].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
+
+	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[5].Descriptor.ShaderRegister = 2;
 
 	// パラメーターをDESCにセット
 	descriptionRootSignature.pParameters = rootParameters;
@@ -864,4 +868,12 @@ void System::EndFrame() {
 
 int System::LoadTexture(const std::string &filePath) {
 	return TextureManager::LoadTexture(filePath);
+}
+
+void System::setShowCursor(BOOL isShow) {
+	ShowCursor(isShow);
+}
+
+void System::setMousePos(const Vector2 &mousePos) {
+	SetCursorPos(static_cast<float>(mousePos.x),static_cast<float>(mousePos.y));
 }

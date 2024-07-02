@@ -19,8 +19,9 @@ public:
 private:
 	Input *input_;
 
-	float speed_;
 	WorldTransform transform_;
+	float speed_;
+	float eyeSpeed_;
 public:
 	const WorldTransform &getTransform()const { return transform_; }
 };

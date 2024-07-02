@@ -7,11 +7,6 @@
 #include "System.h"
 #include "filesystem"
 
-#include <iostream>
-
-#include <shobjidl.h>
-#include <shlwapi.h>
-
 Vector2 MapEditor::EditChip::size;
 
 const std::string SAVE_FOLDER_PATH = "./resource/Map";
@@ -34,6 +29,7 @@ void MapEditor::Init() {
 
 void MapEditor::Update() {
 	ImGui::Begin("MapEditor",nullptr,ImGuiWindowFlags_MenuBar);
+
 	if(ImGui::BeginMenuBar()) {
 		if(ImGui::BeginMenu("File")) {
 			if(ImGui::MenuItem("save")) {
@@ -64,7 +60,7 @@ void MapEditor::SaveMapInformation() {
 	for(const auto &material : materialManager_->getMateriaList()) {
 		mapFile << "Name " << material.first << '\n';
 		const auto &color = material.second->getColor();
-		mapFile << "color " << color.x << ' ' << color.y << ' ' << color.z << ' ' << color.w << '\n';
+		mapFile << "Color " << color.x << ' ' << color.y << ' ' << color.z << ' ' << color.w << '\n';
 		mapFile << "EnableLighting " << material.second->getEnableLighting() << '\n';
 	}
 	mapFile << MATERIAL_LIST_END;
@@ -75,7 +71,7 @@ void MapEditor::SaveMapChips() {
 		std::string rowPath = SAVE_FOLDER_PATH + "/" + std::to_string(row);
 		std::filesystem::create_directories(rowPath);
 
-		for(size_t col = 0; col < chips_[col].size(); ++col) {
+		for(size_t col = 0; col < chips_[row].size(); ++col) {
 			std::ofstream mapChipFile(rowPath + '/' + std::to_string(col) + ".gcp");
 			if(!mapChipFile.is_open()) {
 				throw std::ios_base::failure("Failed to open map chip file.");
@@ -133,6 +129,8 @@ void MapEditor::LoadMaterialList(std::ifstream &mapFile) {
 			materialManager_->Create(name,data);
 		}
 	}
+	data.uvTransform = MakeMatrix::Identity();
+	materialManager_->Create(name,data);
 }
 
 void MapEditor::LoadMapInformation() {
@@ -152,16 +150,16 @@ void MapEditor::LoadMapInformation() {
 		} else if(key == "MaxAddress") {
 			size_t maxAddressX,maxAddressY;
 			iss >> maxAddressX >> maxAddressY;
-			chips_.resize(maxAddressY);
+			chips_.resize(maxAddressX);
 			uint32_t rowNum = 0;
 			uint32_t colNum = 0;
 			for(auto &row : chips_) {
-				row.resize(maxAddressX);
+				row.resize(maxAddressY);
 				colNum = 0;
 				for(auto &chip : row) {
 					chip = std::make_unique<EditChip>();
 					chip->Init(this,{rowNum,colNum});
-					++rowNum;
+					++colNum;
 				}
 				++rowNum;
 			}
@@ -263,7 +261,7 @@ void MapEditor::EditChip::Init(MapEditor *host,std::pair<uint32_t,uint32_t> addr
 }
 
 void MapEditor::EditChip::Draw(const ViewProjection &viewProj) {
-	transform_.transformData.translate = {static_cast<float>(address_.second * size.y),0.0f,static_cast<float>(address_.first * size.x)};
+	transform_.transformData.translate = {static_cast<float>(address_.second * size.x),0.0f,static_cast<float>(address_.first * size.x)};
 	transform_.Update();
 
 	PrimitiveDrawer::Quad(

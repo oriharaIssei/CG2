@@ -40,6 +40,9 @@ public:
 	void EndFrame();
 
 	int LoadTexture(const std::string &filePath);
+
+	void setShowCursor(BOOL isShow);
+	void setMousePos(const Vector2 &mousePos);
 private:
 	System() = default;
 	~System() {};
@@ -75,12 +78,11 @@ public:
 	DXDepthStencil *getDXDepthStencil()const { return dxDepthStencil_.get(); }
 
 	MaterialManager *getMaterialManager()const { return materialManager_.get(); }
-	
+
 	PipelineStateObj *getPrimitivePso() { return primitivePso_.get(); }
 	PipelineStateObj *getTexturePso() { return texturePso_.get(); }
 
 	ShaderCompiler *getShaderCompiler() { return shaderCompiler_.get(); }
 
 	const LightBuffer *getStanderdLight()const { return standerdLight_.get(); }
-
 };

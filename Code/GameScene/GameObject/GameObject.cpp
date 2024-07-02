@@ -4,7 +4,7 @@
 #include "imgui.h"
 
 void GameObject::Init(const std::string &modelName,const std::string &directoryPath,const std::string &materialName,const Transform &transform) {
-	model_.reset(Model::Create(directoryPath,modelName));
+	model_ = Model::Create(directoryPath,modelName);
 
 	materialName_ = materialName;
 	material_ = System::getInstance()->getMaterialManager()->Create(materialName_);
@@ -15,7 +15,7 @@ void GameObject::Init(const std::string &modelName,const std::string &directoryP
 }
 
 void GameObject::Init(const std::string &modelName,const std::string &directoryPath,const std::string &materialName,MaterialManager *materialManager,const Transform &transform) {
-	model_.reset(Model::Create(directoryPath,modelName));
+	model_ = Model::Create(directoryPath,modelName);
 
 	materialName_ = materialName;
 	material_ = materialManager->Create(materialName_);
@@ -37,7 +37,6 @@ void GameObject::DebugUpdate(MaterialManager *materialManager) {
 		// 入力された名前のマテリアルを取得
 		std::shared_ptr<Material> newMaterial = materialManager->getMaterialShared(std::string(inputMaterialName_));
 
-		// 取得したマテリアルが有効で、現在のマテリアルと異なる場合のみ変更
 		if(newMaterial && material_ != newMaterial) {
 			materialName_ = inputMaterialName_;
 			material_ = newMaterial;

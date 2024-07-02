@@ -20,7 +20,7 @@ public:
 	void DebugUpdate(MaterialManager *materialManager);
 	void Draw(const ViewProjection &viewProj);
 private:
-	std::unique_ptr<Model> model_;
+	std::shared_ptr<Model> model_;
 	WorldTransform worldTransform_;
 	std::shared_ptr<Material> material_;
 	std::string materialName_;

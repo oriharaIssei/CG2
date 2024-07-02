@@ -4,9 +4,10 @@
 #include "imgui.h"
 
 ChipEditState::ChipEditState(MapEditor *host,std::pair<uint32_t,uint32_t> address):IMapEditState(host) {
-	chip = host_->getChipList()[address.second][address.first].get();
+	chip_ = host_->getChipList()[address.first][address.second].get();
 	fileSystem_ = std::make_unique<ImGuiFileSystem>();
 	fileSystem_->Init("./resource");
+	fileSystem_->Search("obj");
 }
 
 void ChipEditState::Update() {
@@ -18,29 +19,35 @@ void ChipEditState::Update() {
 	for(auto &fileName : fileSystem_->getFileList()) {
 		if(ImGui::Button(fileName.second.c_str())) {
 			std::unique_ptr<GameObject> object = std::make_unique<GameObject>();
-			object->Init(fileName.second + ".obj",fileName.first,"WHITE",{{1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},chip->transform_.transformData.translate});
-			chip->gameObjects_.push_back(std::move(object));
+			object->Init(fileName.second + ".obj",fileName.first,"WHITE",host_->getMaterialManager(),{{1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},chip_->transform_.transformData.translate});
+			chip_->gameObjects_.push_back(std::move(object));
 		}
 	}
 	ImGui::End();
-	if(ImGui::TreeNode("Objects")) {
-		ImGui::TreePop();
-		uint32_t listNumber = 0;
-		for(auto &object : chip->gameObjects_) {
-			std::string nodeName = std::to_string(listNumber++) + '.' + object->getModel()->getName();
-			ImGui::Checkbox(nodeName.c_str(),&isActiveEditWindow[object.get()]);
-		}
-	}
 
-	uint32_t windowNumber = 0;
-	for(auto &isActiveEdit : isActiveEditWindow) {
-		std::string nodeName = std::to_string(windowNumber++) + '.' + isActiveEdit.first->getModel()->getName();
-		if(isActiveEdit.second) {
-			ImGui::Begin(nodeName.c_str());
-			isActiveEdit.first->DebugUpdate(host_->getMaterialManager());
-			ImGui::End();
+	ImGui::Begin("Active Objects");
+	if(!chip_->gameObjects_.empty()) {
+		objectNames_.clear();
+		for(int i = 0; i < chip_->gameObjects_.size(); ++i) {
+			objectNames_.push_back(std::to_string(i) + '.' + chip_->gameObjects_[i]->getModel()->getName());
+		}
+
+
+		ImGui::BeginChild("Objects",ImVec2(200,100),true);
+		for(int i = 0; i < objectNames_.size(); ++i) {
+			if(ImGui::Selectable(objectNames_[i].c_str(),selectedObject_ == i)) {
+				selectedObject_ = i;
+			}
+		}
+		ImGui::EndChild();
+
+		chip_->gameObjects_[selectedObject_]->DebugUpdate(host_->getMaterialManager());
+		if(ImGui::Button("Delete Current Ojbect")) {
+			chip_->gameObjects_[selectedObject_].reset();
+			chip_->gameObjects_.erase(chip_->gameObjects_.begin() + selectedObject_);
 		}
 	}
+	ImGui::End();
 
 	if(ImGui::Button("Back To AllViewState")) {
 		host_->TransitionState(new AllViewState(host_));
@@ -48,5 +55,5 @@ void ChipEditState::Update() {
 }
 
 void ChipEditState::Draw(const ViewProjection &viewProj) {
-	chip->Draw(viewProj);
+	chip_->Draw(viewProj);
 }

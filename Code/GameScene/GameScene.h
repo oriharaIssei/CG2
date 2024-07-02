@@ -14,8 +14,6 @@ public:
 	void Update()override;
 	void Draw()override;
 private:
-	float eyeSpeed_ = 0.008f;
-
 	std::unique_ptr<GameMap> gameMap_;
 	std::unique_ptr<Player> player_;
 };

@@ -103,6 +103,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\GameScene\Map\MapChip.cpp" />
     <ClCompile Include="Code\GameScene\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Code\main.cpp" />
+    <ClCompile Include="Code\Math\Matrix3x3.cpp" />
     <ClCompile Include="Code\Math\Matrix4x4.cpp" />
     <ClCompile Include="Code\System\DebugCamera\DebugCamera.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\Material.cpp" />
@@ -153,6 +154,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\GameScene\Map\GameMap.h" />
     <ClInclude Include="Code\GameScene\Map\MapChip.h" />
     <ClInclude Include="Code\GameScene\SceneManager\SceneManager.h" />
+    <ClInclude Include="Code\Math\Matrix3x3.h" />
     <ClInclude Include="Code\Math\Matrix4x4.h" />
     <ClInclude Include="Code\Math\Transform.h" />
     <ClInclude Include="Code\Math\Vector2.h" />

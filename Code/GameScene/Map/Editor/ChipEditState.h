@@ -16,8 +16,10 @@ public:
 	void Update()override;
 	void Draw(const ViewProjection &viewProj)override;
 private:
-	MapEditor::EditChip *chip;
-	std::unordered_map<GameObject *,bool> isActiveEditWindow;
+	MapEditor::EditChip *chip_;
+
+	std::vector<std::string> objectNames_;
+	int selectedObject_;
 
 	std::unique_ptr<ImGuiFileSystem> fileSystem_;
 };

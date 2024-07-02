@@ -2,6 +2,8 @@
 
 #include "GameMap.h"
 
+#include "PrimitiveDrawer.h"
+
 #include <assert.h>
 
 Vector2 MapChip::size_;
@@ -10,7 +12,13 @@ void MapChip::Init(const uint32_t row,const uint32_t col,MaterialManager *materi
 	address_.first = row;
 	address_.second = col;
 
-	std::string filePath = directoryPath + '/' + std::to_string(address_.second) + '/' + std::to_string(address_.first) + ".gcp";
+	transform_.Init();
+	transform_.transformData.translate = {col * MapChip::size_.x,0, row * MapChip::size_.y};
+	transform_.Update();
+
+	material_ = materialManager->Create("White");
+
+	std::string filePath = directoryPath + '/' + std::to_string(address_.first) + '/' + std::to_string(address_.second) + ".gcp";
 	std::ifstream file(filePath);
 	assert(file.is_open());
 
@@ -65,8 +73,23 @@ void MapChip::Init(const uint32_t row,const uint32_t col,MaterialManager *materi
 void MapChip::Update() {
 }
 
-void MapChip::Draw(const ViewProjection &viewProj) {
+void MapChip::Draw(float drawDistance,const Vector3 &playerPos,const ViewProjection &viewProj) {
+
+	PrimitiveDrawer::Quad(
+		{0.0f,0.0f,MapChip::size_.y},
+		{MapChip::size_.x,0.0f,MapChip::size_.y},
+		{0.0f,0.0f,0},
+		{MapChip::size_.x,0.0f,0},
+		transform_,viewProj,
+		material_.get()
+	);
+
+	Vector3 objectPos;
 	for(auto &object : gameObjects_) {
+		objectPos = Vector3(object->getWorldTransform().worldMat[3]);
+		if((objectPos - playerPos).length() > drawDistance - 0.1f) {
+			continue;
+		}
 		object->Draw(viewProj);
 	}
 }

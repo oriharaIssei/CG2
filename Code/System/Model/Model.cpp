@@ -23,7 +23,7 @@ std::unique_ptr<DXCommand> Model::dxCommand_;
 #pragma region"ModelManager"
 class ModelManager {
 public:
-	void Create(Model *model,const std::string &directoryPath,const std::string &filename);
+	void Create(std::shared_ptr<Model> model,const std::string &directoryPath,const std::string &filename);
 	void Init();
 	void Finalize();
 private:
@@ -34,13 +34,13 @@ private:
 	void ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices);
 private:
 	std::thread loadingThread_;
-	std::queue<std::tuple<Model *,std::string,std::string>> loadingQueue_;
+	std::queue<std::tuple< std::weak_ptr<Model>,std::string,std::string>> loadingQueue_;
 	std::mutex queueMutex_;
 	std::condition_variable queueCondition_;
 	bool stopLoadingThread_;
 };
 
-void ModelManager::Create(Model *model,const std::string &directoryPath,const std::string &filename) {
+void ModelManager::Create(std::shared_ptr<Model> model,const std::string &directoryPath,const std::string &filename) {
 	{
 		std::unique_lock<std::mutex> lock(queueMutex_);
 		loadingQueue_.emplace(model,directoryPath,filename);
@@ -66,7 +66,7 @@ void ModelManager::Finalize() {
 
 void ModelManager::LoadLoop() {
 	while(true) {
-		std::tuple<Model *,std::string,std::string> task;
+		std::tuple<std::weak_ptr<Model>,std::string,std::string> task;
 		{
 			std::unique_lock<std::mutex> lock(queueMutex_);
 			queueCondition_.wait(lock,[this] { return !loadingQueue_.empty() || stopLoadingThread_; });
@@ -78,15 +78,17 @@ void ModelManager::LoadLoop() {
 			task = loadingQueue_.front();
 			loadingQueue_.pop();
 		}
-
-		Model *model = std::get<0>(task);
-		model->currentState_ = Model::LoadState::Loading;
-		LoadObjFile(model->data_,std::get<1>(task),std::get<2>(task));
-		model->currentState_ = Model::LoadState::Loaded;
+		if(auto model = std::get<0>(task).lock()) {
+			model->currentState_ = Model::LoadState::Loading;
+			LoadObjFile(model->data_,std::get<1>(task),std::get<2>(task));
+			model->currentState_ = Model::LoadState::Loaded;
+		}
 	}
 }
 
-void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,const std::string &directoryPath,const std::string &filename) {
+void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,
+							   const std::string &directoryPath,
+							   const std::string &filename) {
 	// 変数の宣言
 	std::vector<Vector4> poss;
 	std::vector<Vector3> normals;
@@ -95,10 +97,11 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	std::vector<TextureVertexData> vertices;
 	std::string currentMaterial;
 
+	std::unique_ptr<ModelData> modelData = std::make_unique<ModelData>();
+
 	if(!data.empty()) {
 		data.clear();
 	}
-	std::unique_ptr<ModelData> modelData = std::make_unique<ModelData>();
 
 	// ファイルを開く
 	std::ifstream file(directoryPath + "/" + filename);
@@ -244,8 +247,8 @@ ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::s
 #pragma endregion
 
 #pragma region"Model"
-Model *Model::Create(const std::string &directoryPath,const std::string &filename) {
-	Model *model = new Model();
+std::shared_ptr<Model> Model::Create(const std::string &directoryPath,const std::string &filename) {
+	std::shared_ptr<Model> model = std::make_shared<Model>();
 	model->directory_ = directoryPath;
 	model->fileName_ = filename;
 	manager_->Create(model,directoryPath,filename);

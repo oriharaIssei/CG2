@@ -16,12 +16,15 @@ class MapChip {
 public:
 	void Init(const uint32_t row,const uint32_t col,MaterialManager *materialManager,const std::string &mapDirectory);
 	void Update();
-	void Draw(const ViewProjection &viewProj);
+	void Draw(float drawDistance,const Vector3 &playerPos,const ViewProjection &viewProj);
 private:
 	static Vector2 size_;
 private:
 	std::vector<std::unique_ptr<GameObject>> gameObjects_;
+
 	WorldTransform transform_;
+	std::shared_ptr<Material> material_;
+
 	/// <summary>
 	/// first = row ,seconds = col
 	/// </summary>

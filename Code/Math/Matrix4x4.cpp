@@ -133,7 +133,7 @@ Matrix4x4 MakeMatrix::RotateZ(const float &radian) {
 	return Matrix4x4({std::cosf(radian),std::sinf(radian),0.0f,0.0f,-std::sinf(radian),std::cosf(radian),0.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,0.0f,1.0f});
 }
 
-Matrix4x4 MakeMatrix::RotateXYZ(const Vector3 &radian) { return MakeMatrix::RotateZ(radian.z) * MakeMatrix::RotateX(radian.x) * MakeMatrix::RotateY(radian.y); }
+Matrix4x4 MakeMatrix::RotateXYZ(const Vector3 &radian) { return  MakeMatrix::RotateX(radian.x) * MakeMatrix::RotateY(radian.y) * MakeMatrix::RotateZ(radian.z); }
 
 Matrix4x4 MakeMatrix::RotateXYZ(const Matrix4x4 &x,const Matrix4x4 &y,const Matrix4x4 &z) { return z * x * y; }
 

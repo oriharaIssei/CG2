@@ -18,7 +18,7 @@ class GameMap {
 public:
 	void Init(const std::string &directoryPath,const Vector3 &playerPos,float loadDistance);
 	void Update(const Vector3 &playerPos);
-	void Draw(const ViewProjection &viewProj);
+	void Draw(const Vector3 &playerPos,const ViewProjection &viewProj);
 private:
 	void LoadMapFile();
 	void SwapActiveChip(const Vector3 &playerPos);
@@ -33,8 +33,12 @@ private:
 	};
 private:
 	float loadDistance_;
+	float drawDistance_;
 
 	std::vector<std::unique_ptr<MapChip>> activeChips_;
+#ifdef _DEBUG
+	std::vector<std::pair<uint32_t,uint32_t>> activeChipAddress_;
+#endif // _DEBUG
 
 	std::unique_ptr<MaterialManager> materialManager_;
 
@@ -42,7 +46,6 @@ private:
 	std::pair<uint32_t,uint32_t> playerPreAddress_;
 
 	std::pair<uint32_t,uint32_t> maxAddress_;
-	uint32_t loadSize_;
 
 	WorldTransform worldTransform_;
 

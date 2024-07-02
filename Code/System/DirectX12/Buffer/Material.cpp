@@ -49,14 +49,16 @@ void MaterialManager::DebugUpdate() {
 #ifdef _DEBUG
 	ImGui::Begin(managerName_.c_str());
 	bool isEnableLighting = false;
+	bool isEnableFog = false;
 	for(auto &material : materialPallete_) {
+		isEnableLighting = material.second->mappingData_->enableLighting;
 		if(ImGui::TreeNode(material.first.c_str())) {
 			ImGui::TreePop();
 			ImGui::ColorEdit4(std::string(material.first + "Color").c_str(),&material.second->mappingData_->color.x);
 			isEnableLighting = static_cast<bool>(material.second->mappingData_->enableLighting);
-			ImGui::Checkbox(std::string(material.first + "is EnableLighting").c_str(),&isEnableLighting);
+			ImGui::Checkbox(std::string(material.first + " is EnableLighting").c_str(),&isEnableLighting);
 			material.second->mappingData_->enableLighting = static_cast<uint32_t>(isEnableLighting);
-		}
+			}
 	}
 
 	ImGui::InputText("New Material Name",inputNewMaterialName_,32);

@@ -20,7 +20,7 @@ void EditScene::Init() {
 }
 
 void EditScene::Update() {
-	if(input_->isPressKey(DIK_RETURN)) {
+	if(input_->isPressKey(DIK_ESCAPE)) {
 		host_->TransitionScene(new GameScene(host_));
 		return;
 	}
