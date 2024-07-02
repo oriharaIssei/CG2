@@ -94,6 +94,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="Code\main.cpp" />
     <ClCompile Include="Code\Math\Matrix4x4.cpp" />
     <ClCompile Include="Code\System\DebugCamera\DebugCamera.cpp" />
@@ -118,7 +119,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\Sprite\Sprite.cpp" />
     <ClCompile Include="Code\System\Texture\TextureManager.cpp" />
     <ClCompile Include="Code\GameScene\GameScene.cpp" />
-    <ClCompile Include="Code\System\ImGuiManager\ImGuiManager.cpp" />
+    <ClCompile Include="Code\Lib\ImGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="Code\System\Logger\Logger.cpp" />
     <ClCompile Include="Code\System\WinApp\WinApp.cpp" />
     <ClCompile Include="Code\System\System.cpp" />
@@ -133,6 +134,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\Buffer\Object3dMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\Lib\MyFileSystem\MyFileSystem.h" />
     <ClInclude Include="Code\Math\Matrix4x4.h" />
     <ClInclude Include="Code\Math\Transform.h" />
     <ClInclude Include="Code\Math\Vector2.h" />
@@ -159,7 +161,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\System\Sprite\Sprite.h" />
     <ClInclude Include="Code\System\Texture\TextureManager.h" />
     <ClInclude Include="Code\GameScene\GameScene.h" />
-    <ClInclude Include="Code\System\ImGuiManager\ImGuiManager.h" />
+    <ClInclude Include="Code\Lib\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="Code\System\Logger\Logger.h" />
     <ClInclude Include="Code\Math\Vector3.h" />
     <ClInclude Include="Code\System\WinApp\WinApp.h" />
