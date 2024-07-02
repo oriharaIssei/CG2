@@ -22,6 +22,10 @@ std::list<std::string> MyFileSystem::SearchSubFolder(const std::string &director
 	return subFolders;
 }
 
+bool MyFileSystem::CreateFolder(const std::string &directory) {
+	return std::filesystem::create_directories(directory);
+}
+
 bool MyFileSystem::removeEmptyFolder(const std::string &directory) {
 	return false;
 }
