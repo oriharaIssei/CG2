@@ -2,6 +2,9 @@
 
 #include <imgui.h>
 
+#include <cmath>
+#include <numbers>
+
 void DebugCamera::Init() {
 	input_ = Input::getInstance();
 	currentState_.reset(new Neutral(this));
@@ -59,11 +62,11 @@ void DebugCamera::TranslationState::Update() {
 	break;
 	}
 	velo.y *= -1.0f;
-	host_->viewProj_.translate += velo;
-
+	host_->viewProj_.translate += TransformNormal(velo,MakeMatrix::RotateXYZ(host_->viewProj_.rotate));
 }
 
 void DebugCamera::RotationState::Update() {
+	constexpr float maxRad = std::numbers::pi_v<float>*2.0f;
 	if(!host_->input_->isPressMouseButton(1) ||
 	   !(host_->input_->isPressKey(DIK_LALT) ||
 		 host_->input_->isPressKey(DIK_RALT))) {
@@ -71,4 +74,9 @@ void DebugCamera::RotationState::Update() {
 		return;
 	}
 	host_->viewProj_.rotate += Vector3(host_->input_->getMouseVelocity().y,host_->input_->getMouseVelocity().x,0.0f) * 0.01f;
+	host_->viewProj_.rotate = {
+		std::fmod(host_->viewProj_.rotate.x,maxRad ),
+		std::fmod(host_->viewProj_.rotate.y,maxRad ),
+		std::fmod(host_->viewProj_.rotate.z,maxRad )
+	};
 }
