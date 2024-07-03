@@ -27,7 +27,7 @@ bool MyFileSystem::CreateFolder(const std::string &directory) {
 }
 
 bool MyFileSystem::removeEmptyFolder(const std::string &directory) {
-	return false;
+	return fs::remove(directory);
 }
 
 std::uintmax_t MyFileSystem::deleteFolder(const std::string &path) {
