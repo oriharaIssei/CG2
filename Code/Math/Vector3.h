@@ -5,12 +5,12 @@
 #include <cmath>
 
 struct Vector3 {
-	float x, y, z;
+	float x,y,z;
 
-	Vector3(const float &x, const float &y, const float &z):x(x), y(y), z(z) {};
-	Vector3(const Vector2 &xy, const float &z):x(xy.x), y(xy.y), z(z) {};
-	Vector3(const float &x,const Vector2 &yz ):x(x), y(yz.x), z(yz.y) {};
-	Vector3():x(0), y(0), z(0) {};
+	Vector3(const float &x,const float &y,const float &z):x(x),y(y),z(z) {};
+	Vector3(const Vector2 &xy,const float &z):x(xy.x),y(xy.y),z(z) {};
+	Vector3(const float &x,const Vector2 &yz):x(x),y(yz.x),z(yz.y) {};
+	Vector3():x(0),y(0),z(0) {};
 
 	///
 	///	演算子
@@ -20,6 +20,10 @@ struct Vector3 {
 		this->y = another.y;
 		this->z = another.z;
 		return *this;
+	}
+	bool operator==(const Vector3 &v) {
+		if(x == v.x && y == v.y && z == v.z) { return true; }
+		return false;
 	}
 
 	Vector3 operator+(const Vector3 &another) {

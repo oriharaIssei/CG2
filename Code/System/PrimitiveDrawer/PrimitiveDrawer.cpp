@@ -27,15 +27,15 @@ void PrimitiveDrawer::Init() {
 	CreateLinePso();
 
 	lineMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	lineMesh_->Create(2 * 600);
+	lineMesh_->Create(2 * 600,0);
 	lineInstanceVal_ = 0;
 
 	triangleMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	triangleMesh_->Create(3 * 400);
+	triangleMesh_->Create(3 * 400,0);
 	triangleInstanceVal_ = 0;
 
 	quadMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	quadMesh_->Create(6 * 200);
+	quadMesh_->Create(6 * 200,4 * 200);
 	quadInstanceVal_ = 0;
 }
 
@@ -119,14 +119,14 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 
 	const uint32_t startIndex = quadInstanceVal_ * 6;
 	const uint32_t startVertex = quadInstanceVal_ * 4;
-	quadMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
-	quadMesh_->vertData[startIndex].normal = p0;
-	quadMesh_->vertData[startIndex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
-	quadMesh_->vertData[startIndex + 1].normal = p1;
-	quadMesh_->vertData[startIndex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
-	quadMesh_->vertData[startIndex + 2].normal = p2;
-	quadMesh_->vertData[startIndex + 3].pos = {p3.x,p3.y,p3.z,1.0f};
-	quadMesh_->vertData[startIndex + 3].normal = p3;
+	quadMesh_->vertData[startVertex].pos = {p0.x,p0.y,p0.z,1.0f};
+	quadMesh_->vertData[startVertex].normal = p0;
+	quadMesh_->vertData[startVertex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
+	quadMesh_->vertData[startVertex + 1].normal = p1;
+	quadMesh_->vertData[startVertex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
+	quadMesh_->vertData[startVertex + 2].normal = p2;
+	quadMesh_->vertData[startVertex + 3].pos = {p3.x,p3.y,p3.z,1.0f};
+	quadMesh_->vertData[startVertex + 3].normal = p3;
 
 	quadMesh_->indexData[startIndex] = startIndex;
 	quadMesh_->indexData[startIndex + 1] = startIndex + 1;
@@ -149,7 +149,7 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
 
 	commandList->DrawIndexedInstanced(
-		6,1,startIndex,startVertex,0
+		6,1,0,startVertex,0
 	);
 	++quadInstanceVal_;
 }

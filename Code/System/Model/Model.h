@@ -34,7 +34,7 @@ class ModelManager;
 class Model {
 	friend class ModelManager;
 public:
-	static Model *Create(const std::string &directoryPath,const std::string &filename);
+	static std::shared_ptr<Model> Create(const std::string &directoryPath,const std::string &filename);
 	static void Init();
 	static void Finalize();
 private:

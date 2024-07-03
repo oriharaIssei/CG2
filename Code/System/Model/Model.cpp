@@ -23,7 +23,7 @@ std::unique_ptr<DXCommand> Model::dxCommand_;
 #pragma region"ModelManager"
 class ModelManager {
 public:
-	void Create(Model *model,const std::string &directoryPath,const std::string &filename);
+	void Create(std::shared_ptr<Model> &model,const std::string &directoryPath,const std::string &filename);
 	void Init();
 	void Finalize();
 private:
@@ -31,16 +31,18 @@ private:
 
 	void LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,const std::string &directoryPath,const std::string &filename);
 	ModelMtl LoadMtlFile(const std::string &directoryPath,const std::string &filename,const std::string &materialName);
+	void ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices,const std::vector<uint32_t> &indices);
 	void ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices);
+
 private:
 	std::thread loadingThread_;
-	std::queue<std::tuple<Model *,std::string,std::string>> loadingQueue_;
+	std::queue<std::tuple<std::weak_ptr<Model>,std::string,std::string>> loadingQueue_;
 	std::mutex queueMutex_;
 	std::condition_variable queueCondition_;
 	bool stopLoadingThread_;
 };
 
-void ModelManager::Create(Model *model,const std::string &directoryPath,const std::string &filename) {
+void ModelManager::Create(std::shared_ptr<Model> &model,const std::string &directoryPath,const std::string &filename) {
 	{
 		std::unique_lock<std::mutex> lock(queueMutex_);
 		loadingQueue_.emplace(model,directoryPath,filename);
@@ -66,7 +68,7 @@ void ModelManager::Finalize() {
 
 void ModelManager::LoadLoop() {
 	while(true) {
-		std::tuple<Model *,std::string,std::string> task;
+		std::tuple<std::weak_ptr<Model>,std::string,std::string> task;
 		{
 			std::unique_lock<std::mutex> lock(queueMutex_);
 			queueCondition_.wait(lock,[this] { return !loadingQueue_.empty() || stopLoadingThread_; });
@@ -79,10 +81,11 @@ void ModelManager::LoadLoop() {
 			loadingQueue_.pop();
 		}
 
-		Model *model = std::get<0>(task);
-		model->currentState_ = Model::LoadState::Loading;
-		LoadObjFile(model->data_,std::get<1>(task),std::get<2>(task));
-		model->currentState_ = Model::LoadState::Loaded;
+		if(auto model = std::get<0>(task).lock()) {
+			model->currentState_ = Model::LoadState::Loading;
+			LoadObjFile(model->data_,std::get<1>(task),std::get<2>(task));
+			model->currentState_ = Model::LoadState::Loaded;
+		}
 	}
 }
 
@@ -94,11 +97,12 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	std::string line;
 	std::vector<TextureVertexData> vertices;
 	std::string currentMaterial;
-	bool firstObject = true;
 
 	// ファイルを開く
 	std::ifstream file(directoryPath + "/" + filename);
 	assert(file.is_open());
+
+	data.emplace_back(new ModelData());
 
 	// ファイル読み込み
 	while(std::getline(file,line)) {
@@ -151,24 +155,21 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 
 				triangle[faceVert] = {position,texCoord,normal};
 			}
-			vertices.push_back(triangle[2]);
-			vertices.push_back(triangle[1]);
-			vertices.push_back(triangle[0]);
+
+			for(int i = 2; i >= 0; --i) {
+				vertices.push_back(triangle[i]);
+			}
+
 		} else if(identifier == "mtllib") {
 			std::string materialFileName;
 			s >> currentMaterial;
 		} else if(identifier == "usemtl") {
 			std::string materialName;
 			s >> materialName;
-			if(!data.empty()) {
-				data.back()->materialData = LoadMtlFile(directoryPath,currentMaterial,materialName);
-			}
+			data.back()->materialData = LoadMtlFile(directoryPath,currentMaterial,materialName);
 		} else if(identifier == "o") {
-			if(!firstObject) {
-				ProcessMeshData(data.back(),vertices);
-				vertices.clear();
-			}
-			firstObject = false;
+			ProcessMeshData(data.back(),vertices);
+			vertices.clear();
 			data.push_back(std::make_unique<ModelData>());
 		}
 	}
@@ -181,14 +182,14 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	}
 }
 
-void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices) {
+void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices,const std::vector<uint32_t> &indices) {
 	if(modelData->materialData.textureNumber != nullptr) {
 		TextureObject3dMesh *textureMesh = new TextureObject3dMesh();
 		modelData->usePso_ = System::getInstance()->getTexturePso();
 
 		modelData->dataSize = sizeof(TextureVertexData) * vertices.size();
 
-		textureMesh->Create(static_cast<UINT>(vertices.size()));
+		textureMesh->Create(static_cast<UINT>(vertices.size()),static_cast<UINT>(indices.size()));
 		memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
 		modelData->meshBuff_.reset(textureMesh);
 	} else {
@@ -202,12 +203,43 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 
 		modelData->dataSize = sizeof(PrimitiveVertexData) * primVert.size();
 
-		primitiveMesh->Create(static_cast<UINT>(primVert.size()));
+		primitiveMesh->Create(static_cast<UINT>(primVert.size()),static_cast<UINT>(indices.size()));
+		memcpy(primitiveMesh->vertData,primVert.data(),primVert.size() * sizeof(PrimitiveVertexData));
+		modelData->meshBuff_.reset(primitiveMesh);
+	}
+	memcpy(modelData->meshBuff_->indexData,indices.data(),static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
+
+	modelData->vertSize = vertices.size();
+}
+
+void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices) {
+	if(modelData->materialData.textureNumber != nullptr) {
+		TextureObject3dMesh *textureMesh = new TextureObject3dMesh();
+		modelData->usePso_ = System::getInstance()->getTexturePso();
+
+		modelData->dataSize = sizeof(TextureVertexData) * vertices.size();
+
+		textureMesh->Create(static_cast<UINT>(vertices.size()),0);
+		memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
+		modelData->meshBuff_.reset(textureMesh);
+	} else {
+		PrimitiveObject3dMesh *primitiveMesh = new PrimitiveObject3dMesh();
+		modelData->usePso_ = System::getInstance()->getPrimitivePso();
+
+		std::vector<PrimitiveVertexData> primVert;
+		for(auto &texVert : vertices) {
+			primVert.push_back(PrimitiveVertexData(texVert));
+		}
+
+		modelData->dataSize = sizeof(PrimitiveVertexData) * primVert.size();
+
+		primitiveMesh->Create(static_cast<UINT>(primVert.size()),0);
 		memcpy(primitiveMesh->vertData,primVert.data(),primVert.size() * sizeof(PrimitiveVertexData));
 		modelData->meshBuff_.reset(primitiveMesh);
 	}
 	modelData->vertSize = vertices.size();
 }
+
 
 ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::string &filename,const std::string &materialName) {
 	ModelMtl data {};
@@ -241,8 +273,8 @@ ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::s
 #pragma endregion
 
 #pragma region"Model"
-Model *Model::Create(const std::string &directoryPath,const std::string &filename) {
-	Model *model = new Model();
+std::shared_ptr<Model> Model::Create(const std::string &directoryPath,const std::string &filename) {
+	std::shared_ptr<Model> model = std::make_shared<Model>();
 	manager_->Create(model,directoryPath,filename);
 	return model;
 }

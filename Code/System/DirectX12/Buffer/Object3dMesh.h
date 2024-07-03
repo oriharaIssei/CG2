@@ -18,6 +18,13 @@ struct TextureVertexData {
 		this->normal = vert.normal;
 		return this;
 	}
+
+	bool operator == (const TextureVertexData &vert) {
+		if(this->pos != vert.pos) { return false; }
+		if(this->texCoord != vert.texCoord) { return false; }
+		if(this->normal != vert.normal) { return false; }
+		return true;
+	}
 };
 struct PrimitiveVertexData {
 	Vector4 pos;
@@ -46,7 +53,7 @@ public:
 	/// VertexDataを設定後に実行
 	/// </summary>
 	/// <param name="vertexSize">総頂点数</param>
-	virtual void Create(UINT vertexSize) = 0;
+	virtual void Create(UINT vertexSize,UINT indexSize) = 0;
 	uint32_t *indexData = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
@@ -59,11 +66,11 @@ public:
 class TextureObject3dMesh :public IObject3dMesh {
 public:
 	TextureVertexData *vertData = nullptr;
-	void Create(UINT vertexSize)override;
+	void Create(UINT vertexSize,UINT indexSize)override;
 };
 
 class PrimitiveObject3dMesh :public IObject3dMesh {
 public:
 	PrimitiveVertexData *vertData = nullptr;
-	void Create(UINT vertexSize)override;
+	void Create(UINT vertexSize,UINT indexSize)override;
 };

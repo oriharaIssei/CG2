@@ -29,7 +29,7 @@ void GameScene::Init() {
 	worldTransform_.Init();
 	viewProj_.Init();
 
-	model.reset(Model::Create("resource","multiMesh.obj"));
+	model = Model::Create("resource","multiMesh.obj");
 
 	material = System::getInstance()->getMaterialManager()->Create("White");
 }
