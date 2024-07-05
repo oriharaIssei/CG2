@@ -15,9 +15,9 @@ void GameScene::Init() {
 }
 
 void GameScene::Update() {
+	System::getInstance()->getMaterialManager()->DebugUpdate();// あまりおすすめしない
 	debugCamera.Update();
 	debugCamera.DebugUpdate();
-	System::getInstance()->getMaterialManager()->DebugUpdate();// あまりおすすめしない
 }
 
 void GameScene::Draw() {

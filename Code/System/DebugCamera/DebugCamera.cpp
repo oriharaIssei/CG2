@@ -12,8 +12,8 @@ void DebugCamera::Init() {
 
 void DebugCamera::DebugUpdate() {
 	ImGui::Begin("DebugCamera");
-	ImGui::SliderFloat3("Rotate",&viewProj_.rotate.x,-3,3);
-	ImGui::SliderFloat3("Translate",&viewProj_.translate.x,-3,3);
+	ImGui::DragFloat3("Rotate",&viewProj_.rotate.x,0.1f);
+	ImGui::DragFloat3("Translate",&viewProj_.translate.x,0.1f);
 	ImGui::End();
 }
 
