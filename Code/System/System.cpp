@@ -784,8 +784,98 @@ void System::CreateTexturePSO() {
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = _countof(inputElementDescs);
 
+	//switch(blendMode) {
+	//case None:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	break;
+	//case Normal:
 	blendDesc.RenderTarget[0].RenderTargetWriteMask =
 		D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].LogicOpEnable = false;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//case Add:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	blendDesc.AlphaToCoverageEnable = false;
+	//	blendDesc.IndependentBlendEnable = false;
+	//	blendDesc.RenderTarget[0].BlendEnable = true;
+	//	blendDesc.RenderTarget[0].LogicOpEnable = false;
+
+	//	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	//	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+
+	//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//case Subtract:
+	//case Sub:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	blendDesc.AlphaToCoverageEnable = false;
+	//	blendDesc.IndependentBlendEnable = false;
+	//	blendDesc.RenderTarget[0].BlendEnable = true;
+	//	blendDesc.RenderTarget[0].LogicOpEnable = false;
+
+	//	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	//	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_REV_SUBTRACT;
+	//	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+
+	//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//case Multiply:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	blendDesc.AlphaToCoverageEnable = false;
+	//	blendDesc.IndependentBlendEnable = false;
+	//	blendDesc.RenderTarget[0].BlendEnable = true;
+	//	blendDesc.RenderTarget[0].LogicOpEnable = false;
+
+	//	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
+
+	//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//case Screen:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	blendDesc.AlphaToCoverageEnable = false;
+	//	blendDesc.IndependentBlendEnable = false;
+	//	blendDesc.RenderTarget[0].BlendEnable = true;
+	//	blendDesc.RenderTarget[0].LogicOpEnable = false;
+
+	//	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;
+	//	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+
+	//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//default:
+	//	break;
+	//}
 
 	//裏面(時計回り)を表示しない
 	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
