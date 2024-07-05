@@ -31,6 +31,6 @@ private:
 
 	std::unique_ptr<MaterialManager> materialManager_;
 
-	WorldTransform transform_;
-	std::shared_ptr<Model> model_;
+	WorldTransform transform_[2];
+	std::shared_ptr<Model> model_[2];
 };
