@@ -38,8 +38,6 @@ public:
 	static void Init();
 	static void Finalize();
 private:
-	static uint32_t drawCount_;
-
 	static std::unique_ptr<ModelManager> manager_;
 
 	static std::unique_ptr<DXCommand> dxCommand_;
@@ -47,6 +45,8 @@ private:
 	static std::unique_ptr<Matrix4x4> fovMa_;
 public:
 	Model() = default;
+
+	void Debug();
 
 	void Draw(const WorldTransform &world,const ViewProjection &view,const Material *material);
 private:

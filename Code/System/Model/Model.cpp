@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+#include "imgui.h"
+
 #include "DXFunctionHelper.h"
 #include "TextureManager.h"
 #include <System.h>
@@ -12,8 +14,6 @@
 #include "Vector3.h"
 #include "Vector4.h"
 #include <stdint.h>
-
-uint32_t Model::drawCount_;
 
 std::unique_ptr<Matrix4x4> Model::fovMa_ = nullptr;
 std::unique_ptr<ModelManager> Model::manager_ = nullptr;
@@ -94,39 +94,53 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	std::vector<Vector4> poss;
 	std::vector<Vector3> normals;
 	std::vector<Vector2> texCoords;
-	std::string line;
 	std::vector<TextureVertexData> vertices;
 	std::string currentMaterial;
+	std::string materialName;
 
+	data.emplace_back(new ModelData());
 	// ファイルを開く
 	std::ifstream file(directoryPath + "/" + filename);
 	assert(file.is_open());
 
-	data.emplace_back(new ModelData());
-
+	std::string line;
 	// ファイル読み込み
 	while(std::getline(file,line)) {
 		std::string identifier;
 		std::istringstream s(line);
 		s >> identifier;
 
-		if(identifier == "v") {
-			Vector4 pos;
-			s >> pos.x >> pos.y >> pos.z;
-			pos.x *= -1.0f;
-			pos.w = 1.0f;
-			poss.push_back(pos);
-		} else if(identifier == "vt") {
-			Vector2 texcoord;
-			s >> texcoord.x >> texcoord.y;
-			texcoord.y = 1.0f - texcoord.y;
-			texCoords.push_back(texcoord);
-		} else if(identifier == "vn") {
-			Vector3 normal;
-			s >> normal.x >> normal.y >> normal.z;
-			normal.x *= -1.0f;
-			normals.push_back(normal);
-		} else if(identifier == "f") {
+		switch(identifier[0]) {
+		case 'v': {
+			switch(identifier[1]) {
+			case ' ': {
+				Vector4 pos;
+				s >> pos.x >> pos.y >> pos.z;
+				pos.x *= -1.0f;
+				pos.w = 1.0f;
+				poss.push_back(pos);
+				break;
+			}
+			case 't': {
+				Vector2 texcoord;
+				s >> texcoord.x >> texcoord.y;
+				texcoord.y = 1.0f - texcoord.y;
+				texCoords.push_back(texcoord);
+				break;
+			}
+			case 'n': {
+				Vector3 normal;
+				s >> normal.x >> normal.y >> normal.z;
+				normal.x *= -1.0f;
+				normals.push_back(normal);
+				break;
+			}
+			default:
+				break;
+			}
+			break;
+		}
+		case 'f': {
 			TextureVertexData triangle[3];
 			for(int32_t faceVert = 0; faceVert < 3; ++faceVert) {
 				std::string vertDefinition;
@@ -156,23 +170,31 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 				triangle[faceVert] = {position,texCoord,normal};
 			}
 
-			for(int i = 2; i >= 0; --i) {
-				vertices.push_back(triangle[i]);
-			}
-
-		} else if(identifier == "mtllib") {
-			std::string materialFileName;
+			vertices.push_back(triangle[2]);
+			vertices.push_back(triangle[1]);
+			vertices.push_back(triangle[0]);
+			break;
+		}
+		case 'm': { // mtllib
 			s >> currentMaterial;
-		} else if(identifier == "usemtl") {
-			std::string materialName;
+			break;
+		}
+		case 'u': { // usemtl
 			s >> materialName;
 			data.back()->materialData = LoadMtlFile(directoryPath,currentMaterial,materialName);
-		} else if(identifier == "o") {
+			break;
+		}
+		case 'o': {
 			ProcessMeshData(data.back(),vertices);
 			vertices.clear();
 			data.push_back(std::make_unique<ModelData>());
+			break;
+		}
+		default:
+			break;
 		}
 	}
+
 	// 最後のメッシュデータを処理
 	if(!vertices.empty()) {
 		if(data.empty()) {
@@ -181,7 +203,6 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 		ProcessMeshData(data.back(),vertices);
 	}
 }
-
 void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices,const std::vector<uint32_t> &indices) {
 	if(modelData->materialData.textureNumber != nullptr) {
 		TextureObject3dMesh *textureMesh = new TextureObject3dMesh();
@@ -239,7 +260,6 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 	}
 	modelData->vertSize = vertices.size();
 }
-
 
 ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::string &filename,const std::string &materialName) {
 	ModelMtl data {};
@@ -330,7 +350,6 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,cons
 		// 描画!!!
 		commandList->DrawInstanced((UINT)(model->vertSize),1,0,0);
 	}
-	drawCount_++;
 }
 
 void Model::Draw(const WorldTransform &world,const ViewProjection &view,const Material *material) {

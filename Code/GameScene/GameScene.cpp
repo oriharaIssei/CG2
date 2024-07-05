@@ -12,6 +12,7 @@ GameScene::~GameScene() {
 void GameScene::Init() {
 	input_ = Input::getInstance();
 	debugCamera.Init();
+	Model::Create("./resource","bunny.obj");
 }
 
 void GameScene::Update() {
