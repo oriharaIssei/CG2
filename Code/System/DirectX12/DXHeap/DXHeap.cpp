@@ -11,13 +11,13 @@ void DXHeap::Init(ID3D12Device *device) {
 	///================================================
 	///	Heap の生成
 	///================================================
-	rtvHeap_ = CreateHeap(device,D3D12_DESCRIPTOR_HEAP_TYPE_RTV,3,false);
-	srvHeap_ = CreateHeap(device,D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,128,true);
-	dsvHeap_ = CreateHeap(device,D3D12_DESCRIPTOR_HEAP_TYPE_DSV,1,false);
+	rtvHeap_ = CreateHeap(device,D3D12_DESCRIPTOR_HEAP_TYPE_RTV,rtvHeapSize,false);
+	srvHeap_ = CreateHeap(device,D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,srvHeapSize,true);
+	dsvHeap_ = CreateHeap(device,D3D12_DESCRIPTOR_HEAP_TYPE_DSV,dsvHeapSize,false);
 
-	rtvDescriptorSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	dsvDescriptorSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-	srvDescriptorSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	rtvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	dsvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	srvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 void DXHeap::Finalize() {

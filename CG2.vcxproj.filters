@@ -129,6 +129,9 @@
     <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXShaderResource.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\System\WinApp\WinApp.h">
@@ -257,6 +260,9 @@
     <ClInclude Include="Code\Lib\MyFileSystem\MyFileSystem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXShaderResource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Code\System\Shader\Object3dTexture.PS.hlsl" />
@@ -265,11 +271,14 @@
     <FxCompile Include="Code\System\Shader\Object3d.PS.hlsl" />
     <FxCompile Include="Code\System\Shader\Sprite.VS.hlsl" />
     <FxCompile Include="Code\System\Shader\Sprite.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Particle.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Particle.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />
     <None Include="Code\System\Shader\Object3dTexture.hlsli" />
     <None Include="Code\System\Shader\Object3d.hlsli" />
     <None Include="Code\System\Shader\Sprite.hlsli" />
+    <None Include="Code\System\Shader\Particle.hlsli" />
   </ItemGroup>
 </Project>

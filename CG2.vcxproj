@@ -109,6 +109,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\DXHeap\DXHeap.cpp" />
     <ClCompile Include="Code\System\DirectX12\DXResource\DXDepthStencil.cpp" />
     <ClCompile Include="Code\System\DirectX12\DXResource\DXRenterTarget.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXShaderResource.cpp" />
     <ClCompile Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.cpp" />
     <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp" />
     <ClCompile Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.cpp" />
@@ -151,6 +152,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\System\DirectX12\DXHeap\DXHeap.h" />
     <ClInclude Include="Code\System\DirectX12\DXResource\DXDepthStencil.h" />
     <ClInclude Include="Code\System\DirectX12\DXResource\DXRenterTarget.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXShaderResource.h" />
     <ClInclude Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.h" />
     <ClInclude Include="Code\System\DirectX12\PipelineStateObj.h" />
     <ClInclude Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.h" />
@@ -202,6 +204,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="Code\System\Shader\Particle.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Code\System\Shader\Particle.VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Code\System\Shader\Sprite.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -220,6 +232,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <None Include="Code\System\Shader\Object3d.hlsli" />
     <None Include="Code\System\Shader\Object3dTexture.hlsli" />
+    <None Include="Code\System\Shader\Particle.hlsli" />
     <None Include="Code\System\Shader\Sprite.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

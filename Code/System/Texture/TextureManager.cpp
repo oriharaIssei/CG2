@@ -28,6 +28,7 @@ std::mutex TextureManager::queueMutex_;
 std::condition_variable TextureManager::queueCondition_;
 
 std::unique_ptr<DXCommand> TextureManager::dxCommand_;
+DXShaderResource *TextureManager::dxShaderResource_;
 
 #pragma region Texture
 void TextureManager::Texture::Init(const std::string &filePath,int textureIndex) {
@@ -38,7 +39,7 @@ void TextureManager::Texture::Init(const std::string &filePath,int textureIndex)
 	//==================================================
 	DirectX::ScratchImage mipImages = Load(filePath);
 	const DirectX::TexMetadata &metadata = mipImages.GetMetadata();
-	CreateTextureResource(metadata);
+	resource = dxShaderResource_->CreateTextureResource(System::getInstance()->getDXDevice()->getDevice(),metadata,textureIndex);
 	UploadTextureData(mipImages);
 
 	//==================================================
@@ -105,38 +106,6 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath)
 	return mipImages;
 }
 
-void TextureManager::Texture::CreateTextureResource(const DirectX::TexMetadata &metadata) {
-	//================================================
-	// 1. metadata を基に Resource を設定
-	D3D12_RESOURCE_DESC resourceDesc {};
-	resourceDesc.Width = UINT(metadata.width);
-	resourceDesc.Height = UINT(metadata.height);
-	resourceDesc.MipLevels = UINT16(metadata.mipLevels);// mipMap の数
-	resourceDesc.DepthOrArraySize = UINT16(metadata.arraySize); // 奥行 or Texture[]の配列数
-	resourceDesc.Format = metadata.format; //texture の Format
-	resourceDesc.SampleDesc.Count = 1; // サンプリングカウント 1固定
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION(metadata.dimension);
-
-	//================================================
-	// 2. 利用する Heap の設定
-	D3D12_HEAP_PROPERTIES heapProperties {};
-	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-
-	//================================================
-	// 3. Resource の作成
-	HRESULT hr;
-	auto device = System::getInstance()->getDXDevice()->getDevice();
-	hr = device->CreateCommittedResource(
-		&heapProperties,// heap の設定
-		D3D12_HEAP_FLAG_NONE,
-		&resourceDesc,
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,// Clear最適値
-		IID_PPV_ARGS(&resource)
-	);
-	assert(SUCCEEDED(hr));
-}
-
 void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources;
 	auto dxDevice = System::getInstance()->getDXDevice();
@@ -195,6 +164,8 @@ void TextureManager::Texture::ExecuteCommnad() {
 #pragma region "Manager"
 void TextureManager::Init() {
 	CoInitializeEx(0,COINIT_MULTITHREADED);
+
+	dxShaderResource_ = System::getInstance()->getDXShaderResource();
 
 	DXHeap *heap = DXHeap::getInstance();
 	auto *device = System::getInstance()->getDXDevice()->getDevice();

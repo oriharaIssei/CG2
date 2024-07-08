@@ -16,8 +16,9 @@
 #include <memory>
 #include <wrl.h>
 
-#include "PipelineStateObj.h"
 #include "DXCommand.h"
+#include "DXShaderResource.h"
+#include "PipelineStateObj.h"
 
 #include <condition_variable>
 #include <future>
@@ -51,18 +52,18 @@ private:
 		LoadState loadState;
 	private:
 		DirectX::ScratchImage Load(const std::string &filePath);
-		void CreateTextureResource(const DirectX::TexMetadata &metadata);
 		void UploadTextureData(DirectX::ScratchImage &mipImg);
 		void ExecuteCommnad();
 	};
 
 private:
-	static const uint32_t maxTextureSize_ = 512;
+	static const uint32_t maxTextureSize_ = 128;
 
 	static uint64_t cpuDescriptorHandleStart_;
 	static uint64_t gpuDescriptorHandleStart_;
 	static uint32_t handleIncrementSize_;
 
+	static DXShaderResource *dxShaderResource_;
 	static std::array<std::unique_ptr<Texture>,maxTextureSize_> textures_;
 
 	static std::thread loadingThread_;
