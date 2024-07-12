@@ -32,7 +32,7 @@ private:
 
 	std::unique_ptr<MaterialManager> materialManager_;
 
-	Particle particle;
+	std::unique_ptr<Particle> particle;
 
 	WorldTransform transform_[2];
 	std::shared_ptr<Model> model_[2];

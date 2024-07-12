@@ -23,6 +23,7 @@
 class Particle{
 public:
 	void Init(uint32_t instanceValue);
+	void Finalize();
 	void Draw(const ViewProjection &viewProjection,const Material *material);
 private:
 	void CreatePso();

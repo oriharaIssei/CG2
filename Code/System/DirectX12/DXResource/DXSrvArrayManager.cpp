@@ -14,6 +14,15 @@ void DXSrvArrayManager::Init(){
 	heapCondition_.push_back({nullptr,DXHeap::srvHeapSize,0});
 }
 
+void DXSrvArrayManager::Finalize(){
+	for(size_t i = 0; i < heapCondition_.size(); i++){
+		if(heapCondition_[i].dxSrvArray_ == nullptr){
+			continue;
+		}
+		heapCondition_[i].dxSrvArray_.reset();
+	}
+}
+
 std::shared_ptr<DXSrvArray> DXSrvArrayManager::Create(uint32_t size){
 	std::shared_ptr<DXSrvArray> dxSrvArray = std::make_shared<DXSrvArray>();
 	dxSrvArray->Init(size,SearchEmptyLocation(size,dxSrvArray));

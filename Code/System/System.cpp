@@ -35,7 +35,7 @@ void System::Init(){
 
 	dxDevice_ = std::make_unique<DXDevice>();
 	dxDevice_->Init();
-	
+
 	DXHeap::getInstance()->Init(dxDevice_->getDevice());
 
 	dxCommand_ = std::make_unique<DXCommand>();
@@ -87,6 +87,7 @@ void System::Finalize(){
 	Sprite::Finalize();
 	Model::Finalize();
 	TextureManager::Finalize();
+	DXSrvArrayManager::getInstance()->Finalize();
 
 	dxDevice_->Finalize();
 	DXHeap::getInstance()->Finalize();

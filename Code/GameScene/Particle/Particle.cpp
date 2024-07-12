@@ -71,6 +71,13 @@ void Particle::Init(uint32_t instanceValue){
 	meshBuff_->indexData[5] = 2;
 }
 
+void Particle::Finalize(){
+	meshBuff_.reset();
+	dxCommand_.reset();
+	dxSrvArray_.reset();
+	pso_.reset();
+}
+
 void Particle::Draw(const ViewProjection &viewProjection,const Material *material){
 	auto *commandList = dxCommand_->getCommandList();
 

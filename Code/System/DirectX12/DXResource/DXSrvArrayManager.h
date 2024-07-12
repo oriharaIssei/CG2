@@ -11,6 +11,7 @@ public:
 	static DXSrvArrayManager *getInstance();
 public:
 	void Init();
+	void Finalize();
 
 	std::shared_ptr<DXSrvArray> Create(uint32_t size);
 	uint32_t SearchEmptyLocation(uint32_t size,std::shared_ptr<DXSrvArray> dxSrvArray);

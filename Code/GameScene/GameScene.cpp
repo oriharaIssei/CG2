@@ -7,6 +7,7 @@
 #include <imgui.h>
 
 GameScene::~GameScene(){
+	particle->Finalize();
 }
 
 void GameScene::Init(){
@@ -14,7 +15,8 @@ void GameScene::Init(){
 	viewProj_.Init();
 	input_ = Input::getInstance();
 
-	particle.Init(10);
+	particle = std::make_unique<Particle>();
+	particle->Init(10);
 
 	materialManager_ = std::make_unique<MaterialManager>();
 	materialManager_->Create("white");
@@ -50,5 +52,5 @@ void GameScene::Draw(){
 	for(int i = 0; i < 2; i++){
 		model_[i]->Draw(transform_[i],viewProj_,materialManager_->getMaterial("white"));
 	}
-	particle.Draw(viewProj_,materialManager_->getMaterial("white"));
+	particle->Draw(viewProj_,materialManager_->getMaterial("white"));
 }
