@@ -8,6 +8,8 @@
 #include "TextureManager.h"
 #include <System.h>
 
+#include <unordered_map>
+
 #include "DXHeap.h"
 
 #include "Vector2.h"
@@ -15,10 +17,38 @@
 #include "Vector4.h"
 #include <stdint.h>
 
+#include <chrono>
+
 std::unique_ptr<Matrix4x4> Model::fovMa_ = nullptr;
 std::unique_ptr<ModelManager> Model::manager_ = nullptr;
 
 std::unique_ptr<DXCommand> Model::dxCommand_;
+
+#include <unordered_map>
+
+
+struct VertexKey{
+	Vector4 position;
+	Vector3 normal;
+	Vector2 texCoord;
+
+	bool operator==(const VertexKey &other) const{
+		return position == other.position &&
+			normal == other.normal &&
+			texCoord == other.texCoord;
+	}
+};
+
+namespace std{
+	template<>
+	struct hash<VertexKey>{
+		size_t operator()(const VertexKey &key) const{
+			return hash<float>()(key.position.x) ^ hash<float>()(key.position.y) ^ hash<float>()(key.position.z) ^
+				hash<float>()(key.normal.x) ^ hash<float>()(key.normal.y) ^ hash<float>()(key.normal.z) ^
+				hash<float>()(key.texCoord.x) ^ hash<float>()(key.texCoord.y);
+		}
+	};
+}
 
 #pragma region"ModelManager"
 class ModelManager{
@@ -93,7 +123,8 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	std::vector<Vector4> poss;
 	std::vector<Vector3> normals;
 	std::vector<Vector2> texCoords;
-	std::vector<uint32_t> inde;
+	std::vector<uint32_t> index;
+
 	std::vector<TextureVertexData> vertices;
 	std::vector<uint32_t> indices;
 
@@ -190,6 +221,9 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 			break;
 		}
 		case 'o': {
+			if(vertices.empty() && indices.empty()){
+				break;
+			}
 			ProcessMeshData(data.back(),vertices,indices);
 			indices.clear();
 			vertices.clear();
@@ -199,14 +233,11 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 		default:
 			break;
 		}
-	}
 
-	// 最後のメッシュデータを処理
-	if(!vertices.empty()){
-		if(data.empty()){
-			data.push_back(std::make_unique<ModelData>());
+		// 最後のメッシュデータを処理
+		if(!vertices.empty()){
+			ProcessMeshData(data.back(),vertices,indices);
 		}
-		ProcessMeshData(data.back(),vertices,indices);
 	}
 }
 
@@ -312,6 +343,7 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,cons
 		commandList->SetPipelineState(model->usePso_->pipelineState.Get());
 
 		commandList->IASetVertexBuffers(0,1,&model->meshBuff_->vbView);
+		commandList->IASetIndexBuffer(&model->meshBuff_->ibView);
 
 		world.SetForRootParameter(commandList,0);
 		view.SetForRootParameter(commandList,1);

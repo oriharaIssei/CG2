@@ -37,7 +37,7 @@ void PrimitiveObject3dMesh::Create(UINT vertexSize,UINT indexSize) {
 	}
 
 	if(indexSize != 0) {
-		DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),indexBuff,sizeof(uint32_t) * vertexSize);
+		DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),indexBuff,sizeof(uint32_t) * indexSize);
 		ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
 		ibView.SizeInBytes = sizeof(uint32_t) * indexSize;
 		ibView.Format = DXGI_FORMAT_R32_UINT;
