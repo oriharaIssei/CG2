@@ -6,20 +6,30 @@
 
 #include <imgui.h>
 
-GameScene::~GameScene() {
+GameScene::~GameScene(){
 }
 
-void GameScene::Init() {
+void GameScene::Init(){
 	input_ = Input::getInstance();
 	debugCamera.Init();
-	Model::Create("./resource","bunny.obj");
+	bunny = Model::Create("./resource","bunny.obj");
+
+	transform.Init();
+
 }
 
-void GameScene::Update() {
+void GameScene::Update(){
 	System::getInstance()->getMaterialManager()->DebugUpdate();// あまりおすすめしない
 	debugCamera.Update();
 	debugCamera.DebugUpdate();
+
+	ImGui::Begin("transform");
+	ImGui::DragFloat3("scale",&transform.transformData.scale.x,0.1f);
+	ImGui::DragFloat3("rotate",&transform.transformData.rotate.x,0.1f);
+	ImGui::DragFloat3("translate",&transform.transformData.translate.x,0.1f);
+	transform.Update();
+	ImGui::End();
 }
 
-void GameScene::Draw() {
+void GameScene::Draw(){
 }

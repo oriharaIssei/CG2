@@ -14,7 +14,7 @@
 #include <Transform.h>
 #include <Vector3.h>
 
-class GameScene {
+class GameScene{
 public:
 	GameScene() = default;
 	~GameScene();
@@ -26,4 +26,6 @@ private:
 	DebugCamera debugCamera;
 	Input *input_;
 
+	std::shared_ptr<Model> bunny;
+	WorldTransform transform;
 };
