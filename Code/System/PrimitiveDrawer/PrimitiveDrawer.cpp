@@ -19,7 +19,7 @@ uint32_t PrimitiveDrawer::triangleInstanceVal_ = 0;
 std::unique_ptr<PrimitiveObject3dMesh>PrimitiveDrawer::quadMesh_ = nullptr;
 uint32_t PrimitiveDrawer::quadInstanceVal_ = 0;
 
-void PrimitiveDrawer::Init() {
+void PrimitiveDrawer::Init(){
 	dxCommand_ = std::make_unique<DXCommand>();
 	dxCommand_->Init(System::getInstance()->getDXDevice()->getDevice(),"main","main");
 
@@ -35,11 +35,11 @@ void PrimitiveDrawer::Init() {
 	triangleInstanceVal_ = 0;
 
 	quadMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	quadMesh_->Create(6 * 200,4 * 200);
+	quadMesh_->Create(4 * 200,6 * 200);
 	quadInstanceVal_ = 0;
 }
 
-void PrimitiveDrawer::Finalize() {
+void PrimitiveDrawer::Finalize(){
 	dxCommand_->Finalize();
 
 	linePso_->Finalize();
@@ -50,7 +50,7 @@ void PrimitiveDrawer::Finalize() {
 	quadMesh_->Finalize();
 }
 
-void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material) {
+void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = lineInstanceVal_ * 3;
@@ -80,7 +80,7 @@ void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const WorldTransf
 	++lineInstanceVal_;
 }
 
-void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material) {
+void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = triangleInstanceVal_ * 3;
@@ -114,7 +114,7 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	++triangleInstanceVal_;
 }
 
-void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material) {
+void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = quadInstanceVal_ * 6;
@@ -154,7 +154,7 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	++quadInstanceVal_;
 }
 
-void PrimitiveDrawer::CreateLinePso(System *system) {
+void PrimitiveDrawer::CreateLinePso(System *system){
 	linePso_ = std::make_unique<PipelineStateObj>();
 	system->CreatePrimitivePSO(linePso_,D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
 }

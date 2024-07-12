@@ -4,6 +4,7 @@
 
 #include "Sprite.h"
 #include <Model.h>
+#include "Particle/Particle.h"
 
 #include <ViewProjection.h>
 #include <WorldTransform.h>
@@ -16,7 +17,7 @@
 
 #include <DebugCamera.h>
 
-class GameScene {
+class GameScene{
 public:
 	GameScene() = default;
 	~GameScene();
@@ -30,6 +31,8 @@ private:
 	Input *input_;
 
 	std::unique_ptr<MaterialManager> materialManager_;
+
+	std::unique_ptr<Particle> particle;
 
 	WorldTransform transform_[2];
 	std::shared_ptr<Model> model_[2];

@@ -105,10 +105,10 @@
     <ClCompile Include="Code\System\DirectX12\DXDevice\DXDevice.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXRenterTarget.cpp">
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXRenterTargetView.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXDepthStencil.cpp">
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXDepthStencilView.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Code\System\DirectX12\DXFence\DXFence.cpp">
@@ -127,6 +127,15 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArray.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\GameScene\Particle\Particle.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -236,10 +245,10 @@
     <ClInclude Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXRenterTarget.h">
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXRenterTargetView.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXDepthStencil.h">
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXDepthStencilView.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\System\DirectX12\DXFence\DXFence.h">
@@ -257,6 +266,15 @@
     <ClInclude Include="Code\Lib\MyFileSystem\MyFileSystem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXSrvArray.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\GameScene\Particle\Particle.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Code\System\Shader\Object3dTexture.PS.hlsl" />
@@ -265,11 +283,14 @@
     <FxCompile Include="Code\System\Shader\Object3d.PS.hlsl" />
     <FxCompile Include="Code\System\Shader\Sprite.VS.hlsl" />
     <FxCompile Include="Code\System\Shader\Sprite.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Particle.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Particle.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />
     <None Include="Code\System\Shader\Object3dTexture.hlsli" />
     <None Include="Code\System\Shader\Object3d.hlsli" />
     <None Include="Code\System\Shader\Sprite.hlsli" />
+    <None Include="Code\System\Shader\Particle.hlsli" />
   </ItemGroup>
 </Project>

@@ -5,11 +5,11 @@
 #include "WinApp.h"
 
 #include "DXCommand.h"
-#include "DXDepthStencil.h"
+#include "DXDepthStencilView.h"
 #include "DXDevice.h"
 #include "DXFence.h"
 #include "DXHeap.h"
-#include "DXRenterTarget.h"
+#include "DXRenterTargetView.h"
 #include "DXSwapChain.h"
 
 #include "ResourceBarrierManager.h"

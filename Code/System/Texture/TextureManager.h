@@ -16,15 +16,16 @@
 #include <memory>
 #include <wrl.h>
 
-#include "PipelineStateObj.h"
 #include "DXCommand.h"
+#include "DXSrvArray.h"
+#include "PipelineStateObj.h"
 
 #include <condition_variable>
 #include <future>
 #include <mutex>
 #include <queue>
 
-class TextureManager {
+class TextureManager{
 public:
 	static void Init();
 	static void Finalize();
@@ -33,40 +34,41 @@ public:
 	static void UnloadTexture(uint32_t id);
 
 	static void LoadLoop();
+public:
+	static const uint32_t maxTextureSize_ = 128;
 private:
-	struct Texture {
-		enum class LoadState {
+	struct Texture{
+		enum class LoadState{
 			Loading,
 			Loaded,
 			Error
 		};
-		void Init(const std::string &filePath,int textureIndex);
+		void Init(const std::string &filePath,std::shared_ptr<DXSrvArray> srvArray,int textureIndex);
 		void Finalize();
 
 		std::string path_;
-		Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
+		uint32_t resourceIndex;
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
 
 		LoadState loadState;
 	private:
 		DirectX::ScratchImage Load(const std::string &filePath);
-		void CreateTextureResource(const DirectX::TexMetadata &metadata);
-		void UploadTextureData(DirectX::ScratchImage &mipImg);
-		void ExecuteCommnad();
+		Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(ID3D12Device *device,const DirectX::TexMetadata &metadata);
+		void UploadTextureData(DirectX::ScratchImage &mipImg,Microsoft::WRL::ComPtr<ID3D12Resource> &reosurce);
+		void ExecuteCommnad(Microsoft::WRL::ComPtr<ID3D12Resource> &resource);
 	};
 
 private:
-	static const uint32_t maxTextureSize_ = 512;
-
 	static uint64_t cpuDescriptorHandleStart_;
 	static uint64_t gpuDescriptorHandleStart_;
 	static uint32_t handleIncrementSize_;
 
-	static std::array<std::unique_ptr<Texture>,maxTextureSize_> textures_;
+	static std::shared_ptr<DXSrvArray> dxSrvArray_;
+	static std::array<std::shared_ptr<Texture>,maxTextureSize_> textures_;
 
 	static std::thread loadingThread_;
-	static std::queue<std::pair<std::string,uint32_t>> loadingQueue_;
+	static std::queue<std::tuple<std::weak_ptr<Texture>,std::string,uint32_t>> loadingQueue_;
 	static std::mutex queueMutex_;
 	static std::condition_variable queueCondition_;
 	static bool stopLoadingThread_;
@@ -75,8 +77,8 @@ private:
 	static std::unique_ptr<DXCommand> dxCommand_;
 
 public:
-	static const D3D12_GPU_DESCRIPTOR_HANDLE &getDescriptorGpuHandle(uint32_t handleId) {
-		if(textures_[handleId]->loadState == Texture::LoadState::Loaded) {
+	static const D3D12_GPU_DESCRIPTOR_HANDLE &getDescriptorGpuHandle(uint32_t handleId){
+		if(textures_[handleId]->loadState == Texture::LoadState::Loaded){
 			return textures_[handleId]->srvHandleGPU;
 		}
 		return textures_[0]->srvHandleGPU;
