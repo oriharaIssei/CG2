@@ -5,12 +5,14 @@
 
 #include <d3d12.h>
 
+#include "DXSrvArray.h"
+
 class WinApp;
 class DXDevice;
 class DXSwapChain;
 class DXCommand;
 
-class ImGuiManager {
+class ImGuiManager{
 public:
 	static ImGuiManager *getInstance();
 
@@ -25,6 +27,8 @@ private:
 #ifdef _DEBUG
 	// SRV用ヒープ
 	ID3D12DescriptorHeap *srvHeap_;
+
+	std::shared_ptr<DXSrvArray>dxSrvArray_;
 
 	std::unique_ptr<DXCommand> dxCommand_;
 #endif // _DEBUG

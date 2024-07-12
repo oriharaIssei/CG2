@@ -6,24 +6,27 @@
 
 #include <imgui.h>
 
-GameScene::~GameScene() {
+GameScene::~GameScene(){
 }
 
-void GameScene::Init() {
+void GameScene::Init(){
 	debugCamera.Init();
 	viewProj_.Init();
 	input_ = Input::getInstance();
 
+	particle.Init(10);
+
 	materialManager_ = std::make_unique<MaterialManager>();
 	materialManager_->Create("white");
-	for(int i = 1; i >= 0; --i) {
+
+	for(int i = 1; i >= 0; --i){
 		transform_[i].Init();
 		transform_[i].translate.z = 12.0f;
 		model_[i] = Model::Create("./resource/fence","fence.obj");
 	}
 }
 
-void GameScene::Update() {
+void GameScene::Update(){
 	debugCamera.Update();
 	debugCamera.DebugUpdate();
 	viewProj_.viewMat = debugCamera.getViewProjection().viewMat;
@@ -43,8 +46,9 @@ void GameScene::Update() {
 	ImGui::End();
 }
 
-void GameScene::Draw() {
-	for(int i = 0; i < 2; i++) {
+void GameScene::Draw(){
+	for(int i = 0; i < 2; i++){
 		model_[i]->Draw(transform_[i],viewProj_,materialManager_->getMaterial("white"));
 	}
+	particle.Draw(viewProj_,materialManager_->getMaterial("white"));
 }

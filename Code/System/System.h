@@ -12,9 +12,9 @@
 #include "DXSwapChain.h"
 #include "DXFence.h"
 
-#include "DXDepthStencil.h"
-#include "DXRenterTarget.h"
-#include "DXShaderResource.h"
+#include "DXDepthStencilView.h"
+#include "DXRenterTargetView.h"
+#include "DXSrvArray.h"
 
 #include "Input.h"
 #include "PipelineStateObj.h"
@@ -50,7 +50,6 @@ private:
 	const System &operator=(const System &) = delete;
 	void CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType);
 	void CreateTexturePSO();
-	void CreateParticlePSO();
 private:
 	std::unique_ptr<WinApp> window_;
 	Input *input_;
@@ -61,14 +60,12 @@ private:
 	std::unique_ptr<DXSwapChain> dxSwapChain_;
 	std::unique_ptr<DXFence> dxFence_;
 
-	std::unique_ptr<DXRenterTarget> dxRenderTarget_;
-	std::unique_ptr<DXShaderResource> dxShaderResource_;
-	std::unique_ptr<DXDepthStencil> dxDepthStencil_;
+	std::unique_ptr<DXRenterTargetView> dxRenderTarget_;
+	std::unique_ptr<DXDepthStencilView> dxDepthStencil_;
 
 	std::unique_ptr<ShaderCompiler> shaderCompiler_;
 
 	std::unique_ptr<PipelineStateObj> texturePso_;
-	std::unique_ptr<PipelineStateObj> particlePso_;
 	std::unique_ptr<PipelineStateObj> primitivePso_;
 
 	std::unique_ptr<MaterialManager> materialManager_;
@@ -80,8 +77,7 @@ public:
 	DXSwapChain *getDXSwapChain()const { return dxSwapChain_.get(); }
 	DXFence *getDXFence()const { return dxFence_.get(); }
 
-	DXShaderResource *getDXShaderResource()const { return dxShaderResource_.get(); }
-	DXDepthStencil *getDXDepthStencil()const { return dxDepthStencil_.get(); }
+	DXDepthStencilView *getDXDepthStencil()const { return dxDepthStencil_.get(); }
 
 	MaterialManager *getMaterialManager()const { return materialManager_.get(); }
 

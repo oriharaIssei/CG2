@@ -6,6 +6,7 @@
 
 #include "DXCommand.h"
 #include "DXDevice.h"
+#include "DXSrvArrayManager.h"
 #include "DXSwapChain.h"
 #include "DXHeap.h"
 
@@ -14,17 +15,21 @@
 #include <imgui_impl_win32.h>
 #endif // _DEBUG
 
-ImGuiManager *ImGuiManager::getInstance() {
+ImGuiManager *ImGuiManager::getInstance(){
 	static ImGuiManager instance;
 	return &instance;
 }
 
-void ImGuiManager::Init(const WinApp *window,const DXDevice *dxDevice,const DXSwapChain *dxSwapChain) {
+void ImGuiManager::Init(const WinApp *window,const DXDevice *dxDevice,const DXSwapChain *dxSwapChain){
 #ifdef _DEBUG
 	srvHeap_ = DXHeap::getInstance()->getSrvHeap();
 
 	dxCommand_ = std::make_unique<DXCommand>();
 	dxCommand_->Init(System::getInstance()->getDXDevice()->getDevice(),"main","main");
+
+	// 先頭のDescriptorを使っている事になっているので合わせる
+	// 追記，fontのテクスチャに使われているらしい
+	dxSrvArray_ = DXSrvArrayManager::getInstance()->Create(1);
 
 	///=============================================
 	/// imgui の初期化
@@ -43,13 +48,13 @@ void ImGuiManager::Init(const WinApp *window,const DXDevice *dxDevice,const DXSw
 	);
 	ImGuiIO &io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
 #endif // _DEBUG
 }
 
-void ImGuiManager::Finalize() {
+void ImGuiManager::Finalize(){
 #ifdef _DEBUG
 	dxCommand_->Finalize();
+	dxSrvArray_->Finalize();
 
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -57,7 +62,7 @@ void ImGuiManager::Finalize() {
 #endif // _DEBUG
 }
 
-void ImGuiManager::Begin() {
+void ImGuiManager::Begin(){
 #ifdef _DEBUG
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -65,14 +70,14 @@ void ImGuiManager::Begin() {
 #endif // _DEBUG
 }
 
-void ImGuiManager::End() {
+void ImGuiManager::End(){
 #ifdef _DEBUG
 	// 描画前準備
 	ImGui::Render();
 #endif
 }
 
-void ImGuiManager::Draw() {
+void ImGuiManager::Draw(){
 #ifdef _DEBUG
 	ID3D12DescriptorHeap *ppHeaps[] = {srvHeap_};
 	dxCommand_->getCommandList()->SetDescriptorHeaps(1,ppHeaps);

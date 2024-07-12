@@ -105,10 +105,10 @@
     <ClCompile Include="Code\System\DirectX12\DXDevice\DXDevice.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXRenterTarget.cpp">
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXRenterTargetView.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXDepthStencil.cpp">
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXDepthStencilView.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Code\System\DirectX12\DXFence\DXFence.cpp">
@@ -129,7 +129,13 @@
     <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXShaderResource.cpp">
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArray.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\GameScene\Particle\Particle.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -239,10 +245,10 @@
     <ClInclude Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXRenterTarget.h">
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXRenterTargetView.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXDepthStencil.h">
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXDepthStencilView.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\System\DirectX12\DXFence\DXFence.h">
@@ -260,7 +266,13 @@
     <ClInclude Include="Code\Lib\MyFileSystem\MyFileSystem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXShaderResource.h">
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXSrvArray.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\GameScene\Particle\Particle.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -94,6 +94,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\GameScene\Particle\Particle.cpp" />
     <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="Code\main.cpp" />
     <ClCompile Include="Code\Math\Matrix4x4.cpp" />
@@ -107,9 +108,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\DXFence\DXFence.cpp" />
     <ClCompile Include="Code\System\DirectX12\DXFunctionHelper\DXFunctionHelper.cpp" />
     <ClCompile Include="Code\System\DirectX12\DXHeap\DXHeap.cpp" />
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXDepthStencil.cpp" />
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXRenterTarget.cpp" />
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXShaderResource.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXDepthStencilView.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXRenterTargetView.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArray.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.cpp" />
     <ClCompile Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.cpp" />
     <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp" />
     <ClCompile Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.cpp" />
@@ -135,6 +137,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\Buffer\Object3dMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\GameScene\Particle\Particle.h" />
     <ClInclude Include="Code\Lib\MyFileSystem\MyFileSystem.h" />
     <ClInclude Include="Code\Math\Matrix4x4.h" />
     <ClInclude Include="Code\Math\Transform.h" />
@@ -150,9 +153,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\System\DirectX12\DXFence\DXFence.h" />
     <ClInclude Include="Code\System\DirectX12\DXFunctionHelper\DXFunctionHelper.h" />
     <ClInclude Include="Code\System\DirectX12\DXHeap\DXHeap.h" />
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXDepthStencil.h" />
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXRenterTarget.h" />
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXShaderResource.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXDepthStencilView.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXRenterTargetView.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXSrvArray.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.h" />
     <ClInclude Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.h" />
     <ClInclude Include="Code\System\DirectX12\PipelineStateObj.h" />
     <ClInclude Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.h" />

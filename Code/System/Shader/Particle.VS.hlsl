@@ -8,7 +8,7 @@ struct ViewProjection {
     float4x4 projection;
 };
 
-StructuredBuffer<WorldTransform> gWorldTransform : register(b0);
+StructuredBuffer<WorldTransform> gWorldTransform : register(t0);
 ConstantBuffer<ViewProjection> gViewProjection : register(b1);
 
 struct VertexShaderInput {
