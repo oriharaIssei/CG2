@@ -45,7 +45,6 @@ void GameScene::Update(){
 	ImGui::Begin("Object1");
 	transform_[1].Debug("Object1 Transform");
 	transform_[1].Update();
-	ImGui::End();
 }
 
 void GameScene::Draw(){

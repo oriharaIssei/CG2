@@ -32,7 +32,6 @@ private:
 	void LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,const std::string &directoryPath,const std::string &filename);
 	ModelMtl LoadMtlFile(const std::string &directoryPath,const std::string &filename,const std::string &materialName);
 	void ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices,const std::vector<uint32_t> &indices);
-	void ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices);
 
 private:
 	std::thread loadingThread_;
@@ -94,7 +93,10 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	std::vector<Vector4> poss;
 	std::vector<Vector3> normals;
 	std::vector<Vector2> texCoords;
+	std::vector<uint32_t> inde;
 	std::vector<TextureVertexData> vertices;
+	std::vector<uint32_t> indices;
+
 	std::string currentMaterial;
 	std::string materialName;
 
@@ -141,6 +143,7 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 			break;
 		}
 		case 'f': {
+			uint32_t triangleIndices[3];
 			TextureVertexData triangle[3];
 			for(int32_t faceVert = 0; faceVert < 3; ++faceVert){
 				std::string vertDefinition;
@@ -168,11 +171,13 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 				}
 
 				triangle[faceVert] = {position,texCoord,normal};
+				triangleIndices[faceVert] = vertices.size();
+				vertices.push_back(triangle[faceVert]);
 			}
 
-			vertices.push_back(triangle[2]);
-			vertices.push_back(triangle[1]);
-			vertices.push_back(triangle[0]);
+			indices.push_back(triangleIndices[2]);
+			indices.push_back(triangleIndices[1]);
+			indices.push_back(triangleIndices[0]);
 			break;
 		}
 		case 'm': { // mtllib
@@ -185,10 +190,8 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 			break;
 		}
 		case 'o': {
-			if(vertices.empty()){
-				continue;
-			}
-			ProcessMeshData(data.back(),vertices);
+			ProcessMeshData(data.back(),vertices,indices);
+			indices.clear();
 			vertices.clear();
 			data.push_back(std::make_unique<ModelData>());
 			break;
@@ -203,7 +206,7 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 		if(data.empty()){
 			data.push_back(std::make_unique<ModelData>());
 		}
-		ProcessMeshData(data.back(),vertices);
+		ProcessMeshData(data.back(),vertices,indices);
 	}
 }
 
@@ -235,34 +238,7 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 	memcpy(modelData->meshBuff_->indexData,indices.data(),static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
 
 	modelData->vertSize = vertices.size();
-}
-
-void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices){
-	if(modelData->materialData.textureNumber != nullptr){
-		TextureObject3dMesh *textureMesh = new TextureObject3dMesh();
-		modelData->usePso_ = System::getInstance()->getTexturePso();
-
-		modelData->dataSize = sizeof(TextureVertexData) * vertices.size();
-
-		textureMesh->Create(static_cast<UINT>(vertices.size()),0);
-		memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
-		modelData->meshBuff_.reset(textureMesh);
-	} else{
-		PrimitiveObject3dMesh *primitiveMesh = new PrimitiveObject3dMesh();
-		modelData->usePso_ = System::getInstance()->getPrimitivePso();
-
-		std::vector<PrimitiveVertexData> primVert;
-		for(auto &texVert : vertices){
-			primVert.push_back(PrimitiveVertexData(texVert));
-		}
-
-		modelData->dataSize = sizeof(PrimitiveVertexData) * primVert.size();
-
-		primitiveMesh->Create(static_cast<UINT>(primVert.size()),0);
-		memcpy(primitiveMesh->vertData,primVert.data(),primVert.size() * sizeof(PrimitiveVertexData));
-		modelData->meshBuff_.reset(primitiveMesh);
-	}
-	modelData->vertSize = vertices.size();
+	modelData->indexSize = indices.size();
 }
 
 ModelMtl ModelManager::LoadMtlFile(const std::string &directoryPath,const std::string &filename,const std::string &materialName){
@@ -352,7 +328,7 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,cons
 			);
 		}
 		// 描画!!!
-		commandList->DrawInstanced((UINT)(model->vertSize),1,0,0);
+		commandList->DrawIndexedInstanced(UINT(model->indexSize),1,0,0,0);
 	}
 }
 
