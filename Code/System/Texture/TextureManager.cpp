@@ -9,6 +9,7 @@
 #include "System.h"
 
 #include "DXHeap.h"
+#include "DXSrvArrayManager.h"
 #include "ResourceBarrierManager.h"
 
 #include "Logger.h"
@@ -19,33 +20,35 @@ uint64_t TextureManager::gpuDescriptorHandleStart_;
 uint32_t TextureManager::handleIncrementSize_;
 
 const uint32_t TextureManager::maxTextureSize_;
-std::array<std::unique_ptr<TextureManager::Texture>,TextureManager::maxTextureSize_> TextureManager::textures_;
+std::shared_ptr<DXSrvArray> TextureManager::dxSrvArray_;
+std::array<std::shared_ptr<TextureManager::Texture>,TextureManager::maxTextureSize_> TextureManager::textures_;
 
 bool TextureManager::stopLoadingThread_;
 std::thread TextureManager::loadingThread_;
-std::queue<std::pair<std::string,uint32_t>> TextureManager::loadingQueue_;
+std::queue<std::tuple<std::weak_ptr<TextureManager::Texture>,std::string,uint32_t>> TextureManager::loadingQueue_;
 std::mutex TextureManager::queueMutex_;
 std::condition_variable TextureManager::queueCondition_;
 
 std::unique_ptr<DXCommand> TextureManager::dxCommand_;
 
 #pragma region Texture
-void TextureManager::Texture::Init(const std::string &filePath,int textureIndex) {
+void TextureManager::Texture::Init(const std::string &filePath,std::shared_ptr<DXSrvArray> srvArray,int textureIndex){
 	loadState = LoadState::Loading;
 	path_ = filePath;
+	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
 	//==================================================
 	// Textureを読み込んで転送する
 	//==================================================
 	DirectX::ScratchImage mipImages = Load(filePath);
 	const DirectX::TexMetadata &metadata = mipImages.GetMetadata();
-	CreateTextureResource(metadata);
-	UploadTextureData(mipImages);
+	resource = CreateTextureResource(System::getInstance()->getDXDevice()->getDevice(),metadata);
+	UploadTextureData(mipImages,resource);
 
 	//==================================================
 	// ShaderResourceView を作成
 	//==================================================
 	/// metadataを基に SRV の設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc {};
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Format = metadata.format;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -59,20 +62,16 @@ void TextureManager::Texture::Init(const std::string &filePath,int textureIndex)
 
 	/// SRV の作成
 	auto device = System::getInstance()->getDXDevice()->getDevice();
-	device->CreateShaderResourceView(
-		resource.Get(),
-		&srvDesc,
-		srvHandleCPU
-	);
+	resourceIndex = srvArray->CreateView(device,srvDesc,resource);
 	loadState = LoadState::Loaded;
 }
 
-void TextureManager::Texture::Finalize() {
-	resource.Reset();
+void TextureManager::Texture::Finalize(){
+	dxSrvArray_->DestroyView(resourceIndex);
 }
 
-DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath) {
-	DirectX::ScratchImage image {};
+DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath){
+	DirectX::ScratchImage image{};
 
 	// テクスチャファイルを読み込んでプログラムで使えるようにする
 	std::wstring filePathW = Logger::ConvertString(filePath);
@@ -82,13 +81,13 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath)
 		nullptr,
 		image
 	);
-	if(FAILED(hr)) {
+	if(FAILED(hr)){
 		std::cerr << "Failed to load texture file: " << filePath << std::endl;
 		assert(SUCCEEDED(hr));
 	}
 
 	// ミップマップの作成
-	DirectX::ScratchImage mipImages {};
+	DirectX::ScratchImage mipImages{};
 	hr = DirectX::GenerateMipMaps(
 		image.GetImages(),
 		image.GetImageCount(),
@@ -97,7 +96,7 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath)
 		0,
 		mipImages
 	);
-	if(FAILED(hr)) {
+	if(FAILED(hr)){
 		std::cerr << "Failed to generate mipmaps for: " << filePath << std::endl;
 		assert(SUCCEEDED(hr));
 	}
@@ -105,39 +104,7 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string &filePath)
 	return mipImages;
 }
 
-void TextureManager::Texture::CreateTextureResource(const DirectX::TexMetadata &metadata) {
-	//================================================
-	// 1. metadata を基に Resource を設定
-	D3D12_RESOURCE_DESC resourceDesc {};
-	resourceDesc.Width = UINT(metadata.width);
-	resourceDesc.Height = UINT(metadata.height);
-	resourceDesc.MipLevels = UINT16(metadata.mipLevels);// mipMap の数
-	resourceDesc.DepthOrArraySize = UINT16(metadata.arraySize); // 奥行 or Texture[]の配列数
-	resourceDesc.Format = metadata.format; //texture の Format
-	resourceDesc.SampleDesc.Count = 1; // サンプリングカウント 1固定
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION(metadata.dimension);
-
-	//================================================
-	// 2. 利用する Heap の設定
-	D3D12_HEAP_PROPERTIES heapProperties {};
-	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-
-	//================================================
-	// 3. Resource の作成
-	HRESULT hr;
-	auto device = System::getInstance()->getDXDevice()->getDevice();
-	hr = device->CreateCommittedResource(
-		&heapProperties,// heap の設定
-		D3D12_HEAP_FLAG_NONE,
-		&resourceDesc,
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,// Clear最適値
-		IID_PPV_ARGS(&resource)
-	);
-	assert(SUCCEEDED(hr));
-}
-
-void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
+void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg,Microsoft::WRL::ComPtr<ID3D12Resource> &resource){
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources;
 	auto dxDevice = System::getInstance()->getDXDevice();
 	DirectX::PrepareUpload(
@@ -166,10 +133,10 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage &mipImg) {
 		UINT(subResources.size()),
 		subResources.data()
 	);
-	ExecuteCommnad();
+	ExecuteCommnad(resource);
 }
-void TextureManager::Texture::ExecuteCommnad() {
-	D3D12_RESOURCE_BARRIER barrier {};
+void TextureManager::Texture::ExecuteCommnad(Microsoft::WRL::ComPtr<ID3D12Resource> &resource){
+	D3D12_RESOURCE_BARRIER barrier{};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	barrier.Transition.pResource = resource.Get();
@@ -190,10 +157,45 @@ void TextureManager::Texture::ExecuteCommnad() {
 	fence.WaitForFence();
 	dxCommand_->CommandReset();
 }
+
+Microsoft::WRL::ComPtr<ID3D12Resource> TextureManager::Texture::CreateTextureResource(ID3D12Device *device,const DirectX::TexMetadata &metadata){
+	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+	//================================================
+	// 1. metadata を基に Resource を設定
+	D3D12_RESOURCE_DESC resourceDesc{};
+	resourceDesc.Width = UINT(metadata.width);
+	resourceDesc.Height = UINT(metadata.height);
+	resourceDesc.MipLevels = UINT16(metadata.mipLevels);// mipMap の数
+	resourceDesc.DepthOrArraySize = UINT16(metadata.arraySize); // 奥行 or Texture[]の配列数
+	resourceDesc.Format = metadata.format; //texture の Format
+	resourceDesc.SampleDesc.Count = 1; // サンプリングカウント 1固定
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION(metadata.dimension);
+
+	//================================================
+	// 2. 利用する Heap の設定
+	D3D12_HEAP_PROPERTIES heapProperties{};
+	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+	//================================================
+	// 3. Resource の作成
+	HRESULT hr;
+	hr = device->CreateCommittedResource(
+		&heapProperties,// heap の設定
+		D3D12_HEAP_FLAG_NONE,
+		&resourceDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,// Clear最適値
+		IID_PPV_ARGS(&resource)
+	);
+	assert(SUCCEEDED(hr));
+
+	return resource;
+}
+
 #pragma endregion
 
 #pragma region "Manager"
-void TextureManager::Init() {
+void TextureManager::Init(){
 	CoInitializeEx(0,COINIT_MULTITHREADED);
 
 	DXHeap *heap = DXHeap::getInstance();
@@ -204,6 +206,8 @@ void TextureManager::Init() {
 	handleIncrementSize_ = device->GetDescriptorHandleIncrementSize(
 		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
 	);
+
+	dxSrvArray_ = DXSrvArrayManager::getInstance()->Create(maxTextureSize_);
 
 	stopLoadingThread_ = false;
 	loadingThread_ = std::thread(&TextureManager::LoadLoop);
@@ -221,13 +225,13 @@ void TextureManager::Init() {
 	LoadTexture("resource/uvChecker.png");
 }
 
-void TextureManager::Finalize() {
+void TextureManager::Finalize(){
 	{
 		std::unique_lock<std::mutex> lock(queueMutex_);
 		stopLoadingThread_ = true;
 	}
 	queueCondition_.notify_all();
-	if(loadingThread_.joinable()) {
+	if(loadingThread_.joinable()){
 		loadingThread_.join();
 	}
 
@@ -235,53 +239,56 @@ void TextureManager::Finalize() {
 
 	dxCommand_->Finalize();
 
-	for(auto &texture : textures_) {
-		if(texture != nullptr) {
+	for(auto &texture : textures_){
+		if(texture != nullptr){
 			texture->Finalize();
 		}
 	}
 }
 
-uint32_t TextureManager::LoadTexture(const std::string &filePath) {
+uint32_t TextureManager::LoadTexture(const std::string &filePath){
 	uint32_t index = 0;
-	for(index = 0; index < textures_.size(); ++index) {
-		if(textures_[index] == nullptr) {
-			textures_[index] = std::make_unique<Texture>();
+	for(index = 0; index < textures_.size(); ++index){
+		if(textures_[index] == nullptr){
+			textures_[index] = std::make_shared<Texture>();
 			break;
-		} else if(filePath == textures_[index]->path_) {
+		} else if(filePath == textures_[index]->path_){
 			return index;
 		}
 	}
 
 	{
 		std::unique_lock<std::mutex> lock(queueMutex_);// {}を抜けるまでロック
-		loadingQueue_.emplace(filePath,index);// loadingQueue_に追加
+		loadingQueue_.emplace(textures_[index],filePath,index);// loadingQueue_に追加
 	}
 	queueCondition_.notify_one();//threadに通知
 
 	return index;
 }
 
-void TextureManager::LoadLoop() {
-	while(true) {
-		std::pair<std::string,uint32_t> task;
+void TextureManager::LoadLoop(){
+	while(true){
+		std::tuple<std::weak_ptr<Texture>,std::string,uint32_t> task;
 		{
 			std::unique_lock<std::mutex> lock(queueMutex_);
-			queueCondition_.wait(lock,[] { return !loadingQueue_.empty() || stopLoadingThread_; });
+			queueCondition_.wait(lock,[]{ return !loadingQueue_.empty() || stopLoadingThread_; });
 
-			if(stopLoadingThread_ && loadingQueue_.empty()) {
+			if(stopLoadingThread_ && loadingQueue_.empty()){
 				return;
 			}
 
 			task = loadingQueue_.front();
 			loadingQueue_.pop();
 		}
-
-		textures_[task.second]->Init(task.first,task.second + 1);
+		std::weak_ptr<DXSrvArray> dxSrvArray = dxSrvArray_;
+		if(auto texture = std::get<0>(task).lock()){
+			texture->Init(std::get<1>(task),dxSrvArray.lock(),std::get<2>(task) + 1);
+		}
 	}
 }
 
-void TextureManager::UnloadTexture(uint32_t id) {
+void TextureManager::UnloadTexture(uint32_t id){
+	dxSrvArray_->DestroyView(textures_[id]->resourceIndex);
 	textures_[id]->Finalize();
 	textures_[id].reset();
 }

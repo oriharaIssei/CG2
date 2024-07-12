@@ -36,7 +36,7 @@ void DXFunctionHelper::ClearRenderTarget(const DXCommand *command,const DXSwapCh
 	DXHeap *heap = DXHeap::getInstance();
 
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = heap->getDsvHeap()->GetCPUDescriptorHandleForHeapStart();
-	D3D12_CPU_DESCRIPTOR_HANDLE backBufferRtvHandle = heap->getRtvHandle(backBufferIndex);
+	D3D12_CPU_DESCRIPTOR_HANDLE backBufferRtvHandle = heap->getRtvCpuHandle(backBufferIndex);
 	command->getCommandList()->OMSetRenderTargets(
 		1,
 		&backBufferRtvHandle,
@@ -77,8 +77,8 @@ void DXFunctionHelper::SetViewportsAndScissor(const DXCommand *dxCommand,const W
 }
 
 void DXFunctionHelper::SetRenderTargets(const DXCommand *dxCommand,const DXSwapChain *dxSwapChain) {
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DXHeap::getInstance()->getRtvHandle(dxSwapChain->getCurrentBackBufferIndex());
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DXHeap::getInstance()->getDsvHandle(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DXHeap::getInstance()->getRtvCpuHandle(dxSwapChain->getCurrentBackBufferIndex());
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DXHeap::getInstance()->getDsvCpuHandle(0);
 	dxCommand->getCommandList()->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
 }
 
@@ -95,8 +95,8 @@ void DXFunctionHelper::PreDraw(const DXCommand *command,const WinApp* window,con
 	);
 	commandList->ResourceBarrier(1,&barrier);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DXHeap::getInstance()->getRtvHandle(swapChain->getCurrentBackBufferIndex());
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DXHeap::getInstance()->getDsvHandle(0);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DXHeap::getInstance()->getRtvCpuHandle(swapChain->getCurrentBackBufferIndex());
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DXHeap::getInstance()->getDsvCpuHandle(0);
 	commandList->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
 
 	//ビューポートの設定

@@ -4,15 +4,18 @@
 
 #include "Sprite.h"
 #include <Model.h>
+#include "Particle/Particle.h"
 
 #include <ViewProjection.h>
 #include <WorldTransform.h>
 
-#include <DebugCamera.h>
-
 #include <Matrix4x4.h>
 #include <Transform.h>
 #include <Vector3.h>
+
+#include "Material.h"
+
+#include <DebugCamera.h>
 
 class GameScene{
 public:
@@ -24,8 +27,13 @@ public:
 	void Draw();
 private:
 	DebugCamera debugCamera;
+	ViewProjection viewProj_;
 	Input *input_;
 
-	std::shared_ptr<Model> bunny;
-	WorldTransform transform;
+	std::unique_ptr<MaterialManager> materialManager_;
+
+	std::unique_ptr<Particle> particle;
+
+	WorldTransform transform_[2];
+	std::shared_ptr<Model> model_[2];
 };

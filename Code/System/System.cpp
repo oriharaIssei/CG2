@@ -8,6 +8,8 @@
 #include <Sprite.h>
 #include <TextureManager.h>
 
+#include "DXSrvArrayManager.h"
+
 #include <Logger.h>
 
 #define _USE_MATH_DEFINES
@@ -19,12 +21,12 @@
 #pragma comment(lib,"dxguid.lib")
 #pragma comment(lib,"dinput8.lib")
 
-System *System::getInstance() {
+System *System::getInstance(){
 	static System instance;
 	return &instance;
 }
 
-void System::Init() {
+void System::Init(){
 	window_ = std::make_unique<WinApp>();
 	window_->CreateGameWindow(L"title",WS_OVERLAPPEDWINDOW,1280,720);
 
@@ -34,22 +36,24 @@ void System::Init() {
 	dxDevice_ = std::make_unique<DXDevice>();
 	dxDevice_->Init();
 
+	DXHeap::getInstance()->Init(dxDevice_->getDevice());
+
 	dxCommand_ = std::make_unique<DXCommand>();
 	dxCommand_->Init(dxDevice_->getDevice(),"main","main");
 
 	dxSwapChain_ = std::make_unique<DXSwapChain>();
 	dxSwapChain_->Init(window_.get(),dxDevice_.get(),dxCommand_.get());
 
-	DXHeap::getInstance()->Init(dxDevice_->getDevice());
-
-	dxRenderTarget_ = std::make_unique<DXRenterTarget>();
+	dxRenderTarget_ = std::make_unique<DXRenterTargetView>();
 	dxRenderTarget_->Init(dxDevice_->getDevice(),dxSwapChain_.get());
+
+	DXSrvArrayManager::getInstance()->Init();
+
+	dxDepthStencil_ = std::make_unique<DXDepthStencilView>();
+	dxDepthStencil_->Init(dxDevice_->getDevice(),DXHeap::getInstance()->getDsvHeap(),window_->getWidth(),window_->getHeight());
 
 	dxFence_ = std::make_unique<DXFence>();
 	dxFence_->Init(dxDevice_->getDevice());
-
-	dxDepthStencil_ = std::make_unique<DXDepthStencil>();
-	dxDepthStencil_->Init(dxDevice_->getDevice(),DXHeap::getInstance()->getDsvHeap(),window_->getWidth(),window_->getHeight());
 
 	shaderCompiler_ = std::make_unique<ShaderCompiler>();
 	shaderCompiler_->Init();
@@ -74,7 +78,7 @@ void System::Init() {
 	materialManager_ = std::make_unique<MaterialManager>();
 }
 
-void System::Finalize() {
+void System::Finalize(){
 	shaderCompiler_->Finalize();
 	primitivePso_->Finalize();
 	texturePso_->Finalize();
@@ -83,6 +87,7 @@ void System::Finalize() {
 	Sprite::Finalize();
 	Model::Finalize();
 	TextureManager::Finalize();
+	DXSrvArrayManager::getInstance()->Finalize();
 
 	dxDevice_->Finalize();
 	DXHeap::getInstance()->Finalize();
@@ -543,13 +548,13 @@ void System::Finalize() {
 //	dxCommon_->getCommandList()->DrawIndexedInstanced((UINT)(kSubDivision * kSubDivision * 6), 1, 0, 0, 0);
 //}
 
-void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType) {
+void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType){
 	HRESULT hr;
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc {};
-	D3D12_BLEND_DESC blendDesc {};
-	D3D12_RASTERIZER_DESC rasterizerDesc {};
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+	D3D12_BLEND_DESC blendDesc{};
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
 
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature {};
+	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
@@ -589,7 +594,7 @@ void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRI
 		&signatureBlob,
 		&errorBlob
 	);
-	if(FAILED(hr)) {
+	if(FAILED(hr)){
 		Logger::OutputLog(reinterpret_cast<char *>(errorBlob->GetBufferPointer()));
 		assert(false);
 	}
@@ -633,7 +638,7 @@ void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRI
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3d.PS.hlsl",L"ps_6_0");
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc {};
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	graphicsPipelineStateDesc.pRootSignature = pso->rootSignature.Get();
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;
 	graphicsPipelineStateDesc.VS = {
@@ -646,7 +651,7 @@ void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRI
 	};
 
 	// DepthStancilState の設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc {};
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
 	// Depth の機能を有効化する
 	depthStencilDesc.DepthEnable = true;
 	// 書き込み
@@ -677,7 +682,7 @@ void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRI
 	assert(SUCCEEDED(hr));
 }
 
-void System::CreateTexturePSO() {
+void System::CreateTexturePSO(){
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;
 	descriptorRange[0].NumDescriptors = 1;
@@ -687,11 +692,11 @@ void System::CreateTexturePSO() {
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	HRESULT hr;
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc {};
-	D3D12_BLEND_DESC blendDesc {};
-	D3D12_RASTERIZER_DESC rasterizerDesc {};
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+	D3D12_BLEND_DESC blendDesc{};
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
 
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature {};
+	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
@@ -751,7 +756,7 @@ void System::CreateTexturePSO() {
 		&signatureBlob,
 		&errorBlob
 	);
-	if(FAILED(hr)) {
+	if(FAILED(hr)){
 		Logger::OutputLog(reinterpret_cast<char *>(errorBlob->GetBufferPointer()));
 		assert(false);
 	}
@@ -784,8 +789,98 @@ void System::CreateTexturePSO() {
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
 	inputLayoutDesc.NumElements = _countof(inputElementDescs);
 
+	//switch(blendMode) {
+	//case None:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	break;
+	//case Normal:
 	blendDesc.RenderTarget[0].RenderTargetWriteMask =
 		D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].LogicOpEnable = false;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//case Add:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	blendDesc.AlphaToCoverageEnable = false;
+	//	blendDesc.IndependentBlendEnable = false;
+	//	blendDesc.RenderTarget[0].BlendEnable = true;
+	//	blendDesc.RenderTarget[0].LogicOpEnable = false;
+
+	//	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	//	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+
+	//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//case Subtract:
+	//case Sub:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	blendDesc.AlphaToCoverageEnable = false;
+	//	blendDesc.IndependentBlendEnable = false;
+	//	blendDesc.RenderTarget[0].BlendEnable = true;
+	//	blendDesc.RenderTarget[0].LogicOpEnable = false;
+
+	//	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	//	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_REV_SUBTRACT;
+	//	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+
+	//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//case Multiply:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	blendDesc.AlphaToCoverageEnable = false;
+	//	blendDesc.IndependentBlendEnable = false;
+	//	blendDesc.RenderTarget[0].BlendEnable = true;
+	//	blendDesc.RenderTarget[0].LogicOpEnable = false;
+
+	//	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;
+
+	//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//case Screen:
+	//	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+	//		D3D12_COLOR_WRITE_ENABLE_ALL;
+	//	blendDesc.AlphaToCoverageEnable = false;
+	//	blendDesc.IndependentBlendEnable = false;
+	//	blendDesc.RenderTarget[0].BlendEnable = true;
+	//	blendDesc.RenderTarget[0].LogicOpEnable = false;
+
+	//	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;
+	//	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+
+	//	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	//	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	//	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	//	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	//	break;
+	//default:
+	//	break;
+	//}
 
 	//裏面(時計回り)を表示しない
 	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
@@ -800,7 +895,7 @@ void System::CreateTexturePSO() {
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3dTexture.PS.hlsl",L"ps_6_0");
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc {};
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	graphicsPipelineStateDesc.pRootSignature = texturePso_->rootSignature.Get();
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;
 	graphicsPipelineStateDesc.VS = {
@@ -813,7 +908,7 @@ void System::CreateTexturePSO() {
 	};
 
 	// DepthStancilState の設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc {};
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
 	// Depth の機能を有効化する
 	depthStencilDesc.DepthEnable = true;
 	// 書き込み
@@ -845,23 +940,23 @@ void System::CreateTexturePSO() {
 	assert(SUCCEEDED(hr));
 }
 
-bool System::ProcessMessage() {
+bool System::ProcessMessage(){
 	return window_->ProcessMessage();
 }
 
-void System::BeginFrame() {
+void System::BeginFrame(){
 	ImGuiManager::getInstance()->Begin();
 	input_->Update();
 	PrimitiveDrawer::ResetInstanceVal();
 	DXFH::PreDraw(dxCommand_.get(),window_.get(),dxSwapChain_.get());
 }
 
-void System::EndFrame() {
+void System::EndFrame(){
 	ImGuiManager::getInstance()->End();
 	ImGuiManager::getInstance()->Draw();
 	DXFH::PostDraw(dxCommand_.get(),dxFence_.get(),dxSwapChain_.get());
 }
 
-int System::LoadTexture(const std::string &filePath) {
+int System::LoadTexture(const std::string &filePath){
 	return TextureManager::LoadTexture(filePath);
 }

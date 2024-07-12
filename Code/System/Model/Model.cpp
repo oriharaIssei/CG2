@@ -115,7 +115,7 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 		switch(identifier[0]){
 		case 'v': {
 			switch(identifier[1]){
-			case ' ': {
+			case NULL: {
 				Vector4 pos;
 				s >> pos.x >> pos.y >> pos.z;
 				pos.x *= -1.0f;
@@ -209,6 +209,7 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 		ProcessMeshData(data.back(),vertices,indices);
 	}
 }
+
 void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices,const std::vector<uint32_t> &indices){
 	if(modelData->materialData.textureNumber != nullptr){
 		TextureObject3dMesh *textureMesh = new TextureObject3dMesh();
