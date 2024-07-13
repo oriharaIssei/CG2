@@ -26,7 +26,6 @@ std::unique_ptr<DXCommand> Model::dxCommand_;
 
 #include <unordered_map>
 
-
 struct VertexKey{
 	Vector4 position;
 	Vector3 normal;
@@ -119,11 +118,14 @@ void ModelManager::LoadLoop(){
 }
 
 void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,const std::string &directoryPath,const std::string &filename){
+	auto start = std::chrono::system_clock::now();
+
 	// 変数の宣言
 	std::vector<Vector4> poss;
 	std::vector<Vector3> normals;
 	std::vector<Vector2> texCoords;
 	std::vector<uint32_t> index;
+	std::unordered_map<VertexKey,uint32_t> vertexMap;
 
 	std::vector<TextureVertexData> vertices;
 	std::vector<uint32_t> indices;
@@ -143,38 +145,25 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 		std::istringstream s(line);
 		s >> identifier;
 
-		switch(identifier[0]){
-		case 'v': {
-			switch(identifier[1]){
-			case NULL: {
+		if(identifier[0] == 'v'){
+			if(identifier[1] == '\0'){
 				Vector4 pos;
 				s >> pos.x >> pos.y >> pos.z;
 				pos.x *= -1.0f;
 				pos.w = 1.0f;
 				poss.push_back(pos);
-				break;
-			}
-			case 't': {
+			} else if(identifier[1] == 't'){
 				Vector2 texcoord;
 				s >> texcoord.x >> texcoord.y;
 				texcoord.y = 1.0f - texcoord.y;
 				texCoords.push_back(texcoord);
-				break;
-			}
-			case 'n': {
+			} else if(identifier[1] == 'n'){
 				Vector3 normal;
 				s >> normal.x >> normal.y >> normal.z;
 				normal.x *= -1.0f;
 				normals.push_back(normal);
-				break;
 			}
-			default:
-				break;
-			}
-			break;
-		}
-		case 'f': {
-			uint32_t triangleIndices[3];
+		} else if(identifier[0] == 'f'){
 			TextureVertexData triangle[3];
 			for(int32_t faceVert = 0; faceVert < 3; ++faceVert){
 				std::string vertDefinition;
@@ -185,61 +174,47 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 				for(int32_t element = 0; element < 3; ++element){
 					std::string index;
 					std::getline(v,index,'/');
-					if(index.empty()){
-						elementIndices[element] = 0;
-						continue;
-					}
-					elementIndices[element] = std::stoi(index);
+					elementIndices[element] = index.empty()?0:std::stoi(index);
 				}
 
 				Vector4 position = poss[elementIndices[0] - 1];
 				Vector3 normal = normals[elementIndices[2] - 1];
-				Vector2 texCoord;
-				if(elementIndices[1] == 0){
-					texCoord = {0.0f,0.0f};
-				} else{
-					texCoord = texCoords[elementIndices[1] - 1];
+				Vector2 texCoord = elementIndices[1] == 0?Vector2{0.0f,0.0f}:texCoords[elementIndices[1] - 1];
+
+				VertexKey key = {position,normal,texCoord};
+
+				if(vertexMap.find(key) == vertexMap.end()){
+					vertexMap[key] = static_cast<uint32_t>(vertices.size());
+					vertices.push_back({position,texCoord,normal});
 				}
 
-				triangle[faceVert] = {position,texCoord,normal};
-				triangleIndices[faceVert] = vertices.size();
-				vertices.push_back(triangle[faceVert]);
+				indices.push_back(vertexMap[key]);
 			}
-
-			indices.push_back(triangleIndices[2]);
-			indices.push_back(triangleIndices[1]);
-			indices.push_back(triangleIndices[0]);
-			break;
-		}
-		case 'm': { // mtllib
+		} else if(identifier[0] == 'm'){ // mtllib
 			s >> currentMaterial;
-			break;
-		}
-		case 'u': { // usemtl
+		} else if(identifier[0] == 'u'){ // usemtl
 			s >> materialName;
 			data.back()->materialData = LoadMtlFile(directoryPath,currentMaterial,materialName);
-			break;
-		}
-		case 'o': {
-			if(vertices.empty() && indices.empty()){
-				break;
+		} else if(identifier[0] == 'o'){
+			if(!vertices.empty() || !indices.empty()){
+				ProcessMeshData(data.back(),vertices,indices);
+				indices.clear();
+				vertices.clear();
+				data.push_back(std::make_unique<ModelData>());
 			}
-			ProcessMeshData(data.back(),vertices,indices);
-			indices.clear();
-			vertices.clear();
-			data.push_back(std::make_unique<ModelData>());
-			break;
-		}
-		default:
-			break;
-		}
-
-		// 最後のメッシュデータを処理
-		if(!vertices.empty()){
-			ProcessMeshData(data.back(),vertices,indices);
 		}
 	}
+
+	// 最後のメッシュデータを処理
+	if(!vertices.empty()){
+		ProcessMeshData(data.back(),vertices,indices);
+	}
+
+	auto end = std::chrono::system_clock::now();
+
+	double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
+
 
 void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices,const std::vector<uint32_t> &indices){
 	if(modelData->materialData.textureNumber != nullptr){
