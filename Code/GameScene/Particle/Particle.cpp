@@ -9,6 +9,8 @@
 
 #include "TextureManager.h"
 
+#include <numbers>
+
 std::unique_ptr<PipelineStateObj> Particle::pso_;
 
 void Particle::Init(uint32_t instanceValue){
@@ -69,6 +71,7 @@ void Particle::Init(uint32_t instanceValue){
 	meshBuff_->indexData[3] = 1;
 	meshBuff_->indexData[4] = 3;
 	meshBuff_->indexData[5] = 2;
+
 }
 
 void Particle::Finalize(){
@@ -87,18 +90,33 @@ void Particle::Draw(const ViewProjection &viewProjection,const Material *materia
 	commandList->IASetVertexBuffers(0,1,&meshBuff_->vbView);
 	commandList->IASetIndexBuffer(&meshBuff_->ibView);
 
-	commandList->SetGraphicsRootDescriptorTable(0,DXHeap::getInstance()->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(srvIndex_)));
-	viewProjection.SetForRootParameter(commandList,1);
-
-	material->SetForRootParameter(commandList,2);
-	System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
-
 	ID3D12DescriptorHeap *ppHeaps[] = {DXHeap::getInstance()->getSrvHeap()};
 	commandList->SetDescriptorHeaps(1,ppHeaps);
 	commandList->SetGraphicsRootDescriptorTable(
 		4,
 		TextureManager::getDescriptorGpuHandle(0)
 	);
+
+	Matrix4x4 cameraRotation = viewProjection.viewMat;
+	for(size_t i = 0; i < 3; i++){
+		cameraRotation[3][i] = 0.0f;
+	}
+	cameraRotation[3][3] = 1.0f;
+
+	// view から world (plane.obj等の場合，rotateY(pi)を乗算したりする
+	Matrix4x4 rotateMat = cameraRotation.Inverse();
+
+	for(size_t i = 0; i < 10; i++){
+		mappingData_[i] = MakeMatrix::Scale({1.0f,1.0f,1.0f}) * rotateMat * MakeMatrix::Translate({i * 0.1f,i * 0.1f,i * 0.1f});
+	}
+
+	commandList->SetGraphicsRootDescriptorTable(0,DXHeap::getInstance()->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(srvIndex_)));
+
+	viewProjection.SetForRootParameter(commandList,1);
+
+	material->SetForRootParameter(commandList,2);
+	System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
+
 	// 描画!!!
 	commandList->DrawIndexedInstanced(6,particleSize_,0,0,0);
 }
@@ -290,15 +308,4 @@ void Particle::CreatePso(){
 		IID_PPV_ARGS(&pso_->pipelineState)
 	);
 	assert(SUCCEEDED(hr));
-}
-
-void Particle::setTransform(uint32_t instanceValue,
-							const Vector3 &scale,
-							const Vector3 &rotate,
-							const Vector3 &translate){
-	*transforms_[instanceValue] = MakeMatrix::Affine(scale,rotate,translate);
-}
-
-void Particle::setTransform(uint32_t instanceValue,const Matrix4x4 &transformMat){
-	*transforms_[instanceValue] = transformMat;
 }

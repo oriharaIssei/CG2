@@ -30,8 +30,6 @@ private:
 private:
 	static std::unique_ptr<PipelineStateObj> pso_;
 
-	std::vector<Matrix4x4 *> transforms_;
-
 	Matrix4x4 *mappingData_;
 
 	uint32_t srvIndex_;
@@ -41,6 +39,4 @@ private:
 	std::unique_ptr<TextureObject3dMesh> meshBuff_;
 	std::unique_ptr<DXCommand> dxCommand_;
 public:
-	void setTransform(uint32_t instanceValue,const Vector3 &scale,const Vector3 &rotate,const Vector3 &translate);
-	void setTransform(uint32_t instanceValue,const Matrix4x4 &transformMat);
 };

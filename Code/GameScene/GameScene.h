@@ -31,7 +31,4 @@ private:
 	Input *input_;
 
 	std::unique_ptr<MaterialManager> materialManager_;
-
-	WorldTransform transform_;
-	std::shared_ptr<Model> model_;
 };

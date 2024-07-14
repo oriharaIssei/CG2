@@ -118,8 +118,6 @@ void ModelManager::LoadLoop(){
 }
 
 void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,const std::string &directoryPath,const std::string &filename){
-	auto start = std::chrono::system_clock::now();
-
 	// 変数の宣言
 	std::vector<Vector4> poss;
 	std::vector<Vector3> normals;
@@ -209,10 +207,6 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	if(!vertices.empty()){
 		ProcessMeshData(data.back(),vertices,indices);
 	}
-
-	auto end = std::chrono::system_clock::now();
-
-	double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 }
 
 

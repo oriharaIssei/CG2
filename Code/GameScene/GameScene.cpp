@@ -17,9 +17,6 @@ void GameScene::Init(){
 	materialManager_ = std::make_unique<MaterialManager>();
 	materialManager_->Create("white");
 
-	transform_.Init();
-	transform_.translate.z = 12.0f;
-	model_ = Model::Create("./resource","bunny.obj");
 }
 
 void GameScene::Update(){
@@ -31,13 +28,8 @@ void GameScene::Update(){
 
 	materialManager_->DebugUpdate();
 
-	ImGui::Begin("Object0");
-	transform_.Debug("Object0 Transform");
-	transform_.Update();
-	ImGui::End();
-
 }
 
 void GameScene::Draw(){
-	model_->Draw(transform_,viewProj_,materialManager_->getMaterial("white"));
+
 }
