@@ -122,7 +122,6 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	std::vector<Vector4> poss;
 	std::vector<Vector3> normals;
 	std::vector<Vector2> texCoords;
-	std::vector<uint32_t> index;
 	std::unordered_map<VertexKey,uint32_t> vertexMap;
 
 	std::vector<TextureVertexData> vertices;
@@ -170,9 +169,9 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 				uint32_t elementIndices[3];
 
 				for(int32_t element = 0; element < 3; ++element){
-					std::string index;
-					std::getline(v,index,'/');
-					elementIndices[element] = index.empty()?0:std::stoi(index);
+					std::string indexString;
+					std::getline(v,indexString,'/');
+					elementIndices[element] = indexString.empty()?0:std::stoi(indexString);
 				}
 
 				Vector4 position = poss[elementIndices[0] - 1];

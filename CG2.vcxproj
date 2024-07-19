@@ -94,6 +94,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\GameScene\Particle\Emitter.cpp" />
     <ClCompile Include="Code\GameScene\Particle\Particle.cpp" />
     <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="Code\main.cpp" />
@@ -137,6 +138,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\Buffer\Object3dMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\GameScene\Particle\Emitter.h" />
     <ClInclude Include="Code\GameScene\Particle\Particle.h" />
     <ClInclude Include="Code\Lib\MyFileSystem\MyFileSystem.h" />
     <ClInclude Include="Code\Math\Matrix4x4.h" />

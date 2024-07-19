@@ -5,7 +5,7 @@
 
 #include <imgui.h>
 
-void Material::Init() {
+void Material::Init(){
 	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),constBuff_,sizeof(ConstBufferMaterial));
 
 	constBuff_->Map(
@@ -17,24 +17,24 @@ void Material::Init() {
 	mappingData_->uvTransform = MakeMatrix::Identity();
 }
 
-void Material::Finalize() {
+void Material::Finalize(){
 	constBuff_.Reset();
 }
 
-void Material::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum) const {
+void Material::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum) const{
 	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,constBuff_->GetGPUVirtualAddress());
 }
 
-std::shared_ptr<Material> MaterialManager::Create(const std::string &materialName) {
-	if(materialPallete_.count(materialName) == 0) {
-		materialPallete_[materialName] = std::make_shared<Material>();
+Material *MaterialManager::Create(const std::string &materialName){
+	if(materialPallete_.count(materialName) == 0){
+		materialPallete_[materialName] = std::make_unique<Material>();
 		materialPallete_[materialName]->Init();
 	}
-	return materialPallete_[materialName];
+	return materialPallete_[materialName].get();
 }
 
-std::shared_ptr<Material> MaterialManager::Create(const std::string &materialName,const MaterialData &data) {
-	materialPallete_[materialName] = std::make_shared<Material>();
+Material *MaterialManager::Create(const std::string &materialName,const MaterialData &data){
+	materialPallete_[materialName] = std::make_unique<Material>();
 	materialPallete_[materialName]->Init();
 	*materialPallete_[materialName]->mappingData_ = {
 		.color = data.color,
@@ -42,15 +42,15 @@ std::shared_ptr<Material> MaterialManager::Create(const std::string &materialNam
 		.uvTransform = data.uvTransform
 	};
 
-	return materialPallete_[materialName];
+	return materialPallete_[materialName].get();
 }
 
-void MaterialManager::DebugUpdate() {
+void MaterialManager::DebugUpdate(){
 #ifdef _DEBUG
 	ImGui::Begin("Materials");
 	bool isEnableLighting = false;
-	for(auto &material : materialPallete_) {
-		if(ImGui::TreeNode(material.first.c_str())) {
+	for(auto &material : materialPallete_){
+		if(ImGui::TreeNode(material.first.c_str())){
 			ImGui::TreePop();
 			ImGui::ColorEdit4(std::string(material.first + "Color").c_str(),&material.second->mappingData_->color.x);
 			isEnableLighting = static_cast<bool>(material.second->mappingData_->enableLighting);
@@ -62,13 +62,13 @@ void MaterialManager::DebugUpdate() {
 #endif // _DEBUG
 }
 
-void MaterialManager::Finalize() {
-	for(auto &material : materialPallete_) {
+void MaterialManager::Finalize(){
+	for(auto &material : materialPallete_){
 		material.second->Finalize();
 	}
 }
 
-void MaterialManager::Edit(const std::string &materialName,const MaterialData &data) {
+void MaterialManager::Edit(const std::string &materialName,const MaterialData &data){
 	*materialPallete_[materialName]->mappingData_ = {
 		.color = data.color,
 		.enableLighting = data.enableLighting,
@@ -76,14 +76,23 @@ void MaterialManager::Edit(const std::string &materialName,const MaterialData &d
 	};
 }
 
-void MaterialManager::EditColor(const std::string &materialName,const Vector4 &color) {
+void MaterialManager::EditColor(const std::string &materialName,const Vector4 &color){
 	materialPallete_[materialName]->mappingData_->color = color;
 }
 
-void MaterialManager::EditUvTransform(const std::string &materialName,const Transform &transform) {
+void MaterialManager::EditUvTransform(const std::string &materialName,const Transform &transform){
 	materialPallete_[materialName]->mappingData_->uvTransform = MakeMatrix::Affine(transform);
 }
 
-void MaterialManager::EditEnableLighting(const std::string &materialName,bool enableLighting) {
+void MaterialManager::EditEnableLighting(const std::string &materialName,bool enableLighting){
 	materialPallete_[materialName]->mappingData_->enableLighting = enableLighting;
+}
+
+void MaterialManager::DeleteMaterial(const std::string &materialName){
+	materialPallete_[materialName].reset();
+	materialPallete_[materialName] = nullptr;
+
+	std::erase_if(materialPallete_,[](const auto &pair){
+		return pair.second == nullptr;
+	});
 }

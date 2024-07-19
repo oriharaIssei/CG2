@@ -132,10 +132,13 @@
     <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArray.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\GameScene\Particle\Particle.cpp">
+    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.cpp">
+    <ClCompile Include="Code\GameScene\Particle\Emitter.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\GameScene\Particle\Particle.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -273,6 +276,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\GameScene\Particle\Emitter.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

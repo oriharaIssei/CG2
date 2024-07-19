@@ -13,7 +13,7 @@
 #include "stdint.h"
 #include "Vector4.h"
 
-struct ConstBufferMaterial {
+struct ConstBufferMaterial{
 	Vector4 color;
 	uint32_t enableLighting;
 	float padding[3];// 下記を参照
@@ -42,14 +42,14 @@ struct ConstBufferMaterial {
 	*/
 };
 
-struct MaterialData {
+struct MaterialData{
 	Vector4 color;
 	uint32_t enableLighting;
 	Matrix4x4 uvTransform;
 };
 
 class MaterialManager;
-class Material {
+class Material{
 	friend class MaterialManager;
 public:
 	void Finalize();
@@ -62,28 +62,31 @@ private:
 	ConstBufferMaterial *mappingData_ = nullptr;
 };
 
-class MaterialManager {
+class MaterialManager{
 public:
-	std::shared_ptr<Material> Create(const std::string &materialName);
-	std::shared_ptr<Material> Create(const std::string &materialName,const MaterialData &data);
+	Material *Create(const std::string &materialName);
+	Material *Create(const std::string &materialName,const MaterialData &data);
 
 	void DebugUpdate();
 
 	void Finalize();
 private:
-	std::unordered_map<std::string,std::shared_ptr<Material>> materialPallete_;
+	std::unordered_map<std::string,std::unique_ptr<Material>> materialPallete_;
 public:
-	const Material *getMaterial(const std::string &materialName) const {
+	const Material *getMaterial(const std::string &materialName) const{
 		auto it = materialPallete_.find(materialName);
-		if(it != materialPallete_.end()) {
+		if(it != materialPallete_.end()){
 			return it->second.get();
-		} else {
+		} else{
 			// キーが存在しない場合の処理
 			return nullptr; // または適切なエラー処理を行う
 		}
 	}
+
 	void Edit(const std::string &materialName,const MaterialData &data);
 	void EditColor(const std::string &materialName,const Vector4 &color);
 	void EditUvTransform(const std::string &materialName,const Transform &transform);
 	void EditEnableLighting(const std::string &materialName,bool enableLighting);
+
+	void DeleteMaterial(const std::string& materialName);
 };

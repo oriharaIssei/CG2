@@ -1,8 +1,10 @@
-#include "Object3dTexture.hlsli"
+#include "Particle.hlsli"
 
 struct WorldTransform {
     float4x4 world;
+    float4 color : COLOR0;
 };
+
 struct ViewProjection {
     float4x4 view;
     float4x4 projection;
@@ -24,5 +26,6 @@ VertexShaderOutput main(VertexShaderInput input,uint instanceID : SV_InstanceID)
     output.pos = mul(input.pos,vpvMat);
     output.texCoord = input.texCoord;
     output.normal = normalize(mul(input.normal,(float3x3)gWorldTransform[instanceID].world));
+    output.color = gWorldTransform[instanceID].color;
     return output;
 }

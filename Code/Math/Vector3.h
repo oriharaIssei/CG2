@@ -24,7 +24,7 @@ struct Vector3{
 	bool operator==(const Vector3 &v)const{
 		return x == v.x && y == v.y && z == v.z;
 	}
-	Vector3 operator+(const Vector3 &another){
+	Vector3 operator+(const Vector3 &another)const{
 		return Vector3(
 			this->x + another.x,
 			this->y + another.y,
@@ -38,7 +38,7 @@ struct Vector3{
 		return *this;
 	}
 
-	Vector3 operator-(const Vector3 &another){
+	Vector3 operator-(const Vector3 &another)const{
 		return Vector3(
 			this->x - another.x,
 			this->y - another.y,
@@ -52,7 +52,7 @@ struct Vector3{
 		return *this;
 	}
 
-	Vector3 operator*(const float &scalar){
+	Vector3 operator*(const float &scalar)const{
 		return Vector3(
 			this->x * scalar,
 			this->y * scalar,
@@ -66,14 +66,14 @@ struct Vector3{
 		return *this;
 	}
 
-	float dot(const Vector3 &another){
+	float dot(const Vector3 &another)const{
 		return this->x * another.x + this->y * another.y + this->z * another.z;
 	}
-	float length(){
+	float length()const{
 		return std::sqrtf(dot(*this));
 	}
 
-	Vector3 cross(const Vector3 &other){
+	Vector3 cross(const Vector3 &other)const{
 		return {
 			y * other.z - z * other.y,
 			z * other.x - x * other.z,
@@ -81,7 +81,7 @@ struct Vector3{
 		};
 	}
 
-	Vector3 Normalize(){
+	Vector3 Normalize()const{
 		float len = this->length();
 		if(len == 0.0f){
 			return *this;

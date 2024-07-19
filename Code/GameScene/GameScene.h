@@ -5,6 +5,7 @@
 #include "Sprite.h"
 #include <Model.h>
 #include "Particle/Particle.h"
+#include "Particle/Emitter.h"
 
 #include <ViewProjection.h>
 #include <WorldTransform.h>
@@ -29,6 +30,8 @@ private:
 	DebugCamera debugCamera;
 	ViewProjection viewProj_;
 	Input *input_;
+
+	std::unique_ptr<Emitter> emitter_;
 
 	std::unique_ptr<MaterialManager> materialManager_;
 };
