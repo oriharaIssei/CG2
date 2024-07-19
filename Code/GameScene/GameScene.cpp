@@ -17,6 +17,8 @@ void GameScene::Init(){
 	materialManager_ = std::make_unique<MaterialManager>();
 	materialManager_->Create("white");
 
+	emitter_ = std::make_unique<Emitter>();
+	emitter_->Init(3,materialManager_.get());
 }
 
 void GameScene::Update(){
@@ -28,8 +30,9 @@ void GameScene::Update(){
 
 	materialManager_->DebugUpdate();
 
+	emitter_->Update();
 }
 
 void GameScene::Draw(){
-
+	emitter_->Draw(viewProj_);
 }

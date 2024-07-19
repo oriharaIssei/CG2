@@ -1,42 +1,25 @@
 #pragma once
 
-#include <d3d12.h>
-#include "PipelineStateObj.h"
+#include <random>
 
-#include <memory>
-#include <wrl.h>
-
-#include "DXCommand.h"
-#include "DXSrvArray.h"
-#include "Object3dMesh.h"
-
-#include "Material.h"
-#include "ViewProjection.h"
-#include "WorldTransform.h"
-
-#include "Matrix4x4.h"
 #include "Vector3.h"
-#include <stdint.h>
+#include "Vector4.h"
+#include "Matrix4x4.h"
 
-#include <vector>
+struct ParticleStructuredBuffer{
+	Matrix4x4 transform;
+	Vector4 color;
+};
 
-class Particle{
-public:
-	void Init(uint32_t instanceValue);
-	void Finalize();
-	void Draw(const ViewProjection &viewProjection,const Material *material);
-private:
-	void CreatePso();
-private:
-	static std::unique_ptr<PipelineStateObj> pso_;
+struct Particle{
+	void Init(std::mt19937 &randomEngine);
+	void Update();
+	Vector3 pos;
+	Vector4 color;
+	Vector3 velocity;
 
-	Matrix4x4 *mappingData_;
+	float lifeTime_;
+	float fullLifeTime_;
 
-	uint32_t srvIndex_;
-	uint32_t particleSize_;
-
-	std::shared_ptr<DXSrvArray> dxSrvArray_;
-	std::unique_ptr<TextureObject3dMesh> meshBuff_;
-	std::unique_ptr<DXCommand> dxCommand_;
-public:
+	bool isAlive_;
 };
