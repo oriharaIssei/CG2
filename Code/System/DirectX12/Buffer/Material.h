@@ -55,6 +55,10 @@ public:
 	void Finalize();
 
 	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const;
+public:
+	Vector3 uvScale_;
+	Vector3 uvRotate_;
+	Vector3 uvTranslate_;
 private:
 	void Init();
 private:
@@ -88,5 +92,5 @@ public:
 	void EditUvTransform(const std::string &materialName,const Transform &transform);
 	void EditEnableLighting(const std::string &materialName,bool enableLighting);
 
-	void DeleteMaterial(const std::string& materialName);
+	void DeleteMaterial(const std::string &materialName);
 };

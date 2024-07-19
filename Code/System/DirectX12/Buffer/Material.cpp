@@ -14,7 +14,12 @@ void Material::Init(){
 
 	mappingData_->color = {1.0f,1.0f,1.0f,1.0f};
 	mappingData_->enableLighting = 0;
-	mappingData_->uvTransform = MakeMatrix::Identity();
+
+	uvScale_ = {1.0f,1.0f,1.0f};
+	uvRotate_ = {0.0f,0.0f,0.0f};
+	uvTranslate_ = {0.0f,0.0f,0.0f};
+
+	mappingData_->uvTransform = MakeMatrix::Affine(uvScale_,uvRotate_,uvTranslate_);
 }
 
 void Material::Finalize(){
@@ -56,6 +61,12 @@ void MaterialManager::DebugUpdate(){
 			isEnableLighting = static_cast<bool>(material.second->mappingData_->enableLighting);
 			ImGui::Checkbox(std::string(material.first + "is EnableLighting").c_str(),&isEnableLighting);
 			material.second->mappingData_->enableLighting = static_cast<uint32_t>(isEnableLighting);
+
+			ImGui::DragFloat3("uvScale",&material.second->uvScale_.x,0.1f);
+			ImGui::DragFloat3("uvRotate",&material.second->uvRotate_.x,0.1f);
+			ImGui::DragFloat3("uvTranslate",&material.second->uvTranslate_.x,0.1f);
+
+			material.second->mappingData_->uvTransform = MakeMatrix::Affine(material.second->uvScale_,material.second->uvRotate_,material.second->uvTranslate_);
 		}
 	}
 	ImGui::End();
