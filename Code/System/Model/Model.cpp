@@ -195,6 +195,7 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 		} else if(identifier[0] == 'o'){
 			if(!vertices.empty() || !indices.empty()){
 				ProcessMeshData(data.back(),vertices,indices);
+				data.back()->material_ = System::getInstance()->getMaterialManager()->Create("WHITE");
 				indices.clear();
 				vertices.clear();
 				data.push_back(std::make_unique<ModelData>());

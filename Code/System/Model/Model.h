@@ -29,6 +29,8 @@ struct ModelData{
 	size_t dataSize;
 	size_t vertSize;
 	size_t indexSize;
+
+	Material *material_;
 };
 
 class ModelManager;
