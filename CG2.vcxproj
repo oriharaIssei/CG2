@@ -96,6 +96,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="Code\GameScene\GameObject\IGameObject.cpp" />
     <ClCompile Include="Code\GameScene\GameObject\ModelObject.cpp" />
+    <ClCompile Include="Code\GameScene\GameObject\SpriteObject.cpp" />
     <ClCompile Include="Code\GameScene\Particle\Emitter.cpp" />
     <ClCompile Include="Code\GameScene\Particle\Particle.cpp" />
     <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp" />
@@ -142,6 +143,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClInclude Include="Code\GameScene\GameObject\IGameObject.h" />
     <ClInclude Include="Code\GameScene\GameObject\ModelObject.h" />
+    <ClInclude Include="Code\GameScene\GameObject\SpriteObject.h" />
     <ClInclude Include="Code\GameScene\Particle\Emitter.h" />
     <ClInclude Include="Code\GameScene\Particle\Particle.h" />
     <ClInclude Include="Code\Lib\MyFileSystem\MyFileSystem.h" />
