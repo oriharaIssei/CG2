@@ -48,10 +48,8 @@ private:
 	static std::unique_ptr<Matrix4x4> fovMa_;
 public:
 	Model() = default;
-
-	void Debug();
-
 	void Draw(const WorldTransform &world,const ViewProjection &view,const Material *material);
+	void MaterialDebug();
 private:
 	void NotDraw(const WorldTransform &world,const ViewProjection &view,const Material *material){
 		world; view; material;
@@ -68,4 +66,8 @@ private:
 		[this](const WorldTransform &world,const ViewProjection &view,const Material *material){ NotDraw(world,view,material); },
 		[this](const WorldTransform &world,const ViewProjection &view,const Material *material){ DrawThis(world,view,material); }
 	};
+public:
+	void setMaterial(Material *material,uint32_t index = 0){
+		data_[index]->material_ = material;
+	}
 };
