@@ -13,7 +13,4 @@ public:
 private:
 	std::unique_ptr<WorldTransform> transform_;
 	std::shared_ptr<Model> model_;
-
-	int currentModelNum_;
-	static std::list<std::pair<std::string,std::string>> modelList_;
 };

@@ -1,11 +1,9 @@
 #pragma once
+#pragma once
 
 #include <Input.h>
 
-#include "Sprite.h"
-#include <Model.h>
-#include "Particle/Particle.h"
-#include "Particle/Emitter.h"
+#include "GameObject/IGameObject.h"
 
 #include <ViewProjection.h>
 #include <WorldTransform.h>
@@ -31,7 +29,9 @@ private:
 	ViewProjection viewProj_;
 	Input *input_;
 
-	std::unique_ptr<Emitter> emitter_;
+	std::list<std::unique_ptr<IGameObject>> gameObjects_;
+	std::list<std::pair<std::string,std::string>> textureList_;
+	std::list<std::pair<std::string,std::string>> objectList_;
 
 	std::unique_ptr<MaterialManager> materialManager_;
 };

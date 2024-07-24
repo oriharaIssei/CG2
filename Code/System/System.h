@@ -31,7 +31,7 @@
 #include <Vector3.h>
 #include <Vector4.h>
 
-class System {
+class System{
 	friend class PrimitiveDrawer;
 public:
 	static System *getInstance();
@@ -45,7 +45,7 @@ public:
 	int LoadTexture(const std::string &filePath);
 private:
 	System() = default;
-	~System() {};
+	~System(){};
 	System(const System &) = delete;
 	const System &operator=(const System &) = delete;
 	void CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType);
@@ -71,21 +71,23 @@ private:
 	std::unique_ptr<MaterialManager> materialManager_;
 	std::unique_ptr<LightBuffer> standerdLight_;
 public:
-	WinApp *getWinApp() { return window_.get(); }
+	WinApp *getWinApp(){ return window_.get(); }
 
-	DXDevice *getDXDevice()const { return dxDevice_.get(); }
-	DXSwapChain *getDXSwapChain()const { return dxSwapChain_.get(); }
-	DXFence *getDXFence()const { return dxFence_.get(); }
+	DXDevice *getDXDevice()const{ return dxDevice_.get(); }
+	DXSwapChain *getDXSwapChain()const{ return dxSwapChain_.get(); }
+	DXFence *getDXFence()const{ return dxFence_.get(); }
 
-	DXDepthStencilView *getDXDepthStencil()const { return dxDepthStencil_.get(); }
+	DXDepthStencilView *getDXDepthStencil()const{ return dxDepthStencil_.get(); }
 
-	MaterialManager *getMaterialManager()const { return materialManager_.get(); }
+	MaterialManager *getMaterialManager()const{ return materialManager_.get(); }
 
-	PipelineStateObj *getPrimitivePso() { return primitivePso_.get(); }
-	PipelineStateObj *getTexturePso() { return texturePso_.get(); }
+	PipelineStateObj *getPrimitivePso(){ return primitivePso_.get(); }
+	PipelineStateObj *getTexturePso(){ return texturePso_.get(); }
 
-	ShaderCompiler *getShaderCompiler() { return shaderCompiler_.get(); }
+	ShaderCompiler *getShaderCompiler(){ return shaderCompiler_.get(); }
 
-	const LightBuffer *getStanderdLight()const { return standerdLight_.get(); }
+	const LightBuffer *getStanderdLight()const{ return standerdLight_.get(); }
 
 };
+
+const std::string defaultReosurceFolder = "./resource";
