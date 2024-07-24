@@ -161,7 +161,7 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 				normals.push_back(normal);
 			}
 		} else if(identifier[0] == 'f'){
-			TextureVertexData triangle[3];
+			VertexKey triangle[3];
 			for(int32_t faceVert = 0; faceVert < 3; ++faceVert){
 				std::string vertDefinition;
 				s >> vertDefinition;
@@ -178,14 +178,14 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 				Vector3 normal = normals[elementIndices[2] - 1];
 				Vector2 texCoord = elementIndices[1] == 0?Vector2{0.0f,0.0f}:texCoords[elementIndices[1] - 1];
 
-				VertexKey key = {position,normal,texCoord};
-
-				if(vertexMap.find(key) == vertexMap.end()){
-					vertexMap[key] = static_cast<uint32_t>(vertices.size());
-					vertices.push_back({position,texCoord,normal});
+				triangle[faceVert] = {position,normal,texCoord};
+			}
+			for(int32_t i = 2; i >= 0; --i){
+				if(vertexMap.find(triangle[i]) == vertexMap.end()){
+					vertexMap[triangle[i]] = static_cast<uint32_t>(vertices.size());
+					vertices.push_back({triangle[i].position,triangle[i].texCoord,triangle[i].normal});
 				}
-
-				indices.push_back(vertexMap[key]);
+				indices.push_back(vertexMap[triangle[i]]);
 			}
 		} else if(identifier[0] == 'm'){ // mtllib
 			s >> currentMaterial;
@@ -195,7 +195,7 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 		} else if(identifier[0] == 'o'){
 			if(!vertices.empty() || !indices.empty()){
 				ProcessMeshData(data.back(),vertices,indices);
-				data.back()->material_ = System::getInstance()->getMaterialManager()->Create("WHITE");
+				data.back()->material_ = System::getInstance()->getMaterialManager()->Create("white");
 				indices.clear();
 				vertices.clear();
 				data.push_back(std::make_unique<ModelData>());
@@ -206,9 +206,9 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 	// 最後のメッシュデータを処理
 	if(!vertices.empty()){
 		ProcessMeshData(data.back(),vertices,indices);
+		data.back()->material_ = System::getInstance()->getMaterialManager()->Create("white");
 	}
 }
-
 
 void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices,const std::vector<uint32_t> &indices){
 	if(modelData->materialData.textureNumber != nullptr){
@@ -304,7 +304,7 @@ void Model::Finalize(){
 	dxCommand_->Finalize();
 }
 
-void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,const Material *material){
+void Model::DrawThis(const WorldTransform &world,const ViewProjection &view){
 	auto *commandList = dxCommand_->getCommandList();
 
 	for(auto &model : data_){
@@ -317,7 +317,7 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,cons
 		world.SetForRootParameter(commandList,0);
 		view.SetForRootParameter(commandList,1);
 
-		material->SetForRootParameter(commandList,2);
+		model->material_->SetForRootParameter(commandList,2);
 		System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
 
 		if(model->materialData.textureNumber != nullptr){
@@ -333,7 +333,7 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,cons
 	}
 }
 
-void Model::Draw(const WorldTransform &world,const ViewProjection &view,const Material *material){
-	drawFuncTable_[(size_t)currentState_](world,view,material);
+void Model::Draw(const WorldTransform &world,const ViewProjection &view){
+	drawFuncTable_[(size_t)currentState_](world,view);
 }
 #pragma endregion
