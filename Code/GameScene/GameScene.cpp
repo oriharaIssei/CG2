@@ -37,31 +37,37 @@ void GameScene::Update(){
 	materialManager_->DebugUpdate();
 	ImGui::Begin("GameObjectsManager");
 
-	if(ImGui::BeginChild("TextureFiles",ImVec2(250,64),true,ImGuiWindowFlags_HorizontalScrollbar)){
-		for(auto &pngFile : textureList_){
-			ImGui::Bullet();
-			if(!ImGui::Button(pngFile.second.c_str())){
-				continue;
+	if(ImGui::TreeNode("TextureFiles")){
+		ImGui::TreePop();
+		if(ImGui::BeginChild("TextureFiles",ImVec2(250,64),true,ImGuiWindowFlags_HorizontalScrollbar)){
+			for(auto &pngFile : textureList_){
+				ImGui::Bullet();
+				if(!ImGui::Button(pngFile.second.c_str())){
+					continue;
+				}
+				std::unique_ptr<SpriteObject> sprite = std::make_unique<SpriteObject>();
+				sprite->Init(pngFile.first,pngFile.second);
+				gameObjects_.emplace_back(std::move(sprite));
 			}
-			std::unique_ptr<SpriteObject> sprite = std::make_unique<SpriteObject>();
-			sprite->Init(pngFile.first,pngFile.second);
-			gameObjects_.emplace_back(std::move(sprite));
 		}
+		ImGui::EndChild();
 	}
-	ImGui::EndChild();
 
-	if(ImGui::BeginChild("ObjectFiles",ImVec2(250,64),true,ImGuiWindowFlags_HorizontalScrollbar)){
-		for(auto &objFile : objectList_){
-			ImGui::Bullet();
-			if(!ImGui::Button(objFile.second.c_str())){
-				continue;
+	if(ImGui::TreeNode("ModelList")){
+		ImGui::TreePop();
+		if(ImGui::BeginChild("ObjectFiles",ImVec2(250,64),true,ImGuiWindowFlags_HorizontalScrollbar)){
+			for(auto &objFile : objectList_){
+				ImGui::Bullet();
+				if(!ImGui::Button(objFile.second.c_str())){
+					continue;
+				}
+				std::unique_ptr<ModelObject> model = std::make_unique<ModelObject>();
+				model->Init(objFile.first,objFile.second);
+				gameObjects_.emplace_back(std::move(model));
 			}
-			std::unique_ptr<ModelObject> sprite = std::make_unique<ModelObject>();
-			sprite->Init(objFile.first,objFile.second);
-			gameObjects_.emplace_back(std::move(sprite));
+			ImGui::EndChild();
 		}
 	}
-	ImGui::EndChild();
 
 	for(auto &object : gameObjects_){
 		object->Updata();
