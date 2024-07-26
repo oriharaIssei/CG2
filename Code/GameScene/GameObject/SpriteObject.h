@@ -16,4 +16,5 @@ private:
 	std::unique_ptr<Sprite> sprite_;
 
 	Vector2 pos_,size_;
+	Vector4 color_;
 };

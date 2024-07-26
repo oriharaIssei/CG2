@@ -10,12 +10,21 @@ void SpriteObject::Init(const std::string &directory,const std::string &objectNa
 
 	sprite_.reset(Sprite::Create({0,0},{100.0f,100.0f},directory + '/' + objectName + ".png"));
 
+	color_ = {1.0f,1.0f,1.0f,1.0f};
 	pos_ = {0,0};
 	size_ = {100.0f,100.0f};
 }
 
 void SpriteObject::Updata(){
 	ImGui::Text("Name: %s",name_.c_str());
+
+	ImGui::ColorEdit4("Color",&color_.x);
+	sprite_->setColor(color_);
+
+	ImGui::DragFloat2("UVScale",&sprite_->uvScale.x,0.1f);
+	ImGui::DragFloat2("UVRotate",&sprite_->uvRotate.x,0.1f);
+	ImGui::DragFloat2("UVTranslate",&sprite_->uvTranslate.x,0.1f);
+
 	ImGui::DragFloat2("Position",&pos_.x,0.1f);
 	ImGui::DragFloat2("Size",&size_.x,0.1f);
 	sprite_->setPos(pos_);

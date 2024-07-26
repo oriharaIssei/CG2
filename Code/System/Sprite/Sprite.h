@@ -62,6 +62,7 @@ private:
 
 	uint32_t th_;
 public:
+	void setColor(const Vector4 &color){ mappingConstBufferData_->color_ = color; }
 	void setSize(const Vector2 &size);
 	void setPos(const Vector2 &pos);
 };
