@@ -633,10 +633,10 @@ void System::CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRI
 	ShaderCompiler compiler;
 	compiler.Init();
 
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3d.VS.hlsl",L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./resource/Shader/Object3d.VS.hlsl",L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3d.PS.hlsl",L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./resource/Shader/Object3d.PS.hlsl",L"ps_6_0");
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	graphicsPipelineStateDesc.pRootSignature = pso->rootSignature.Get();
@@ -890,10 +890,10 @@ void System::CreateTexturePSO(){
 	ShaderCompiler compiler;
 	compiler.Init();
 
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3dTexture.VS.hlsl",L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./resource/Shader/Object3dTexture.VS.hlsl",L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Object3dTexture.PS.hlsl",L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./resource/Shader/Object3dTexture.PS.hlsl",L"ps_6_0");
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	graphicsPipelineStateDesc.pRootSignature = texturePso_->rootSignature.Get();

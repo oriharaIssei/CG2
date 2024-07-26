@@ -8,7 +8,7 @@ void SpriteObject::Init(const std::string &directory,const std::string &objectNa
 	name_ = objectName;
 	materialManager_ = System::getInstance()->getMaterialManager();
 
-	sprite_.reset(Sprite::Create({0.0f,0.0f},{20.0f,20.0f},directory + '/' + objectName + ".png"));
+	sprite_.reset(Sprite::Create({10.0f,110.0f},{100.0f,100.0f},directory + '/' + objectName + ".png"));
 }
 
 void SpriteObject::Updata(){

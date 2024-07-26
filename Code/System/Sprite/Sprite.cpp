@@ -33,10 +33,10 @@ Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string 
 	result->meshBuff_ = std::make_unique<SpriteMesh>();
 	result->meshBuff_->Init();
 
-	result->meshBuff_->vertexData[0] = {{0.0f,0.0f,0.0f,1.0f},{0.0f,1.0f}};
-	result->meshBuff_->vertexData[1] = {{0,size.y,0.0f,1.0f},{0.0f,0.0f}};
-	result->meshBuff_->vertexData[2] = {{size.x,0.0f,0.0f,1.0f},{1.0f,1.0f}};
-	result->meshBuff_->vertexData[3] = {{size.x,size.y,0.0f,1.0f},{1.0f,0.0f}};
+	result->meshBuff_->vertexData[0] = {{0.0f,size.y,0.0f,1.0f},{0.0f,1.0f}};
+	result->meshBuff_->vertexData[1] = {{0.0f,0.0f,0.0f,1.0f},{0.0f,0.0f}};
+	result->meshBuff_->vertexData[2] = {{size.x,size.y,0.0f,1.0f},{1.0f,1.0f}};
+	result->meshBuff_->vertexData[3] = {{size.x,0.0f,0.0f,1.0f},{1.0f,0.0f}};
 
 	result->mappingConstBufferData_ = nullptr;
 	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),result->constBuff_,sizeof(SpritConstBuffer));
@@ -152,10 +152,10 @@ void Sprite::CreatePSO(){
 	ShaderCompiler compiler;
 	compiler.Init();
 
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Sprite.VS.hlsl",L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = compiler.CompileShader(L"./resource/Shader/Sprite.VS.hlsl",L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Sprite.PS.hlsl",L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./resource/Shader/Sprite.PS.hlsl",L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
@@ -232,10 +232,10 @@ void Sprite::Draw(){
 }
 
 void Sprite::setSize(const Vector2 &size){
-	meshBuff_->vertexData[0] = {{0.0f,0.0f,0.0f,1.0f},{0.0f,1.0f}};
-	meshBuff_->vertexData[1] = {{0,size.y,0,1.0f},{0.0f,0.0f}};
-	meshBuff_->vertexData[2] = {{size.x,0.0f,0.0f,1.0f},{1.0f,1.0f}};
-	meshBuff_->vertexData[3] = {{size.x,size.y,0.0f,1.0f},{1.0f,0.0f}};
+	meshBuff_->vertexData[0].pos = {0.0f,size.y,0.0f,1.0f};
+	meshBuff_->vertexData[1].pos = {0.0f,0.0f,0.0f,1.0f};
+	meshBuff_->vertexData[2].pos = {size.x,size.y,0.0f,1.0f};
+	meshBuff_->vertexData[3].pos = {size.x,0.0f,0.0f,1.0f};
 }
 
 void Sprite::setPos(const Vector2 &pos){
@@ -243,7 +243,6 @@ void Sprite::setPos(const Vector2 &pos){
 }
 
 void Sprite::SpriteMesh::Init(){
-
 	const size_t vertexBufferSize = sizeof(SpriteVertexData) * 4;
 	const size_t indexBufferSize = sizeof(uint32_t) * 6;
 

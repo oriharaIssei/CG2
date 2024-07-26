@@ -309,12 +309,23 @@
     <FxCompile Include="Code\System\Shader\Sprite.PS.hlsl" />
     <FxCompile Include="Code\System\Shader\Particle.PS.hlsl" />
     <FxCompile Include="Code\System\Shader\Particle.VS.hlsl" />
+    <FxCompile Include="resource\Shader\Object3d.PS.hlsl" />
+    <FxCompile Include="resource\Shader\Object3d.VS.hlsl" />
+    <FxCompile Include="resource\Shader\Object3dTexture.PS.hlsl" />
+    <FxCompile Include="resource\Shader\Object3dTexture.VS.hlsl" />
+    <FxCompile Include="resource\Shader\Sprite.PS.hlsl" />
+    <FxCompile Include="resource\Shader\Sprite.VS.hlsl" />
+    <FxCompile Include="resource\Shader\Particle.PS.hlsl" />
+    <FxCompile Include="resource\Shader\Particle.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />
     <None Include="Code\System\Shader\Object3dTexture.hlsli" />
     <None Include="Code\System\Shader\Object3d.hlsli" />
-    <None Include="Code\System\Shader\Sprite.hlsli" />
     <None Include="Code\System\Shader\Particle.hlsli" />
+    <None Include="resource\Shader\Object3d.hlsli" />
+    <None Include="resource\Shader\Object3dTexture.hlsli" />
+    <None Include="resource\Shader\Sprite.hlsli" />
+    <None Include="resource\Shader\Particle.hlsli" />
   </ItemGroup>
 </Project>
