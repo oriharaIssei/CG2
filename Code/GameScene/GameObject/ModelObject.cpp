@@ -6,9 +6,12 @@
 
 #include "System.h"
 
-void ModelObject::Init(const std::string &objectName){
-	IGameObject::Init(objectName);
-	model_ = Model::Create(defaultReosurceFolder,objectName + ".obj");
+void ModelObject::Init(const std::string &directryPath,const std::string &objectName){
+	name_ = objectName;
+	materialManager_ = System::getInstance()->getMaterialManager();
+
+	model_ = Model::Create(directryPath,objectName + ".obj");
+
 	transform_ = std::make_unique<WorldTransform>();
 	transform_->Init();
 }
@@ -39,5 +42,5 @@ void ModelObject::Updata(){
 }
 
 void ModelObject::Draw(const ViewProjection &viewProj){
-	model_->Draw(*transform_.get(),viewProj,material_);
+	model_->Draw(*transform_.get(),viewProj);
 }

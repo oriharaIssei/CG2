@@ -8,10 +8,9 @@
 
 std::unique_ptr<PipelineStateObj> Sprite::pso_ = nullptr;
 std::unique_ptr<DXCommand> Sprite::dxCommand_;
-uint32_t Sprite::drawCount_;
 Matrix4x4 Sprite::viewPortMat_;
 
-void Sprite::Init() {
+void Sprite::Init(){
 	pso_ = std::make_unique<PipelineStateObj>();
 	dxCommand_ = std::make_unique<DXCommand>();
 	dxCommand_->Init(System::getInstance()->getDXDevice()->getDevice(),"main","main");
@@ -20,24 +19,24 @@ void Sprite::Init() {
 	viewPortMat_ = MakeMatrix::Orthographic(0,0,(float)window->getWidth(),(float)window->getHeight(),0.0f,100.0f);
 }
 
-void Sprite::Finalize() {
+void Sprite::Finalize(){
 	pso_->Finalize();
 	pso_.release();
 
 	dxCommand_->Finalize();
 }
 
-Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string &textureFilePath) {
+Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string &textureFilePath){
 	Sprite *result = new Sprite();
 	result->th_ = TextureManager::LoadTexture(textureFilePath);
 
 	result->meshBuff_ = std::make_unique<SpriteMesh>();
 	result->meshBuff_->Init();
 
-	result->meshBuff_->vertexData[0] = {{0.0f,size.y,0.0f,1.0f},{0.0f,1.0f}};
-	result->meshBuff_->vertexData[1] = {{0,0,0.0f,1.0f},{0.0f,0.0f}};
-	result->meshBuff_->vertexData[2] = {{size.x,size.y,0.0f,1.0f},{1.0f,1.0f}};
-	result->meshBuff_->vertexData[3] = {{size.x,0,0.0f,1.0f},{1.0f,0.0f}};
+	result->meshBuff_->vertexData[0] = {{0.0f,0.0f,0.0f,1.0f},{0.0f,1.0f}};
+	result->meshBuff_->vertexData[1] = {{0,size.y,0.0f,1.0f},{0.0f,0.0f}};
+	result->meshBuff_->vertexData[2] = {{size.x,0.0f,0.0f,1.0f},{1.0f,1.0f}};
+	result->meshBuff_->vertexData[3] = {{size.x,size.y,0.0f,1.0f},{1.0f,0.0f}};
 
 	result->mappingConstBufferData_ = nullptr;
 	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),result->constBuff_,sizeof(SpritConstBuffer));
@@ -52,20 +51,7 @@ Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string 
 	return result;
 }
 
-void Sprite::PreDraw() {
-	drawCount_ = 0;
-	DXFH::SetViewportsAndScissor(dxCommand_.get(),System::getInstance()->getWinApp());
-	dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-void Sprite::PostDraw() {
-	if(drawCount_ <= 0) {
-		return;
-	}
-	//System::getInstance()->RegisterActiveCommand(dxCommand_.get());
-}
-
-void Sprite::CreatePSO() {
+void Sprite::CreatePSO(){
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;
 	descriptorRange[0].NumDescriptors = 1;
@@ -75,11 +61,11 @@ void Sprite::CreatePSO() {
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	HRESULT hr;
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc {};
-	D3D12_BLEND_DESC blendDesc {};
-	D3D12_RASTERIZER_DESC rasterizerDesc {};
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+	D3D12_BLEND_DESC blendDesc{};
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
 
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature {};
+	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
@@ -127,7 +113,7 @@ void Sprite::CreatePSO() {
 		&signatureBlob,
 		&errorBlob
 	);
-	if(FAILED(hr)) {
+	if(FAILED(hr)){
 		Logger::OutputLog(reinterpret_cast<char *>(errorBlob->GetBufferPointer()));
 		assert(false);
 	}
@@ -172,7 +158,7 @@ void Sprite::CreatePSO() {
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = compiler.CompileShader(L"./Code/System/Shader/Sprite.PS.hlsl",L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc {};
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	graphicsPipelineStateDesc.pRootSignature = pso_->rootSignature.Get();
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;
 	graphicsPipelineStateDesc.VS = {
@@ -185,7 +171,7 @@ void Sprite::CreatePSO() {
 	};
 
 	// DepthStancilState の設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc {};
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
 	// Depth の機能を有効化する
 	depthStencilDesc.DepthEnable = true;
 	// 書き込み
@@ -217,13 +203,17 @@ void Sprite::CreatePSO() {
 	assert(SUCCEEDED(hr));
 }
 
-void Sprite::Draw() {
+void Sprite::Draw(){
 	auto commandList = dxCommand_->getCommandList();
+
+	commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
+	commandList->SetPipelineState(pso_->pipelineState.Get());
 
 	commandList->IASetVertexBuffers(0,1,&meshBuff_->vbView);
 	commandList->IASetIndexBuffer(&meshBuff_->ibView);
 
 	mappingConstBufferData_->mat_ = worldMat_ * viewPortMat_;
+	mappingConstBufferData_->uvMat_ = MakeMatrix::Affine(uvScale,uvRotate,uvTranslate);
 
 	commandList->SetGraphicsRootConstantBufferView(
 		0,constBuff_->GetGPUVirtualAddress()
@@ -241,9 +231,20 @@ void Sprite::Draw() {
 	commandList->DrawIndexedInstanced(6,1,0,0,0);
 }
 
-void Sprite::SpriteMesh::Init() {
+void Sprite::setSize(const Vector2 &size){
+	meshBuff_->vertexData[0] = {{0.0f,0.0f,0.0f,1.0f},{0.0f,1.0f}};
+	meshBuff_->vertexData[1] = {{0,size.y,0,1.0f},{0.0f,0.0f}};
+	meshBuff_->vertexData[2] = {{size.x,0.0f,0.0f,1.0f},{1.0f,1.0f}};
+	meshBuff_->vertexData[3] = {{size.x,size.y,0.0f,1.0f},{1.0f,0.0f}};
+}
 
-	const size_t vertexBufferSize = sizeof(SpriteVertexData) * 6;
+void Sprite::setPos(const Vector2 &pos){
+	worldMat_ = MakeMatrix::Affine({1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{pos,0.0f});
+}
+
+void Sprite::SpriteMesh::Init(){
+
+	const size_t vertexBufferSize = sizeof(SpriteVertexData) * 4;
 	const size_t indexBufferSize = sizeof(uint32_t) * 6;
 
 	// バッファのリソースを作成

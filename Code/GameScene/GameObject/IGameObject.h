@@ -11,7 +11,7 @@
 
 class IGameObject{
 public:
-	virtual void Init(const std::string &objectName);
+	virtual void Init(const std::string &directryPath,const std::string &objectName);
 	virtual void Updata() = 0;
 	virtual void Draw(const ViewProjection &viewProj) = 0;
 protected:

@@ -4,9 +4,11 @@
 
 #include "System.h"
 
-void SpriteObject::Init(const std::string &objectName){
-	IGameObject::Init(objectName);
-	sprite_.reset(Sprite::Create({0.0f,0.0f},{100.0f,20.0f},defaultReosurceFolder + objectName + ".png"));
+void SpriteObject::Init(const std::string &directory,const std::string &objectName){
+	name_ = objectName;
+	materialManager_ = System::getInstance()->getMaterialManager();
+
+	sprite_.reset(Sprite::Create({0.0f,0.0f},{20.0f,20.0f},directory + '/' + objectName + ".png"));
 }
 
 void SpriteObject::Updata(){

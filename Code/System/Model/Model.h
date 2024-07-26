@@ -49,8 +49,6 @@ private:
 public:
 	Model() = default;
 
-	void Debug();
-
 	void Draw(const WorldTransform &world,const ViewProjection &view);
 private:
 	void NotDraw(const WorldTransform &world,const ViewProjection &view){
@@ -70,6 +68,7 @@ private:
 		[this](const WorldTransform &world,const ViewProjection &view){ DrawThis(world,view); }
 	};
 public:
+	const std::vector<std::unique_ptr<ModelData>> &getData()const{ return data_; }
 	void setMaterial(Material *material,uint32_t index = 0){
 		data_[index]->material_ = material;
 	}

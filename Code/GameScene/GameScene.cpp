@@ -44,7 +44,7 @@ void GameScene::Update(){
 				continue;
 			}
 			std::unique_ptr<SpriteObject> sprite = std::make_unique<SpriteObject>();
-			sprite->Init(pngFile.second);
+			sprite->Init(pngFile.first,pngFile.second);
 			gameObjects_.emplace_back(std::move(sprite));
 		}
 	}
@@ -57,7 +57,7 @@ void GameScene::Update(){
 				continue;
 			}
 			std::unique_ptr<ModelObject> sprite = std::make_unique<ModelObject>();
-			sprite->Init(objFile.second);
+			sprite->Init(objFile.first,objFile.second);
 			gameObjects_.emplace_back(std::move(sprite));
 		}
 	}
