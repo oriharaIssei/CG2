@@ -8,19 +8,24 @@
 
 #include "Material.h"
 #include "ViewProjection.h"
+#include "WorldTransform.h"
 
 class IGameObject{
 public:
 	virtual ~IGameObject(){};
 
 	virtual void Init(const std::string &directryPath,const std::string &objectName);
-	virtual void Updata() = 0;
+	virtual void Updata();
 	virtual void Draw(const ViewProjection &viewProj) = 0;
 protected:
-	int currentTextureNum_;
 	static std::list<std::pair<std::string,std::string>> textureList_;
+	int currentTextureNum_;
+
 	MaterialManager *materialManager_;
 	Material *material_;
+	char materialName[32];
+
+	[[maybe_unused]] WorldTransform transform_;
 
 	std::string name_;
 public:

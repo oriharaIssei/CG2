@@ -12,6 +12,5 @@ public:
 	void Updata()override;
 	void Draw(const ViewProjection &viewProj)override;
 private:
-	std::unique_ptr<WorldTransform> transform_;
 	std::shared_ptr<Model> model_;
 };

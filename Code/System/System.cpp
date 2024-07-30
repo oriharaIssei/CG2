@@ -108,64 +108,7 @@ void System::Finalize(){
 #endif // _DEBUG
 }
 
-//void System::DrawTriangle(const Vector3 &position1, const Vector3 &position2, const Vector3 &position3, const Vector3 &scale, Vector4 color) {
-//	size_t indexVertex=primitiveBuff_[Triangle]->index * primitiveBuff_[Triangle]->vertexNum;
-//
-//	primitiveBuff_[Triangle]->vertData[indexVertex].pos={ position1.x,position1.y,position1.z,1.0f };
-//	primitiveBuff_[Triangle]->vertData[indexVertex].color=color;
-//	primitiveBuff_[Triangle]->vertData[indexVertex + 1].pos={ position2.x,position2.y,position2.z,1.0f };
-//	primitiveBuff_[Triangle]->vertData[indexVertex + 1].color=color;
-//	primitiveBuff_[Triangle]->vertData[indexVertex + 2].pos={ position3.x,position3.y,position3.z,1.0f };
-//	primitiveBuff_[Triangle]->vertData[indexVertex + 2].color=color;
-//
-//	dxCommon_->getCommandList()->SetGraphicsRootSignature(primitivePSO_->rootSignature.Get());
-//	dxCommon_->getCommandList()->SetPipelineState(primitivePSO_->pipelineState.Get());
-//	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &primitiveBuff_[Triangle]->vbView);
-//	//形状設定.PSOのものとはまた別(同じものを設定する)
-//	dxCommon_->getCommandList()->IASetPrimitiveTopology(
-//		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-//	);
-//
-//	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
-//		1, //RootParameter配列の 1 番目
-//		wvp2DResource_->GetGPUVirtualAddress()
-//	);
-//
-//	// 描画!!!
-//	dxCommon_->getCommandList()->DrawInstanced(primitiveBuff_[Triangle]->vertexNum, 1, indexVertex, 0);
-//	++primitiveBuff_[Triangle]->index;
-//}
-//
-//void System::DrawQuad(const Vector3 &lt, const Vector3 &rt, const Vector3 &lb, const Vector3 &rb, const Vector3 &scale, Vector4 color) {
-//	size_t indexVertex=primitiveBuff_[Quad]->index * primitiveBuff_[Quad]->vertexNum;
-//
-//	primitiveBuff_[Quad]->vertData[indexVertex].pos={ lb.x,lb.y,lb.z,1.0f };
-//	primitiveBuff_[Quad]->vertData[indexVertex].color=color;
-//	primitiveBuff_[Quad]->vertData[indexVertex + 1].pos={ lt.x,lt.y,lt.z,1.0f };
-//	primitiveBuff_[Quad]->vertData[indexVertex + 1].color=color;
-//	primitiveBuff_[Quad]->vertData[indexVertex + 2].pos={ rb.x,rb.y,rb.z,1.0f };
-//	primitiveBuff_[Quad]->vertData[indexVertex + 2].color=color;
-//	primitiveBuff_[Quad]->vertData[indexVertex + 3].pos={ rt.x,rt.y,rt.z,1.0f };
-//	primitiveBuff_[Quad]->vertData[indexVertex + 3].color=color;
-//
-//	dxCommon_->getCommandList()->SetGraphicsRootSignature(primitivePSO_->rootSignature.Get());
-//	dxCommon_->getCommandList()->SetPipelineState(primitivePSO_->pipelineState.Get());
-//	dxCommon_->getCommandList()->IASetVertexBuffers(0, 1, &primitiveBuff_[Quad]->vbView);
-//	dxCommon_->getCommandList()->IASetIndexBuffer(&primitiveBuff_[Quad]->ibView);
-//	//形状設定.PSOのものとはまた別(同じものを設定する)
-//	dxCommon_->getCommandList()->IASetPrimitiveTopology(
-//		D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-//	);
-//
-//	dxCommon_->getCommandList()->SetGraphicsRootConstantBufferView(
-//		1, //RootParameter配列の 1 番目
-//		wvp2DResource_->GetGPUVirtualAddress()
-//	);
-//
-//	// 描画!!!
-//	dxCommon_->getCommandList()->DrawIndexedInstanced(primitiveBuff_[Quad]->vertexNum, 1, 0, 0, 0);
-//	++primitiveBuff_[Quad]->index;
-//}
+
 //
 //void System::DrawSphere(const Matrix4x4 &world, const Matrix4x4 &view, const Vector4 &color) {
 //	constexpr int kSubDivision=16;

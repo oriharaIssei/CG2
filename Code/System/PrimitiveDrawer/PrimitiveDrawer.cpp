@@ -35,7 +35,7 @@ void PrimitiveDrawer::Init(){
 	triangleInstanceVal_ = 0;
 
 	quadMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	quadMesh_->Create(4 * 200,6 * 200);
+	quadMesh_->Create(4 * 1280,6 * 1280);
 	quadInstanceVal_ = 0;
 }
 

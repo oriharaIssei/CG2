@@ -8,6 +8,7 @@
 #include <string>
 
 #include "GameObject/ModelObject.h"
+#include "GameObject/SphereObject.h"
 #include "GameObject/SpriteObject.h"
 
 #include <imgui.h>
@@ -17,6 +18,7 @@ GameScene::~GameScene(){
 
 void GameScene::Init(){
 	debugCamera.Init();
+	debugCamera.setViewTranslate({0.0f,0.0f,-12.0f});
 	viewProj_.Init();
 	input_ = Input::getInstance();
 
@@ -25,6 +27,10 @@ void GameScene::Init(){
 
 	textureList_ = myFs::SearchFile("./resource","png");
 	objectList_ = myFs::SearchFile("./resource","obj");
+
+	std::unique_ptr<SphereObject> sprite = std::make_unique<SphereObject>();
+	sprite->Init("","sphere");
+	gameObjects_.emplace_back(std::move(sprite));
 }
 
 void GameScene::Update(){

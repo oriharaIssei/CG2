@@ -6,39 +6,39 @@
 
 #include <memory>
 
-class DebugCamera {
+class DebugCamera{
 #pragma region State
-	class IState {
+	class IState{
 	public:
-		IState(DebugCamera *host):host_(host) {};
-		virtual ~IState() {};
+		IState(DebugCamera *host) :host_(host){};
+		virtual ~IState(){};
 
 		virtual void Update() = 0;
 	protected:
 		DebugCamera *host_;
 	};
 	class Neutral :
-		public IState {
+		public IState{
 	public:
-		Neutral(DebugCamera *host):IState(host) {};
+		Neutral(DebugCamera *host) :IState(host){};
 		void Update()override;
 	};
 	class RotationState :
-		public IState {
+		public IState{
 	public:
-		RotationState(DebugCamera *host):IState(host) {};
+		RotationState(DebugCamera *host) :IState(host){};
 		void Update()override;
 	};
 	class TranslationState :
-		public IState {
+		public IState{
 		enum TranslationType{
-		NONE,
-		Z_WHEEL,
-		XY_MOUSEMOVE,
-		XYZ_ALL
+			NONE,
+			Z_WHEEL,
+			XY_MOUSEMOVE,
+			XYZ_ALL
 		};
 	public:
-		TranslationState(DebugCamera *host):IState(host) {};
+		TranslationState(DebugCamera *host) :IState(host){};
 		void Update()override;
 	};
 #pragma endregion
@@ -51,5 +51,6 @@ private:
 	std::unique_ptr<IState> currentState_ = nullptr;
 	ViewProjection viewProj_;
 public:
-	const ViewProjection &getViewProjection()const { return viewProj_; }
+	void setViewTranslate(const Vector3 &translate){ viewProj_.translate = translate; }
+	const ViewProjection &getViewProjection()const{ return viewProj_; }
 };

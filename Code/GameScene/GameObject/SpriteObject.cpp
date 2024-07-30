@@ -4,7 +4,7 @@
 
 #include "System.h"
 
-void SpriteObject::Init(const std::string &directory,const std::string &objectName){
+void SpriteObject::Init([[maybe_unused]] const std::string &directory,const std::string &objectName){
 	name_ = objectName;
 	materialManager_ = System::getInstance()->getMaterialManager();
 

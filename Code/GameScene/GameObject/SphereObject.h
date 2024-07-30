@@ -1,20 +1,19 @@
 #pragma once
+
 #include "IGameObject.h"
 
-#include "Sprite.h"
+#include <memory>
 
-#include "Vector2.h"
+#include "ViewProjection.h"
+#include "WorldTransform.h"
 
-class SpriteObject :
+class SphereObject :
 	public IGameObject{
 public:
-	~SpriteObject()override{};
+	~SphereObject()override{};
+
 	void Init([[maybe_unused]] const std::string &directryPath,const std::string &objectName)override;
 	void Updata()override;
 	void Draw(const ViewProjection &viewProj)override;
 private:
-	std::unique_ptr<Sprite> sprite_;
-
-	Vector2 pos_,size_;
-	Vector4 color_;
 };

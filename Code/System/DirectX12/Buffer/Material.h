@@ -77,7 +77,7 @@ public:
 private:
 	std::unordered_map<std::string,std::unique_ptr<Material>> materialPallete_;
 public:
-	const Material *getMaterial(const std::string &materialName) const{
+	Material *getMaterial(const std::string &materialName) const{
 		auto it = materialPallete_.find(materialName);
 		if(it != materialPallete_.end()){
 			return it->second.get();
