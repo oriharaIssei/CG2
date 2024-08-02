@@ -60,6 +60,6 @@ public:
 
 	static PipelineStateObj *getPrimitivePso(BlendMode blend){ return trianglePso_[static_cast<size_t>(blend)]; }
 
-	static const std::string primitiveVsBlobKey;
-	static const std::string primitivePsBlobKey;
+	static const std::array<std::string,kBlendNum> &getTrianglePsoKeys(){ return trianglePsoKeys_; }
+	static const std::array<std::string,kBlendNum> &getLinePsoKeys(){ return linePsoKeys_; }
 };

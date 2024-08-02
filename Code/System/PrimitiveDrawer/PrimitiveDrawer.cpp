@@ -13,9 +13,6 @@ std::array<std::string,kBlendNum> PrimitiveDrawer::trianglePsoKeys_;
 std::array<PipelineStateObj *,kBlendNum> PrimitiveDrawer::linePso_;
 std::array<std::string,kBlendNum> PrimitiveDrawer::linePsoKeys_;
 
-const std::string PrimitiveDrawer::primitiveVsBlobKey = "Prim_VS";
-const std::string PrimitiveDrawer::primitivePsBlobKey = "Prim_PS";
-
 std::unique_ptr<PrimitiveObject3dMesh> PrimitiveDrawer::lineMesh_ = nullptr;
 uint32_t PrimitiveDrawer::lineInstanceVal_ = 0;
 
@@ -176,15 +173,15 @@ void PrimitiveDrawer::CreatePso(System *system){
 	/// shader読み込み
 	///=================================================
 
-	shaderManager->LoadShader(primitiveVsBlobKey,"Object3d.VS.hlsl");
-	shaderManager->LoadShader(primitivePsBlobKey,"Object3d.PS.hlsl",shaderDirectory,L"ps_6_0");;
+	shaderManager->LoadShader("Object3d.VS");
+	shaderManager->LoadShader("Object3d.PS",shaderDirectory,L"ps_6_0");;
 
 	///=================================================
 	/// shader情報の設定
 	///=================================================
 	ShaderInfo primShaderInfo;
-	primShaderInfo.vsKey = primitiveVsBlobKey;
-	primShaderInfo.psKey = primitivePsBlobKey;
+	primShaderInfo.vsKey = "Object3d.VS";
+	primShaderInfo.psKey = "Object3d.PS";
 
 #pragma region"RootParameter"
 	D3D12_ROOT_PARAMETER rootParameter{};

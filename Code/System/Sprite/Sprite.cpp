@@ -64,12 +64,12 @@ void Sprite::PostDraw(){
 void Sprite::CreatePSO(){
 	ShaderManager *shaderManager = ShaderManager::getInstance();
 
-	shaderManager->LoadShader("Sprite_VS","Sprite.VS.hlsl");
-	shaderManager->LoadShader("Sprite_PS","Sprite.PS.hlsl",shaderDirectory,L"ps_6_0");
+	shaderManager->LoadShader("Sprite.VS");
+	shaderManager->LoadShader("Sprite.PS",shaderDirectory,L"ps_6_0");
 
 	ShaderInformation shaderInfo{};
-	shaderInfo.vsKey = "Sprite_VS";
-	shaderInfo.psKey = "Sprite_PS";
+	shaderInfo.vsKey = "Sprite.VS";
+	shaderInfo.psKey = "Sprite.PS";
 
 	///================================================
 	/// Sampler の設定
