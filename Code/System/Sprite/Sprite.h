@@ -1,6 +1,7 @@
 #pragma once
 
-#include <PipelineStateObj.h>
+#include "PipelineStateObj.h"
+#include "ShaderManager.h"
 
 #include <Matrix4x4.h>
 #include <stdint.h>
@@ -16,7 +17,7 @@
 
 #include <Object3dMesh.h>
 
-class Sprite {
+class Sprite{
 public:
 	static void Init();
 	static void Finalize();
@@ -24,15 +25,15 @@ public:
 	static void PreDraw();
 	static void PostDraw();
 private:
-	struct SpriteVertexData {
+	struct SpriteVertexData{
 		Vector4 pos;
 		Vector2 texcoord;
 	};
-	struct SpritConstBuffer {
+	struct SpritConstBuffer{
 		Vector4 color_;
 		Matrix4x4 mat_;
 	};
-	struct SpriteMesh {
+	struct SpriteMesh{
 		void Init();
 		SpriteVertexData *vertexData = nullptr;
 		uint32_t *indexData = nullptr;
@@ -40,8 +41,8 @@ private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
 
-		D3D12_INDEX_BUFFER_VIEW ibView {};
-		D3D12_VERTEX_BUFFER_VIEW vbView {};
+		D3D12_INDEX_BUFFER_VIEW ibView{};
+		D3D12_VERTEX_BUFFER_VIEW vbView{};
 	};
 
 	static uint32_t drawCount_;
@@ -49,10 +50,11 @@ private:
 	static Matrix4x4 viewPortMat_;
 	static void CreatePSO();
 	static std::unique_ptr<DXCommand> dxCommand_;
-	static std::unique_ptr<PipelineStateObj> pso_;
+	static std::array<PipelineStateObj*,kBlendNum> pso_;
 public:
 	void Draw();
 private:
+
 	std::unique_ptr<SpriteMesh> meshBuff_;
 
 	Matrix4x4 worldMat_;
