@@ -5,6 +5,7 @@
 #include "imgui.h"
 
 #include "DXFunctionHelper.h"
+#include "PrimitiveDrawer.h"
 #include "TextureManager.h"
 #include <System.h>
 
@@ -213,7 +214,7 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices,const std::vector<uint32_t> &indices){
 	if(modelData->materialData.textureNumber != nullptr){
 		TextureObject3dMesh *textureMesh = new TextureObject3dMesh();
-		modelData->usePso_ = System::getInstance()->getTexturePso();
+		modelData->usePso_ = System::getInstance()->getTexturePso(BlendMode::Alpha);
 
 		modelData->dataSize = sizeof(TextureVertexData) * vertices.size();
 
@@ -222,7 +223,7 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 		modelData->meshBuff_.reset(textureMesh);
 	} else{
 		PrimitiveObject3dMesh *primitiveMesh = new PrimitiveObject3dMesh();
-		modelData->usePso_ = System::getInstance()->getPrimitivePso();
+		modelData->usePso_ = PrimitiveDrawer::getPrimitivePso(BlendMode::Alpha);
 
 		std::vector<PrimitiveVertexData> primVert;
 		for(auto &texVert : vertices){

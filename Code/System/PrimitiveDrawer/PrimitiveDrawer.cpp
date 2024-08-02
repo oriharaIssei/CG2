@@ -7,8 +7,14 @@
 
 std::unique_ptr<DXCommand> PrimitiveDrawer::dxCommand_;
 
-PipelineStateObj *PrimitiveDrawer::trianglePso_ = nullptr;
-std::unique_ptr<PipelineStateObj> PrimitiveDrawer::linePso_ = nullptr;
+std::array<PipelineStateObj *,kBlendNum> PrimitiveDrawer::trianglePso_;
+std::array<std::string,kBlendNum> PrimitiveDrawer::trianglePsoKeys_;
+
+std::array<PipelineStateObj *,kBlendNum> PrimitiveDrawer::linePso_;
+std::array<std::string,kBlendNum> PrimitiveDrawer::linePsoKeys_;
+
+const std::string PrimitiveDrawer::primitiveVsBlobKey = "Prim_VS";
+const std::string PrimitiveDrawer::primitivePsBlobKey = "Prim_PS";
 
 std::unique_ptr<PrimitiveObject3dMesh> PrimitiveDrawer::lineMesh_ = nullptr;
 uint32_t PrimitiveDrawer::lineInstanceVal_ = 0;
@@ -19,12 +25,24 @@ uint32_t PrimitiveDrawer::triangleInstanceVal_ = 0;
 std::unique_ptr<PrimitiveObject3dMesh>PrimitiveDrawer::quadMesh_ = nullptr;
 uint32_t PrimitiveDrawer::quadInstanceVal_ = 0;
 
+BlendMode PrimitiveDrawer::currentBlendMode_ = BlendMode::Alpha;
+
 void PrimitiveDrawer::Init(){
 	dxCommand_ = std::make_unique<DXCommand>();
 	dxCommand_->Init(System::getInstance()->getDXDevice()->getDevice(),"main","main");
 
-	trianglePso_ = System::getInstance()->getPrimitivePso();
-	CreateLinePso();
+	trianglePsoKeys_ = {
+		"Prim_Blend_None",
+		"Prim_Blend_Normal",
+		"Prim_Blend_Add",
+		"Prim_Blend_Sub",
+		"Prim_Blend_Multiply",
+		"Prim_Blend_Screen"
+	};
+
+	currentBlendMode_ = BlendMode::Alpha;
+
+	CreatePso();
 
 	lineMesh_ = std::make_unique<PrimitiveObject3dMesh>();
 	lineMesh_->Create(2 * 600,0);
@@ -41,9 +59,6 @@ void PrimitiveDrawer::Init(){
 
 void PrimitiveDrawer::Finalize(){
 	dxCommand_->Finalize();
-
-	linePso_->Finalize();
-	linePso_.release();
 
 	lineMesh_->Finalize();
 	triangleMesh_->Finalize();
@@ -62,8 +77,8 @@ void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const WorldTransf
 	lineMesh_->indexData[startIndex] = startIndex;
 	lineMesh_->indexData[startIndex + 1] = startIndex + 1;
 
-	commandList->SetGraphicsRootSignature(linePso_->rootSignature.Get());
-	commandList->SetPipelineState(linePso_->pipelineState.Get());
+	commandList->SetGraphicsRootSignature(linePso_[(int)currentBlendMode_]->rootSignature.Get());
+	commandList->SetPipelineState(linePso_[(int)currentBlendMode_]->pipelineState.Get());
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
@@ -95,8 +110,8 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	triangleMesh_->indexData[startIndex + 1] = startIndex + 1;
 	triangleMesh_->indexData[startIndex + 2] = startIndex + 2;
 
-	commandList->SetGraphicsRootSignature(trianglePso_->rootSignature.Get());
-	commandList->SetPipelineState(trianglePso_->pipelineState.Get());
+	commandList->SetGraphicsRootSignature(trianglePso_[(int)currentBlendMode_]->rootSignature.Get());
+	commandList->SetPipelineState(trianglePso_[(int)currentBlendMode_]->pipelineState.Get());
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -135,8 +150,8 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	quadMesh_->indexData[startIndex + 4] = startIndex + 3;
 	quadMesh_->indexData[startIndex + 5] = startIndex + 2;
 
-	commandList->SetGraphicsRootSignature(trianglePso_->rootSignature.Get());
-	commandList->SetPipelineState(trianglePso_->pipelineState.Get());
+	commandList->SetGraphicsRootSignature(trianglePso_[(int)currentBlendMode_]->rootSignature.Get());
+	commandList->SetPipelineState(trianglePso_[(int)currentBlendMode_]->pipelineState.Get());
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -154,7 +169,76 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	++quadInstanceVal_;
 }
 
-void PrimitiveDrawer::CreateLinePso(System *system){
-	linePso_ = std::make_unique<PipelineStateObj>();
-	system->CreatePrimitivePSO(linePso_,D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+void PrimitiveDrawer::CreatePso(System *system){
+
+	ShaderManager *shaderManager = ShaderManager::getInstance();
+	///=================================================
+	/// shader読み込み
+	///=================================================
+
+	shaderManager->LoadShader(primitiveVsBlobKey,"Object3d.VS.hlsl");
+	shaderManager->LoadShader(primitivePsBlobKey,"Object3d.PS.hlsl",shaderDirectory,L"ps_6_0");;
+
+	///=================================================
+	/// shader情報の設定
+	///=================================================
+	ShaderInfo primShaderInfo;
+	primShaderInfo.vsKey = primitiveVsBlobKey;
+	primShaderInfo.psKey = primitivePsBlobKey;
+
+#pragma region"RootParameter"
+	D3D12_ROOT_PARAMETER rootParameter{};
+	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	// PixelShderで使う
+	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	// レジスタ番号0 とバインド
+	// register(b0) の 0. b11 なら 11
+	rootParameter.Descriptor.ShaderRegister = 0;
+	primShaderInfo.pushBackRootParameter(rootParameter);
+
+	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	// VertexShaderで使う
+	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameter.Descriptor.ShaderRegister = 1;
+	primShaderInfo.pushBackRootParameter(rootParameter);
+
+	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter.Descriptor.ShaderRegister = 0;
+	primShaderInfo.pushBackRootParameter(rootParameter);
+
+	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter.Descriptor.ShaderRegister = 1;
+	primShaderInfo.pushBackRootParameter(rootParameter);
+#pragma endregion
+
+#pragma region"Input Element"
+	D3D12_INPUT_ELEMENT_DESC inputElementDesc = {};
+	inputElementDesc.SemanticName = "POSITION";/*Semantics*/
+	inputElementDesc.SemanticIndex = 0;/*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
+	inputElementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;//float 4
+	inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	primShaderInfo.pushBackInputElementDesc(inputElementDesc);
+
+	inputElementDesc.SemanticName = "NORMAL";/*Semantics*/
+	inputElementDesc.SemanticIndex = 0;
+	inputElementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	primShaderInfo.pushBackInputElementDesc(inputElementDesc);
+#pragma endregion
+
+	///=================================================
+	/// BlendMode ごとの Pso作成
+	///=================================================
+	for(size_t i = 0; i < kBlendNum; ++i){
+		primShaderInfo.blendMode_=static_cast<BlendMode>(i);
+		shaderManager->CreatePso(trianglePsoKeys_[i],primShaderInfo,system->getDXDevice()->getDevice());
+	}
+	// line も
+	primShaderInfo.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+	for(size_t i = 0; i < kBlendNum; ++i){
+		primShaderInfo.blendMode_=static_cast<BlendMode>(i);
+		shaderManager->CreatePso(linePsoKeys_[i],primShaderInfo,system->getDXDevice()->getDevice());
+	}
 }
