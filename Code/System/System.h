@@ -71,9 +71,6 @@ private:
 	std::unique_ptr<MaterialManager> materialManager_;
 	std::unique_ptr<LightBuffer> standerdLight_;
 public:
-	const std::string textureVsBlobKey_ = "Tex_VS";
-	const std::string texturePsBlobKey_ = "Tex_PS";
-
 	WinApp *getWinApp(){ return window_.get(); }
 
 	DXDevice *getDXDevice()const{ return dxDevice_.get(); }

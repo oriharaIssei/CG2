@@ -556,15 +556,15 @@ void System::CreateTexturePSO(){
 	///=================================================
 	/// shader読み込み
 	///=================================================
-	shaderManager_->LoadShader(textureVsBlobKey_,"Object3dTexture.VS.hlsl");
-	shaderManager_->LoadShader(texturePsBlobKey_,"Object3dTexture.PS.hlsl",shaderDirectory,L"ps_6_0");
+	shaderManager_->LoadShader("Object3dTexture.VS");
+	shaderManager_->LoadShader("Object3dTexture.PS",shaderDirectory,L"ps_6_0");
 
 	///=================================================
 	/// shader情報の設定
 	///=================================================
 	ShaderInfo texShaderInfo{};
-	texShaderInfo.vsKey = textureVsBlobKey_;
-	texShaderInfo.psKey = texturePsBlobKey_;
+	texShaderInfo.vsKey = "Object3dTexture.VS";
+	texShaderInfo.psKey = "Object3dTexture.PS";
 
 #pragma region"RootParameter"
 	D3D12_ROOT_PARAMETER rootParameter{};

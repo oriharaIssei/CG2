@@ -121,20 +121,21 @@ public:
 	/// <param name="key"></param>
 	/// <param name="shaderBlob"></param>
 	/// <returns> 登録できたら true </returns>
-	bool RegisterShaderBlob(const std::string &key,Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob){
-		auto it = shaderBlobMap_.find(key);
+	bool RegisterShaderBlob(const std::string &fileName,Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob){
+		auto it = shaderBlobMap_.find(fileName);
 		if(it != shaderBlobMap_.end()){
 			return false;
 		}
-		shaderBlobMap_.emplace(key,std::move(shaderBlob));
+		shaderBlobMap_.emplace(fileName,std::move(shaderBlob));
 		return true;
 	};
-	void ForciblyRegisterShaderBlob(const std::string &key,Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob){
-		shaderBlobMap_[key] = std::move(shaderBlob);
+	void ForciblyRegisterShaderBlob(const std::string &fileName,Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob){
+		shaderBlobMap_[fileName] = std::move(shaderBlob);
 	};
 
-	bool LoadShader(const std::string &key,const std::string &fileName,const std::string &directory = shaderDirectory,const wchar_t *profile = L"vs_6_0");
+	bool LoadShader(const std::string &fileName,const std::string &directory = shaderDirectory,const wchar_t *profile = L"vs_6_0");
 
+	PipelineStateObj *getPipelineStateObj(const std::string &key){ return psoMap_[key].get(); }
 	const Microsoft::WRL::ComPtr<IDxcBlob> &getShaderBlob(const std::string &key){
 		auto it = shaderBlobMap_.find(key);
 		if(it == shaderBlobMap_.end()){
