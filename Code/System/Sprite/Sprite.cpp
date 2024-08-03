@@ -11,6 +11,8 @@ std::unique_ptr<DXCommand> Sprite::dxCommand_;
 uint32_t Sprite::drawCount_;
 Matrix4x4 Sprite::viewPortMat_;
 
+BlendMode Sprite::currentBlend_ = BlendMode::Alpha;
+
 void Sprite::Init(){
 	dxCommand_ = std::make_unique<DXCommand>();
 	dxCommand_->Init(System::getInstance()->getDXDevice()->getDevice(),"main","main");
@@ -131,6 +133,10 @@ void Sprite::CreatePSO(){
 
 void Sprite::Draw(){
 	auto commandList = dxCommand_->getCommandList();
+
+	commandList->SetGraphicsRootSignature(pso_[(int)currentBlend_]->rootSignature.Get());
+	commandList->SetPipelineState(pso_[(int)currentBlend_]->pipelineState.Get());
+	dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	commandList->IASetVertexBuffers(0,1,&meshBuff_->vbView);
 	commandList->IASetIndexBuffer(&meshBuff_->ibView);

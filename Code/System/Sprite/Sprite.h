@@ -25,6 +25,8 @@ public:
 	static void PreDraw();
 	static void PostDraw();
 private:
+	static BlendMode currentBlend_;
+private:
 	struct SpriteVertexData{
 		Vector4 pos;
 		Vector2 texcoord;
@@ -50,11 +52,10 @@ private:
 	static Matrix4x4 viewPortMat_;
 	static void CreatePSO();
 	static std::unique_ptr<DXCommand> dxCommand_;
-	static std::array<PipelineStateObj*,kBlendNum> pso_;
+	static std::array<PipelineStateObj *,kBlendNum> pso_;
 public:
 	void Draw();
 private:
-
 	std::unique_ptr<SpriteMesh> meshBuff_;
 
 	Matrix4x4 worldMat_;
@@ -64,4 +65,5 @@ private:
 
 	uint32_t th_;
 public:
+	static void setBlendMode(BlendMode blend){ currentBlend_ = blend; }
 };
