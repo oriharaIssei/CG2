@@ -659,6 +659,10 @@ void System::BeginFrame(){
 	ImGuiManager::getInstance()->Begin();
 	input_->Update();
 	PrimitiveDrawer::ResetInstanceVal();
+
+	PrimitiveDrawer::setBlendMode(BlendMode::Alpha);
+	Sprite::setBlendMode(BlendMode::Alpha);
+
 	DXFH::PreDraw(dxCommand_.get(),window_.get(),dxSwapChain_.get());
 }
 
