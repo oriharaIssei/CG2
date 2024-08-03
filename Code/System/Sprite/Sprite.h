@@ -1,25 +1,29 @@
 #pragma once
 
-#include <memory>
-#include <wrl.h>
-
-#include "DXCommand.h"
-#include <PipelineStateObj.h>
-
-#include <Object3dMesh.h>
-
-#include <string>
+#include "PipelineStateObj.h"
+#include "ShaderManager.h"
 
 #include <Matrix4x4.h>
 #include <stdint.h>
 #include <Vector2.h>
 #include <Vector4.h>
 
+#include <memory>
+#include <wrl.h>
+
+#include "DXCommand.h"
+
+#include <string>
+
+#include <Object3dMesh.h>
+
 class Sprite{
 public:
 	static void Init();
 	static void Finalize();
 	static Sprite *Create(const Vector2 &pos,const Vector2 &size,const std::string &textureFilePath);
+private:
+	static BlendMode currentBlend_;
 private:
 	struct SpriteVertexData{
 		Vector4 pos;
@@ -45,7 +49,7 @@ private:
 	static Matrix4x4 viewPortMat_;
 	static void CreatePSO();
 	static std::unique_ptr<DXCommand> dxCommand_;
-	static std::unique_ptr<PipelineStateObj> pso_;
+	static std::array<PipelineStateObj *,kBlendNum> pso_;
 public:
 	void Draw();
 public:
@@ -65,4 +69,5 @@ public:
 	void setColor(const Vector4 &color){ mappingConstBufferData_->color_ = color; }
 	void setSize(const Vector2 &size);
 	void setPos(const Vector2 &pos);
+	static void setBlendMode(BlendMode blend){ currentBlend_ = blend; }
 };

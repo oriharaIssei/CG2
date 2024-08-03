@@ -53,7 +53,7 @@
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/Lib/ImGuiManager;$(ProjectDir)/Code/Lib/MyFileSystem;$(ProjectDir)/Code/Lib;$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/Lib/ImGuiManager;$(ProjectDir)/Code/Lib/MyFileSystem;$(ProjectDir)/Code/Lib;$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/ShaderManager;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -78,7 +78,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/ImGuiManager;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/Lib/ImGuiManager;$(ProjectDir)/Code/Lib/MyFileSystem;$(ProjectDir)/Code/Lib;$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/ShaderManager;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -121,6 +121,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp" />
     <ClCompile Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.cpp" />
     <ClCompile Include="Code\System\DirectX12\ShaderCompiler.cpp" />
+    <ClCompile Include="Code\System\DirectX12\ShaderManager\ShaderManager.cpp" />
     <ClCompile Include="Code\System\Input\Input.cpp" />
     <ClCompile Include="Code\System\Model\Model.cpp" />
     <ClCompile Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.cpp" />
@@ -171,6 +172,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\System\DirectX12\PipelineStateObj.h" />
     <ClInclude Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.h" />
     <ClInclude Include="Code\System\DirectX12\ShaderCompiler.h" />
+    <ClInclude Include="Code\System\DirectX12\ShaderManager\ShaderManager.h" />
     <ClInclude Include="Code\System\Input\Input.h" />
     <ClInclude Include="Code\System\Model\Model.h" />
     <ClInclude Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.h" />
@@ -279,22 +281,22 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <None Include="Code\System\Shader\Object3d.hlsli" />
     <None Include="Code\System\Shader\Object3dTexture.hlsli" />
     <None Include="Code\System\Shader\Particle.hlsli" />
+    <None Include="Code\System\Shader\Sprite.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </None>
     <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />
     <None Include="resource\Shader\Object3d.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="resource\Shader\Object3dTexture.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="resource\Shader\Particle.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="resource\Shader\Sprite.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
   </ItemGroup>
   <ItemGroup>

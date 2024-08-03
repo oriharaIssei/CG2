@@ -5,6 +5,7 @@
 #include "imgui.h"
 
 #include "DXFunctionHelper.h"
+#include "PrimitiveDrawer.h"
 #include "TextureManager.h"
 #include <System.h>
 
@@ -22,6 +23,8 @@
 std::unique_ptr<Matrix4x4> Model::fovMa_ = nullptr;
 std::unique_ptr<ModelManager> Model::manager_ = nullptr;
 
+std::array<PipelineStateObj *,kBlendNum> Model::primitivePso_;
+std::array<PipelineStateObj *,kBlendNum> Model::texturePso_;
 std::unique_ptr<DXCommand> Model::dxCommand_;
 
 #include <unordered_map>
@@ -213,7 +216,6 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>> &data,con
 void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const std::vector<TextureVertexData> &vertices,const std::vector<uint32_t> &indices){
 	if(modelData->materialData.textureNumber != nullptr){
 		TextureObject3dMesh *textureMesh = new TextureObject3dMesh();
-		modelData->usePso_ = System::getInstance()->getTexturePso();
 
 		modelData->dataSize = sizeof(TextureVertexData) * vertices.size();
 
@@ -222,7 +224,6 @@ void ModelManager::ProcessMeshData(std::unique_ptr<ModelData> &modelData,const s
 		modelData->meshBuff_.reset(textureMesh);
 	} else{
 		PrimitiveObject3dMesh *primitiveMesh = new PrimitiveObject3dMesh();
-		modelData->usePso_ = System::getInstance()->getPrimitivePso();
 
 		std::vector<PrimitiveVertexData> primVert;
 		for(auto &texVert : vertices){
@@ -295,8 +296,20 @@ void Model::Init(){
 	fovMa_.reset(
 		maPtr
 	);
+
 	dxCommand_ = std::make_unique<DXCommand>();
 	dxCommand_->Init(System::getInstance()->getDXDevice()->getDevice(),"main","main");
+
+	size_t index = 0;
+	for(auto &primShaderKey : PrimitiveDrawer::getTrianglePsoKeys()){
+		primitivePso_[index] = ShaderManager::getInstance()->getPipelineStateObj(primShaderKey);
+		index++;
+	}
+	index = 0;
+	for(auto &texShaderKey : System::getInstance()->getTexturePsoKeys()){
+		texturePso_[index]=ShaderManager::getInstance()->getPipelineStateObj(texShaderKey);
+		index++;
+	}
 }
 
 void Model::Finalize(){
@@ -304,12 +317,25 @@ void Model::Finalize(){
 	dxCommand_->Finalize();
 }
 
-void Model::DrawThis(const WorldTransform &world,const ViewProjection &view){
+void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,BlendMode blend){
 	auto *commandList = dxCommand_->getCommandList();
 
 	for(auto &model : data_){
-		commandList->SetGraphicsRootSignature(model->usePso_->rootSignature.Get());
-		commandList->SetPipelineState(model->usePso_->pipelineState.Get());
+
+		if(model->materialData.textureNumber != nullptr){
+			commandList->SetGraphicsRootSignature(texturePso_[static_cast<uint32_t>(blend)]->rootSignature.Get());
+			commandList->SetPipelineState(texturePso_[static_cast<uint32_t>(blend)]->pipelineState.Get());
+			ID3D12DescriptorHeap *ppHeaps[] = {DXHeap::getInstance()->getSrvHeap()};
+			commandList->SetDescriptorHeaps(1,ppHeaps);
+			commandList->SetGraphicsRootDescriptorTable(
+				4,
+				TextureManager::getDescriptorGpuHandle(*model->materialData.textureNumber.get())
+			);
+		} else{
+			commandList->SetGraphicsRootSignature(primitivePso_[static_cast<uint32_t>(blend)]->rootSignature.Get());
+			commandList->SetPipelineState(primitivePso_[static_cast<uint32_t>(blend)]->pipelineState.Get());
+		}
+
 
 		commandList->IASetVertexBuffers(0,1,&model->meshBuff_->vbView);
 		commandList->IASetIndexBuffer(&model->meshBuff_->ibView);
@@ -320,20 +346,12 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view){
 		model->material_->SetForRootParameter(commandList,2);
 		System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
 
-		if(model->materialData.textureNumber != nullptr){
-			ID3D12DescriptorHeap *ppHeaps[] = {DXHeap::getInstance()->getSrvHeap()};
-			commandList->SetDescriptorHeaps(1,ppHeaps);
-			commandList->SetGraphicsRootDescriptorTable(
-				4,
-				TextureManager::getDescriptorGpuHandle(*model->materialData.textureNumber.get())
-			);
-		}
 		// 描画!!!
 		commandList->DrawIndexedInstanced(UINT(model->indexSize),1,0,0,0);
 	}
 }
 
-void Model::Draw(const WorldTransform &world,const ViewProjection &view){
-	drawFuncTable_[(size_t)currentState_](world,view);
+void Model::Draw(const WorldTransform &world,const ViewProjection &view,BlendMode blend){
+	drawFuncTable_[(size_t)currentState_](world,view,blend);
 }
 #pragma endregion

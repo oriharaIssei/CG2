@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "DXCommand.h"
+#include "ShaderManager.h"
 #include <PipelineStateObj.h>
 
 #include "Material.h"
@@ -22,7 +23,6 @@ struct ModelMtl{
 };
 struct ModelData{
 	std::unique_ptr<IObject3dMesh> meshBuff_;
-	PipelineStateObj *usePso_ = nullptr;
 
 	ModelMtl materialData;
 
@@ -43,19 +43,22 @@ public:
 private:
 	static std::unique_ptr<ModelManager> manager_;
 
+	static std::array<PipelineStateObj *,kBlendNum> primitivePso_;
+	static std::array<PipelineStateObj *,kBlendNum> texturePso_;
+
 	static std::unique_ptr<DXCommand> dxCommand_;
 
 	static std::unique_ptr<Matrix4x4> fovMa_;
 public:
 	Model() = default;
 
-	void Draw(const WorldTransform &world,const ViewProjection &view);
+	void Debug();
+
+	void Draw(const WorldTransform &world,const ViewProjection &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal);
 private:
-	void NotDraw(const WorldTransform &world,const ViewProjection &view){
-		return;
-		world; view;
-	}
-	void DrawThis(const WorldTransform &world,const ViewProjection &view);
+	void NotDraw([[maybe_unused]] const WorldTransform &world,[[maybe_unused]] const ViewProjection &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal){}
+
+	void DrawThis(const WorldTransform &world,const ViewProjection &view,BlendMode blend = BlendMode::Normal);
 private:
 	std::vector<std::unique_ptr<ModelData>> data_;
 	enum class LoadState{
@@ -63,9 +66,9 @@ private:
 		Loaded,
 	};
 	LoadState currentState_;
-	std::array<std::function<void(const WorldTransform &,const ViewProjection &)>,2> drawFuncTable_ = {
-		[this](const WorldTransform &world,const ViewProjection &view){ NotDraw(world,view); },
-		[this](const WorldTransform &world,const ViewProjection &view){ DrawThis(world,view); }
+	std::array<std::function<void(const WorldTransform &,const ViewProjection &,BlendMode)>,2> drawFuncTable_ = {
+		[this](const WorldTransform &world,const ViewProjection &view,BlendMode blend){ NotDraw(world,view,blend); },
+		[this](const WorldTransform &world,const ViewProjection &view,BlendMode blend = BlendMode::Alpha){ DrawThis(world,view,blend); }
 	};
 public:
 	const std::vector<std::unique_ptr<ModelData>> &getData()const{ return data_; }

@@ -153,6 +153,9 @@
     <ClCompile Include="Code\GameScene\GameObject\SphereObject.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Code\System\DirectX12\ShaderManager\ShaderManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\System\WinApp\WinApp.h">
@@ -305,6 +308,9 @@
     <ClInclude Include="Code\GameScene\GameObject\SphereObject.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Code\System\DirectX12\ShaderManager\ShaderManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Code\System\Shader\Object3dTexture.PS.hlsl" />
@@ -319,10 +325,10 @@
     <FxCompile Include="resource\Shader\Object3d.VS.hlsl" />
     <FxCompile Include="resource\Shader\Object3dTexture.PS.hlsl" />
     <FxCompile Include="resource\Shader\Object3dTexture.VS.hlsl" />
-    <FxCompile Include="resource\Shader\Sprite.PS.hlsl" />
-    <FxCompile Include="resource\Shader\Sprite.VS.hlsl" />
     <FxCompile Include="resource\Shader\Particle.PS.hlsl" />
     <FxCompile Include="resource\Shader\Particle.VS.hlsl" />
+    <FxCompile Include="resource\Shader\Sprite.PS.hlsl" />
+    <FxCompile Include="resource\Shader\Sprite.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />

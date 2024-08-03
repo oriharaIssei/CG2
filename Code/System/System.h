@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include <array>
 #include <vector>
 
 #include <memory>
@@ -19,6 +20,7 @@
 #include "Input.h"
 #include "PipelineStateObj.h"
 #include "ShaderCompiler.h"
+#include "ShaderManager.h"
 #include "WinApp.h"
 
 #include <Model.h>
@@ -48,7 +50,6 @@ private:
 	~System(){};
 	System(const System &) = delete;
 	const System &operator=(const System &) = delete;
-	void CreatePrimitivePSO(std::unique_ptr<PipelineStateObj> &pso,D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType);
 	void CreateTexturePSO();
 private:
 	std::unique_ptr<WinApp> window_;
@@ -63,10 +64,9 @@ private:
 	std::unique_ptr<DXRenterTargetView> dxRenderTarget_;
 	std::unique_ptr<DXDepthStencilView> dxDepthStencil_;
 
-	std::unique_ptr<ShaderCompiler> shaderCompiler_;
 
-	std::unique_ptr<PipelineStateObj> texturePso_;
-	std::unique_ptr<PipelineStateObj> primitivePso_;
+	std::array<PipelineStateObj *,kBlendNum> texturePso_;
+	std::array<std::string,kBlendNum> texturePsoKeys_;
 
 	std::unique_ptr<MaterialManager> materialManager_;
 	std::unique_ptr<LightBuffer> standerdLight_;
@@ -81,13 +81,12 @@ public:
 
 	MaterialManager *getMaterialManager()const{ return materialManager_.get(); }
 
-	PipelineStateObj *getPrimitivePso(){ return primitivePso_.get(); }
-	PipelineStateObj *getTexturePso(){ return texturePso_.get(); }
+	PipelineStateObj *getTexturePso(BlendMode blend)const{ return texturePso_[static_cast<size_t>(blend)]; }
 
-	ShaderCompiler *getShaderCompiler(){ return shaderCompiler_.get(); }
+	const std::array<std::string,kBlendNum> &getTexturePsoKeys()const{ return texturePsoKeys_; }
 
 	const LightBuffer *getStanderdLight()const{ return standerdLight_.get(); }
-
+};
 };
 
 const std::string defaultReosurceFolder = "./resource";
