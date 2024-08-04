@@ -110,7 +110,6 @@ void System::Finalize(){
 #endif // _DEBUG
 }
 
-
 //
 //void System::DrawSphere(const Matrix4x4 &world, const Matrix4x4 &view, const Vector4 &color) {
 //	constexpr int kSubDivision=16;
@@ -492,7 +491,6 @@ void System::Finalize(){
 //	// 描画!!!
 //	dxCommon_->getCommandList()->DrawIndexedInstanced((UINT)(kSubDivision * kSubDivision * 6), 1, 0, 0, 0);
 //}
-
 
 void System::CreateTexturePSO(){
 	ShaderManager *shaderManager_ = ShaderManager::getInstance();

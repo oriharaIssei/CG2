@@ -49,19 +49,6 @@ Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string 
 	return result;
 }
 
-void Sprite::PreDraw(){
-	drawCount_ = 0;
-	DXFH::SetViewportsAndScissor(dxCommand_.get(),System::getInstance()->getWinApp());
-	dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-void Sprite::PostDraw(){
-	if(drawCount_ <= 0){
-		return;
-	}
-	//System::getInstance()->RegisterActiveCommand(dxCommand_.get());
-}
-
 void Sprite::CreatePSO(){
 	ShaderManager *shaderManager = ShaderManager::getInstance();
 
@@ -127,7 +114,18 @@ void Sprite::CreatePSO(){
 	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	shaderInfo.pushBackInputElementDesc(inputElementDescs[1]);
 
-	shaderManager->CreatePso("Sprite",shaderInfo,System::getInstance()->getDXDevice()->getDevice());
+	std::string psoKeys[kBlendNum] = {
+		"Sprite_None",
+		"Sprite_Alpha",
+		"Sprite_Add",
+		"Sprite_Sub",
+		"Sprite_Multiply",
+		"Sprite_Screen"
+	};
+
+	for(size_t i = 0; i < kBlendNum; i++){
+		pso_[i] = shaderManager->CreatePso(psoKeys[i],shaderInfo,System::getInstance()->getDXDevice()->getDevice());
+	}
 }
 
 void Sprite::Draw(){

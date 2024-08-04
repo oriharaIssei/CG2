@@ -22,10 +22,12 @@ protected:
 	int currentTextureNum_;
 
 	MaterialManager *materialManager_;
-	Material *material_;
-	char materialName[32];
+	[[maybe_unused]] Material *material_;
 
 	[[maybe_unused]] WorldTransform transform_;
+
+	std::vector<const char *> materialNameVector_;
+	std::vector<int> checkedMaterial_;
 
 	std::string name_;
 public:

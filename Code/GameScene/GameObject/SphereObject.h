@@ -4,6 +4,7 @@
 
 #include <memory>
 
+#include "Object3dMesh.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 
@@ -16,4 +17,5 @@ public:
 	void Updata()override;
 	void Draw(const ViewProjection &viewProj)override;
 private:
+	std::unique_ptr<PrimitiveObject3dMesh> mesh_;
 };

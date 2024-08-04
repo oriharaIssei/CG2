@@ -230,12 +230,12 @@ void PrimitiveDrawer::CreatePso(System *system){
 	///=================================================
 	for(size_t i = 0; i < kBlendNum; ++i){
 		primShaderInfo.blendMode_=static_cast<BlendMode>(i);
-		shaderManager->CreatePso(trianglePsoKeys_[i],primShaderInfo,system->getDXDevice()->getDevice());
+		trianglePso_[i]=shaderManager->CreatePso(trianglePsoKeys_[i],primShaderInfo,system->getDXDevice()->getDevice());
 	}
 	// line も
 	primShaderInfo.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 	for(size_t i = 0; i < kBlendNum; ++i){
 		primShaderInfo.blendMode_=static_cast<BlendMode>(i);
-		shaderManager->CreatePso(linePsoKeys_[i],primShaderInfo,system->getDXDevice()->getDevice());
+		linePso_[i]=shaderManager->CreatePso(linePsoKeys_[i],primShaderInfo,system->getDXDevice()->getDevice());
 	}
 }

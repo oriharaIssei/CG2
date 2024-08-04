@@ -76,6 +76,7 @@ public:
 	void Finalize();
 private:
 	std::unordered_map<std::string,std::unique_ptr<Material>> materialPallete_;
+	char newMaterialName_[64];
 public:
 	Material *getMaterial(const std::string &materialName) const{
 		auto it = materialPallete_.find(materialName);
@@ -86,6 +87,8 @@ public:
 			return nullptr; // または適切なエラー処理を行う
 		}
 	}
+
+	const std::unordered_map<std::string,std::unique_ptr<Material>> &getMaterialPallete()const{ return materialPallete_; }
 
 	void Edit(const std::string &materialName,const MaterialData &data);
 	void EditColor(const std::string &materialName,const Vector4 &color);

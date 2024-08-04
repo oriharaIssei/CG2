@@ -20,7 +20,9 @@
 #include <stdint.h>
 #include <Vector3.h>
 
+class SphereObject;
 class PrimitiveDrawer{
+	friend class SphereObject;
 public:
 	static void Init();
 	static void Finalize();

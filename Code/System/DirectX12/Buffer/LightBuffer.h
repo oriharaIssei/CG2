@@ -25,5 +25,4 @@ public:
 private:
 	DirectionalLight *directionalLigh_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
-public:
 };

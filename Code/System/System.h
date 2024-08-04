@@ -85,8 +85,7 @@ public:
 
 	const std::array<std::string,kBlendNum> &getTexturePsoKeys()const{ return texturePsoKeys_; }
 
-	const LightBuffer *getStanderdLight()const{ return standerdLight_.get(); }
-};
+	LightBuffer *getStanderdLight()const{ return standerdLight_.get(); }
 };
 
 const std::string defaultReosurceFolder = "./resource";

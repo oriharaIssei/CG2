@@ -6,9 +6,11 @@
 
 std::list<std::pair<std::string,std::string>> IGameObject::textureList_;
 
-void IGameObject::Init([[maybe_unused]]const std::string &directryPath,const std::string &objectName){
+void IGameObject::Init([[maybe_unused]] const std::string &directryPath,const std::string &objectName){
 	name_ = objectName;
 	materialManager_ = System::getInstance()->getMaterialManager();
+
+	checkedMaterial_.push_back(0);
 }
 
 void IGameObject::Updata(){
@@ -17,8 +19,14 @@ void IGameObject::Updata(){
 	ImGui::DragFloat3("Translate",&transform_.translate.x,0.1f);
 	transform_.Update();
 
-	ImGui::InputText("New MaterialName",materialName,32);
-	if(ImGui::Button("Changing to new Material")){
-		material_ = materialManager_->getMaterial(materialName);
+	if(!materialNameVector_.empty()){
+		materialNameVector_.clear();
+	}
+	for(auto &material : materialManager_->getMaterialPallete()){
+		materialNameVector_.push_back(material.first.c_str());
+	}
+
+	if(ImGui::Combo("Materials",&checkedMaterial_[0],materialNameVector_.data(),materialNameVector_.size())){
+		material_ = materialManager_->Create(materialNameVector_[checkedMaterial_[0]]);
 	}
 }

@@ -7,8 +7,7 @@
 #include "System.h"
 
 void ModelObject::Init(const std::string &directryPath,const std::string &objectName){
-	name_ = objectName;
-	materialManager_ = System::getInstance()->getMaterialManager();
+	IGameObject::Init(directryPath,objectName);
 
 	model_ = Model::Create(directryPath,objectName + ".obj");
 
@@ -18,19 +17,29 @@ void ModelObject::Init(const std::string &directryPath,const std::string &object
 void ModelObject::Updata(){
 #ifdef _DEBUG
 	ImGui::Begin(name_.c_str());
-	IGameObject::Updata();
+	ImGui::DragFloat3("Scale",&transform_.scale.x,0.1f);
+	ImGui::DragFloat3("Rotate",&transform_.rotate.x,0.1f);
+	ImGui::DragFloat3("Translate",&transform_.translate.x,0.1f);
+	transform_.Update();
 
+	if(!materialNameVector_.empty()){
+		materialNameVector_.clear();
+	}
+	for(auto &material : materialManager_->getMaterialPallete()){
+		materialNameVector_.push_back(material.first.c_str());
+	}
+
+	if(checkedMaterial_.size() < model_->getData().size()){
+		checkedMaterial_.resize(model_->getData().size());
+	}
+
+	int index = 0;
 	for(auto &data : model_->getData()){
-		if(ImGui::BeginChild("TextureList")){
-			for(auto &texture : textureList_){
-				ImGui::Bullet();
-				if(!ImGui::Button(texture.second.c_str())){
-					continue;
-				}
-				*data->materialData.textureNumber = TextureManager::LoadTexture(texture.first + texture.second);
-			}
+		// ImGui::InputTextを使用して文字列の入力を受け取る
+		if(ImGui::Combo(std::string("# " + std::to_string(index) + "Material").c_str(),&checkedMaterial_[index],materialNameVector_.data(),materialNameVector_.size())){
+			data->material_ = materialManager_->getMaterial(materialNameVector_[checkedMaterial_[index]]);
 		}
-		ImGui::EndChild();
+		index++;
 	}
 
 	ImGui::End();

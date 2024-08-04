@@ -22,8 +22,7 @@ void GameScene::Init(){
 	viewProj_.Init();
 	input_ = Input::getInstance();
 
-	materialManager_ = std::make_unique<MaterialManager>();
-	materialManager_->Create("white");
+	materialManager_ = System::getInstance()->getMaterialManager();
 
 	textureList_ = myFs::SearchFile("./resource","png");
 	objectList_ = myFs::SearchFile("./resource","obj");
@@ -41,6 +40,16 @@ void GameScene::Update(){
 	viewProj_.ConvertToBuffer();
 
 	materialManager_->DebugUpdate();
+
+	ImGui::Begin("Light");
+	LightBuffer *light = System::getInstance()->getStanderdLight();
+	ImGui::DragFloat3("Direction",&light->direction.x,0.01f);
+	light->direction = light->direction.Normalize();
+	ImGui::DragFloat4("Color",&light->color.x,0.01f,0.0f,1.0f);
+	ImGui::SliderFloat("Intensity",&light->intensity,0.0f,1.0f);
+	light->ConvertToBuffer();
+	ImGui::End();
+
 	ImGui::Begin("GameObjectsManager");
 
 	if(ImGui::TreeNode("TextureFiles")){
