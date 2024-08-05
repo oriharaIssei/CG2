@@ -305,9 +305,10 @@ void Model::Init(){
 		primitivePso_[index] = ShaderManager::getInstance()->getPipelineStateObj(primShaderKey);
 		index++;
 	}
+
 	index = 0;
 	for(auto &texShaderKey : System::getInstance()->getTexturePsoKeys()){
-		texturePso_[index]=ShaderManager::getInstance()->getPipelineStateObj(texShaderKey);
+		texturePso_[index] = ShaderManager::getInstance()->getPipelineStateObj(texShaderKey);
 		index++;
 	}
 }
@@ -322,7 +323,7 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,Blen
 
 	for(auto &model : data_){
 
-		if(model->materialData.textureNumber != nullptr){
+		if(model->materialData.textureNumber){
 			commandList->SetGraphicsRootSignature(texturePso_[static_cast<uint32_t>(blend)]->rootSignature.Get());
 			commandList->SetPipelineState(texturePso_[static_cast<uint32_t>(blend)]->pipelineState.Get());
 			ID3D12DescriptorHeap *ppHeaps[] = {DXHeap::getInstance()->getSrvHeap()};

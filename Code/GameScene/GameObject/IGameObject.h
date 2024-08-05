@@ -32,4 +32,5 @@ protected:
 	std::string name_;
 public:
 	void setMaterialManager(MaterialManager *materialManager){ materialManager_ = materialManager; }
+	const std::string &getName()const{ return name_; }
 };

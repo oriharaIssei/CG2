@@ -5,7 +5,13 @@
 
 #include <imgui.h>
 
-const char *lightTypes[] = {"NONE","HALF_LAMBERT","LAMBERT"};
+const char *lightTypes[] = {
+	"NONE",
+	"HALF_LAMBERT",
+	"LAMBERT",
+	"PHONG_REFLECTION",
+	"BLINN_PHONG_REFLECTION"
+};
 
 void Material::Init(){
 	DXFH::CreateBufferResource(System::getInstance()->getDXDevice(),constBuff_,sizeof(ConstBufferMaterial));
@@ -54,38 +60,36 @@ Material *MaterialManager::Create(const std::string &materialName,const Material
 
 void MaterialManager::DebugUpdate(){
 #ifdef _DEBUG
-	ImGui::Begin("Materials");
-	bool isEnableLighting = false;
 	for(auto &material : materialPallete_){
 		if(!ImGui::TreeNode(material.first.c_str())){
 			continue;
 		}
 		ImGui::TreePop();
 		ImGui::ColorEdit4(std::string(material.first + "Color").c_str(),&material.second->mappingData_->color.x);
-		isEnableLighting = static_cast<bool>(material.second->mappingData_->enableLighting);
 
-		ImGui::Combo("Lighting Type",
+		ImGui::Combo((material.first + " Lighting Type").c_str(),
 					 (int *)&material.second->mappingData_->enableLighting,
 					 lightTypes,
 					 IM_ARRAYSIZE(lightTypes),
 					 3);
 
-		ImGui::DragFloat3("uvScale",&material.second->uvScale_.x,0.1f);
-		ImGui::DragFloat3("uvRotate",&material.second->uvRotate_.x,0.1f);
-		ImGui::DragFloat3("uvTranslate",&material.second->uvTranslate_.x,0.1f);
+		ImGui::DragFloat3((material.first + " uvScale").c_str(),&material.second->uvScale_.x,0.1f);
+		ImGui::DragFloat3((material.first + " uvRotate").c_str(),&material.second->uvRotate_.x,0.1f);
+		ImGui::DragFloat3((material.first + " uvTranslate").c_str(),&material.second->uvTranslate_.x,0.1f);
+
+		ImGui::DragFloat((material.first + " Shininess").c_str(),&material.second->mappingData_->shininess,0.01f);
+		ImGui::DragFloat3((material.first + " SpecularColor").c_str(),&material.second->mappingData_->specularColor.x,0.01f,0.0f,1.0f);
 
 		material.second->mappingData_->uvTransform = MakeMatrix::Affine(material.second->uvScale_,material.second->uvRotate_,material.second->uvTranslate_);
 	}
 
-	ImGui::Spacing();
-	ImGui::Separator();
+	ImGui::Dummy(ImVec2(0.0f,12.0f));
 
-	ImGui::InputText("MaterialName",newMaterialName_,64);	
+	ImGui::InputText("MaterialName",newMaterialName_,64);
 	if(ImGui::Button("Create",{64,24})){
 		Create(newMaterialName_);
 	}
 
-	ImGui::End();
 #endif // _DEBUG
 }
 

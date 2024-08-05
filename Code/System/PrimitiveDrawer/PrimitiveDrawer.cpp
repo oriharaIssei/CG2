@@ -194,9 +194,8 @@ void PrimitiveDrawer::CreatePso(System *system){
 	primShaderInfo.pushBackRootParameter(rootParameter);
 
 	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	// VertexShaderで使う
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameter.Descriptor.ShaderRegister = 1;
+	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootParameter.Descriptor.ShaderRegister = 2;
 	primShaderInfo.pushBackRootParameter(rootParameter);
 
 	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;

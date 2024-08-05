@@ -8,21 +8,23 @@
 #include <Transform.h>
 #include <Vector3.h>
 
-struct ConstBufferDataViewProjection {
+struct ConstBufferDataViewProjection{
+	Vector3 cameraPos;
+	float padding;
 	Matrix4x4 view;       // ワールド → ビュー変換行列
 	Matrix4x4 projection; // ビュー → プロジェクション変換行列
 };
 
-class ViewProjection {
+class ViewProjection{
 public:
 	void Init();
 	void Finalize();
 	void UpdateMatrix();
 	void ConvertToBuffer();
-	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList, UINT rootParameterNum)const;
+	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const;
 
-	Vector3 rotate = { 0.0f,0.0f,0.0f };
-	Vector3 translate={0.0f,0.0f,0.0f};
+	Vector3 rotate = {0.0f,0.0f,0.0f};
+	Vector3 translate = {0.0f,0.0f,0.0f};
 
 	Matrix4x4 viewMat;
 
@@ -36,6 +38,7 @@ public:
 	float farZ = 1000.0f;
 	Matrix4x4 projectionMat;
 private:
+	Vector3 cameraPos_;
 	ConstBufferDataViewProjection *mappingData_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> buff_;

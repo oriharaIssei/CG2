@@ -76,10 +76,10 @@ void System::Init(){
 	standerdLight_->Init();
 	standerdLight_->ConvertToBuffer();
 
+	PrimitiveDrawer::Init();
 	Model::Init();
 	Sprite::Init();
-	PrimitiveDrawer::Init();
-
+	
 	materialManager_ = std::make_unique<MaterialManager>();
 }
 
@@ -515,8 +515,8 @@ void System::CreateTexturePSO(){
 	texShaderInfo.pushBackRootParameter(rootParameter);
 
 	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameter.Descriptor.ShaderRegister = 1;
+	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootParameter.Descriptor.ShaderRegister = 2;
 	texShaderInfo.pushBackRootParameter(rootParameter);
 
 	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;

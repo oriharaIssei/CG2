@@ -16,7 +16,6 @@ void ModelObject::Init(const std::string &directryPath,const std::string &object
 
 void ModelObject::Updata(){
 #ifdef _DEBUG
-	ImGui::Begin(name_.c_str());
 	ImGui::DragFloat3("Scale",&transform_.scale.x,0.1f);
 	ImGui::DragFloat3("Rotate",&transform_.rotate.x,0.1f);
 	ImGui::DragFloat3("Translate",&transform_.translate.x,0.1f);
@@ -41,8 +40,6 @@ void ModelObject::Updata(){
 		}
 		index++;
 	}
-
-	ImGui::End();
 #endif // _DEBUG
 }
 

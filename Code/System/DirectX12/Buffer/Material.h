@@ -18,6 +18,8 @@ struct ConstBufferMaterial{
 	uint32_t enableLighting;
 	float padding[3];// 下記を参照
 	Matrix4x4 uvTransform;
+	float shininess;
+	Vector3 specularColor;
 	/*
 		< パディング >
 	機会に都合のいいような
@@ -46,6 +48,8 @@ struct MaterialData{
 	Vector4 color;
 	uint32_t enableLighting;
 	Matrix4x4 uvTransform;
+	float shininess;
+	Vector3 specularColor;
 };
 
 class MaterialManager;

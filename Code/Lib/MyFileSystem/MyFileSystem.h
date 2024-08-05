@@ -6,9 +6,16 @@
 
 #include <filesystem>
 
-class MyFileSystem {
+class MyFileSystem{
 public:
+	/// <summary>
+	/// 特定のファイルフォーマットを検索
+	/// </summary>
+	/// <param name="directory">検索するフォルダーのパス</param>
+	/// <param name="extension">fileFormat (.pngとか)</param>
+	/// <returns>first = directory, second = fileName </returns>
 	static std::list<std::pair<std::string,std::string>> SearchFile(const std::string &directory,const std::string &extension);
+	
 	static std::list<std::string> SearchSubFolder(const std::string &directory);
 
 	static bool CreateFolder(const std::string &directory);

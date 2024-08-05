@@ -339,5 +339,6 @@
     <None Include="resource\Shader\Object3dTexture.hlsli" />
     <None Include="resource\Shader\Sprite.hlsli" />
     <None Include="resource\Shader\Particle.hlsli" />
+    <None Include="Code\System\Shader\Sprite.hlsli" />
   </ItemGroup>
 </Project>
