@@ -10,7 +10,8 @@ const char *lightTypes[] = {
 	"HALF_LAMBERT",
 	"LAMBERT",
 	"PHONG_REFLECTION",
-	"BLINN_PHONG_REFLECTION"
+	"BLINN_PHONG_REFLECTION",
+
 };
 
 void Material::Init(){

@@ -1,6 +1,6 @@
 #include "ViewProjection.h"
 
-#include <System.h>
+#include "System.h"
 #include "DXFunctionHelper.h"
 
 void ViewProjection::Init(){
@@ -23,6 +23,7 @@ void ViewProjection::UpdateMatrix(){
 void ViewProjection::ConvertToBuffer(){
 	mappingData_->cameraPos = translate;
 	mappingData_->view = viewMat;
+	mappingData_->viewTranspose = viewMat.Transpose();
 	mappingData_->projection = projectionMat;
 }
 
