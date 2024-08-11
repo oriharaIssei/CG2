@@ -7,7 +7,7 @@ std::unordered_map < std::string,Microsoft::WRL::ComPtr<ID3D12GraphicsCommandLis
 std::unordered_map<std::string,Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> DXCommand::commandAllocatorMap_;
 std::unordered_map<std::string,Microsoft::WRL::ComPtr<ID3D12CommandQueue>> DXCommand::commandQueueMap_;
 
-void DXCommand::CreateCommandListWithAllocator(ID3D12Device *device,const std::string &listAndAllocatorKey,D3D12_COMMAND_LIST_TYPE listType) {
+void DXCommand::CreateCommandListWithAllocator(ID3D12Device *device,const std::string &listAndAllocatorKey,D3D12_COMMAND_LIST_TYPE listType){
 	commandListMap_[listAndAllocatorKey] = nullptr;
 	commandAllocatorMap_[listAndAllocatorKey] = nullptr;
 
@@ -27,7 +27,7 @@ void DXCommand::CreateCommandListWithAllocator(ID3D12Device *device,const std::s
 	assert(SUCCEEDED(result));
 }
 
-void DXCommand::CreateCommandQueue(ID3D12Device *device,const std::string &queueKey,D3D12_COMMAND_QUEUE_DESC desc) {
+void DXCommand::CreateCommandQueue(ID3D12Device *device,const std::string &queueKey,D3D12_COMMAND_QUEUE_DESC desc){
 	commandQueueMap_[queueKey] = nullptr;
 
 	HRESULT result = device->CreateCommandQueue(
@@ -36,14 +36,14 @@ void DXCommand::CreateCommandQueue(ID3D12Device *device,const std::string &queue
 	assert(SUCCEEDED(result));
 };
 
-void DXCommand::Init(ID3D12Device *device,const std::string &commandListKey,const std::string &commandQueueKey) {
+void DXCommand::Init(ID3D12Device *device,const std::string &commandListKey,const std::string &commandQueueKey){
 	HRESULT result;
 
-	if(commandQueueMap_.count(commandQueueKey) == 0) {
+	if(commandQueueMap_.count(commandQueueKey) == 0){
 		///================================================
 		///	CommandQueue の生成
 		///================================================
-		D3D12_COMMAND_QUEUE_DESC commandQueueDesc {};
+		D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
 
 		result = device->CreateCommandQueue(&commandQueueDesc,IID_PPV_ARGS(&commandQueueMap_[commandQueueKey]));
 		assert(SUCCEEDED(result));
@@ -51,7 +51,7 @@ void DXCommand::Init(ID3D12Device *device,const std::string &commandListKey,cons
 	}
 	commandQueue_ = commandQueueMap_[commandQueueKey];
 
-	if(commandListMap_.count(commandListKey) == 0) {
+	if(commandListMap_.count(commandListKey) == 0){
 		///================================================
 		///	CommandList & CommandAllocator の生成
 		///================================================
@@ -76,14 +76,14 @@ void DXCommand::Init(ID3D12Device *device,const std::string &commandListKey,cons
 	commandAllocator_ = commandAllocatorMap_[commandListKey];
 }
 
-void DXCommand::Init(ID3D12Device *device,const std::string &commandListKey,const std::string &commandQueueKey,D3D12_COMMAND_LIST_TYPE listType) {
+void DXCommand::Init(ID3D12Device *device,const std::string &commandListKey,const std::string &commandQueueKey,D3D12_COMMAND_LIST_TYPE listType){
 	HRESULT result;
 
-	if(commandQueueMap_.count(commandQueueKey) == 0) {
+	if(commandQueueMap_.count(commandQueueKey) == 0){
 		///================================================
 		///	CommandQueue の生成
 		///================================================
-		D3D12_COMMAND_QUEUE_DESC commandQueueDesc {};
+		D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
 
 		result = device->CreateCommandQueue(
 			&commandQueueDesc,
@@ -98,7 +98,7 @@ void DXCommand::Init(ID3D12Device *device,const std::string &commandListKey,cons
 	   ///================================================
 	   ///	CommandList & CommandAllocator の生成
 	   ///================================================
-	   commandAllocatorMap_.count(commandListKey) == 0) {
+	   commandAllocatorMap_.count(commandListKey) == 0){
 		result = device->CreateCommandAllocator(
 			listType,
 			IID_PPV_ARGS(&commandAllocatorMap_[commandListKey])
@@ -119,23 +119,23 @@ void DXCommand::Init(ID3D12Device *device,const std::string &commandListKey,cons
 	commandAllocator_ = commandAllocatorMap_[commandListKey];
 }
 
-void DXCommand::CommandReset() {
+void DXCommand::CommandReset(){
 	HRESULT hr = commandAllocator_->Reset();
 	assert(SUCCEEDED(hr));
 	hr = commandList_->Reset(commandAllocator_.Get(),nullptr);
 	assert(SUCCEEDED(hr));
 }
 
-void DXCommand::ResourceBarrier(UINT NumBarriers,const D3D12_RESOURCE_BARRIER *pBarriers) {
+void DXCommand::ResourceBarrier(UINT NumBarriers,const D3D12_RESOURCE_BARRIER *pBarriers){
 	commandList_->ResourceBarrier(NumBarriers,pBarriers);
 }
 
-void DXCommand::ExecuteCommand() {
+void DXCommand::ExecuteCommand(){
 	ID3D12CommandList *commandLists[] = {commandList_.Get()};
 	commandQueue_->ExecuteCommandLists(1,commandLists);
 }
 
-void DXCommand::ExecuteCommandAndPresent(IDXGISwapChain4 *swapChain) {
+void DXCommand::ExecuteCommandAndPresent(IDXGISwapChain4 *swapChain){
 	///===============================================================
 	/// コマンドリストの実行
 	///===============================================================
@@ -143,23 +143,24 @@ void DXCommand::ExecuteCommandAndPresent(IDXGISwapChain4 *swapChain) {
 	commandQueue_->ExecuteCommandLists(1,commandLists);
 
 	HRESULT hr = swapChain->Present(1,0);
+	assert(SUCCEEDED(hr));
 	///===============================================================
 }
 
-void DXCommand::Finalize() {
+void DXCommand::Finalize(){
 	commandList_.Reset();
 	commandAllocator_.Reset();
 	commandQueue_.Reset();
 }
 
-void DXCommand::ResetAll() {
-	for(auto &list : commandListMap_) {
+void DXCommand::ResetAll(){
+	for(auto &list : commandListMap_){
 		list.second.Reset();
 	}
-	for(auto &allocator : commandAllocatorMap_) {
+	for(auto &allocator : commandAllocatorMap_){
 		allocator.second.Reset();
 	}
-	for(auto &queue : commandQueueMap_) {
+	for(auto &queue : commandQueueMap_){
 		queue.second.Reset();
 	}
 }

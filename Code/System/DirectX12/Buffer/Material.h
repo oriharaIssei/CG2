@@ -48,8 +48,8 @@ struct MaterialData{
 	Vector4 color;
 	uint32_t enableLighting;
 	Matrix4x4 uvTransform;
-	float shininess;
-	Vector3 specularColor;
+	float shininess = 10.0f;
+	Vector3 specularColor = {1.0f,1.0f,1.0f};
 };
 
 class MaterialManager;

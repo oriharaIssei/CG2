@@ -10,8 +10,8 @@
 #include "DXDevice.h"
 
 #include "DXCommand.h"
-#include "DXSwapChain.h"
 #include "DXFence.h"
+#include "DXSwapChain.h"
 
 #include "DXDepthStencilView.h"
 #include "DXRenterTargetView.h"
@@ -23,15 +23,16 @@
 #include "ShaderManager.h"
 #include "WinApp.h"
 
-#include <Model.h>
+#include "Model.h"
 
-#include <LightBuffer.h>
-#include <Material.h>
+#include "DirectionalLight.h"
+#include "Material.h"
+#include "PointLight.h"
 
-#include <Matrix4x4.h>
-#include <Vector2.h>
-#include <Vector3.h>
-#include <Vector4.h>
+#include "Matrix4x4.h"
+#include "Vector2.h"
+#include "Vector3.h"
+#include "Vector4.h"
 
 class System{
 	friend class PrimitiveDrawer;
@@ -69,7 +70,8 @@ private:
 	std::array<std::string,kBlendNum> texturePsoKeys_;
 
 	std::unique_ptr<MaterialManager> materialManager_;
-	std::unique_ptr<LightBuffer> standerdLight_;
+	std::unique_ptr<DirectionalLight> directionalLight_;
+	std::unique_ptr<PointLight> pointLight_;
 public:
 	WinApp *getWinApp(){ return window_.get(); }
 
@@ -85,7 +87,8 @@ public:
 
 	const std::array<std::string,kBlendNum> &getTexturePsoKeys()const{ return texturePsoKeys_; }
 
-	LightBuffer *getStanderdLight()const{ return standerdLight_.get(); }
+	DirectionalLight *getDirectionalLight()const{ return directionalLight_.get(); }
+	PointLight *getPointLight()const{ return pointLight_.get(); }
 };
 
 const std::string defaultReosurceFolder = "./resource";

@@ -139,7 +139,7 @@ void Emitter::Draw(const ViewProjection &viewProjection){
 	viewProjection.SetForRootParameter(commandList,1);
 
 	material_->SetForRootParameter(commandList,2);
-	System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
+	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
 
 	// 描画!!!
 	commandList->DrawIndexedInstanced(6,particleSize_,0,0,0);

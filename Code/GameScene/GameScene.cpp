@@ -2,8 +2,8 @@
 
 #include <System.h>
 #include <PrimitiveDrawer.h>
-#include <TextureManager.h>
 #include "MyFileSystem.h"
+#include <TextureManager.h>
 
 #include <string>
 
@@ -45,14 +45,9 @@ void GameScene::Update(){
 	materialManager_->DebugUpdate();
 	ImGui::End();
 
-	ImGui::Begin("Light");
-	LightBuffer *light = System::getInstance()->getStanderdLight();
-	ImGui::DragFloat3("Direction",&light->direction.x,0.01f,-1.0f,1.0f);
-	light->direction = light->direction.Normalize();
-	ImGui::DragFloat4("Color",&light->color.x,0.01f,0.0f,1.0f);
-	ImGui::SliderFloat("Intensity",&light->intensity,0.0f,1.0f);
-	light->ConvertToBuffer();
-	ImGui::End();
+
+	System::getInstance()->getDirectionalLight()->DebugUpdate();
+	System::getInstance()->getPointLight()->DebugUpdate();
 
 	ImGui::Begin("FileLists");
 	if(ImGui::TreeNode("TextureFiles")){

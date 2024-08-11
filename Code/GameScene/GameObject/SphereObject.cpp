@@ -114,7 +114,8 @@ void SphereObject::Draw(const ViewProjection &viewProj){
 	transform_.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material_->SetForRootParameter(commandList,2);
-	System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
+	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
+	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
 
 	commandList->DrawIndexedInstanced(
 		kIndexSize,1,0,0,0
