@@ -118,7 +118,7 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
-	System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
+	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
 
 	commandList->DrawIndexedInstanced(
 		3,1,startIndex * 3,0,0
@@ -158,7 +158,8 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
-	System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
+	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
+	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
 
 	commandList->DrawIndexedInstanced(
 		6,1,0,startVertex,0
@@ -184,29 +185,39 @@ void PrimitiveDrawer::CreatePso(System *system){
 	primShaderInfo.psKey = "Object3d.PS";
 
 #pragma region"RootParameter"
-	D3D12_ROOT_PARAMETER rootParameter{};
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	D3D12_ROOT_PARAMETER rootParameter[6]{};
+	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	// PixelShderで使う
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	// レジスタ番号0 とバインド
 	// register(b0) の 0. b11 なら 11
-	rootParameter.Descriptor.ShaderRegister = 0;
-	primShaderInfo.pushBackRootParameter(rootParameter);
+	rootParameter[0].Descriptor.ShaderRegister = 0;
+	primShaderInfo.pushBackRootParameter(rootParameter[0]);
 
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	rootParameter.Descriptor.ShaderRegister = 2;
-	primShaderInfo.pushBackRootParameter(rootParameter);
+	rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootParameter[1].Descriptor.ShaderRegister = 2;
+	primShaderInfo.pushBackRootParameter(rootParameter[1]);
 
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter.Descriptor.ShaderRegister = 0;
-	primShaderInfo.pushBackRootParameter(rootParameter);
+	rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[2].Descriptor.ShaderRegister = 0;
+	primShaderInfo.pushBackRootParameter(rootParameter[2]);
 
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter.Descriptor.ShaderRegister = 1;
-	primShaderInfo.pushBackRootParameter(rootParameter);
+	rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[3].Descriptor.ShaderRegister = 1;
+	primShaderInfo.pushBackRootParameter(rootParameter[3]);
+
+	rootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[4].Descriptor.ShaderRegister = 3;
+	primShaderInfo.pushBackRootParameter(rootParameter[4]);
+
+	rootParameter[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[5].Descriptor.ShaderRegister = 4;
+	primShaderInfo.pushBackRootParameter(rootParameter[5]);
 #pragma endregion
 
 #pragma region"Input Element"

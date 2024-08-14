@@ -11,7 +11,6 @@ const char *lightTypes[] = {
 	"LAMBERT",
 	"PHONG_REFLECTION",
 	"BLINN_PHONG_REFLECTION",
-
 };
 
 void Material::Init(){
@@ -78,8 +77,8 @@ void MaterialManager::DebugUpdate(){
 		ImGui::DragFloat3((material.first + " uvRotate").c_str(),&material.second->uvRotate_.x,0.1f);
 		ImGui::DragFloat3((material.first + " uvTranslate").c_str(),&material.second->uvTranslate_.x,0.1f);
 
-		ImGui::DragFloat((material.first + " Shininess").c_str(),&material.second->mappingData_->shininess,0.01f);
-		ImGui::DragFloat3((material.first + " SpecularColor").c_str(),&material.second->mappingData_->specularColor.x,0.01f,0.0f,1.0f);
+		ImGui::DragFloat((material.first + " Shininess").c_str(),&material.second->mappingData_->shininess,0.01f,0.0f,FLT_MAX);
+		ImGui::ColorEdit3((material.first + " SpecularColor").c_str(),&material.second->mappingData_->specularColor.x);
 
 		material.second->mappingData_->uvTransform = MakeMatrix::Affine(material.second->uvScale_,material.second->uvRotate_,material.second->uvTranslate_);
 	}

@@ -345,7 +345,7 @@ void Model::DrawThis(const WorldTransform &world,const ViewProjection &view,Blen
 		view.SetForRootParameter(commandList,1);
 
 		model->material_->SetForRootParameter(commandList,2);
-		System::getInstance()->getStanderdLight()->SetForRootParameter(commandList,3);
+		System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
 
 		// 描画!!!
 		commandList->DrawIndexedInstanced(UINT(model->indexSize),1,0,0,0);
