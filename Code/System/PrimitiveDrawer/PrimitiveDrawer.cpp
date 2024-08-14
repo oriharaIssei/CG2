@@ -185,7 +185,7 @@ void PrimitiveDrawer::CreatePso(System *system){
 	primShaderInfo.psKey = "Object3d.PS";
 
 #pragma region"RootParameter"
-	D3D12_ROOT_PARAMETER rootParameter[5]{};
+	D3D12_ROOT_PARAMETER rootParameter[6]{};
 	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	// PixelShderで使う
 	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
@@ -213,6 +213,11 @@ void PrimitiveDrawer::CreatePso(System *system){
 	rootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameter[4].Descriptor.ShaderRegister = 3;
 	primShaderInfo.pushBackRootParameter(rootParameter[4]);
+
+	rootParameter[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[5].Descriptor.ShaderRegister = 4;
+	primShaderInfo.pushBackRootParameter(rootParameter[5]);
 #pragma endregion
 
 #pragma region"Input Element"

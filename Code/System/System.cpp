@@ -80,6 +80,10 @@ void System::Init(){
 	pointLight_->Init();
 	pointLight_->ConvertToBuffer();
 
+	spotLight_ = std::make_unique<SpotLight>();
+	spotLight_->Init();
+	spotLight_->ConvertToBuffer();
+
 	PrimitiveDrawer::Init();
 	Model::Init();
 	Sprite::Init();
@@ -109,6 +113,7 @@ void System::Finalize(){
 	materialManager_->Finalize();
 	directionalLight_->Finalize();
 	pointLight_->Finalize();
+	spotLight_->Finalize();
 
 #ifdef _DEBUG
 	ImGuiManager::getInstance()->Finalize();

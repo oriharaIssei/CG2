@@ -54,11 +54,11 @@ void SphereObject::Draw(const ViewProjection &viewProj){
 				std::cosf(lat) * std::sinf(lon),
 				1.0f)
 			};
-			mesh_->vertData[startVertex].normal=Vector3(
+			mesh_->vertData[startVertex].normal= Vector3(
 				mesh_->vertData[startVertex].pos.x,
 				mesh_->vertData[startVertex].pos.y,
 				mesh_->vertData[startVertex].pos.z
-			).Normalize();
+			).Normalize() * -1.0f;
 
 			// lt 0,1
 			mesh_->vertData[startVertex + 1].pos = {Vector4(
@@ -71,7 +71,7 @@ void SphereObject::Draw(const ViewProjection &viewProj){
 				mesh_->vertData[startVertex + 1].pos.x,
 				mesh_->vertData[startVertex + 1].pos.y,
 				mesh_->vertData[startVertex + 1].pos.z
-			).Normalize();
+			).Normalize() * -1.0f;
 
 			//rb 1,0
 			mesh_->vertData[startVertex + 2].pos = {Vector4(
@@ -84,7 +84,7 @@ void SphereObject::Draw(const ViewProjection &viewProj){
 				mesh_->vertData[startVertex + 2].pos.x,
 				mesh_->vertData[startVertex + 2].pos.y,
 				mesh_->vertData[startVertex + 2].pos.z
-			).Normalize();
+			).Normalize() * -1.0f;
 
 			// rt 1,1
 			mesh_->vertData[startVertex + 3].pos = {Vector4(
@@ -97,7 +97,7 @@ void SphereObject::Draw(const ViewProjection &viewProj){
 				mesh_->vertData[startVertex + 3].pos.x,
 				mesh_->vertData[startVertex + 3].pos.y,
 				mesh_->vertData[startVertex + 3].pos.z
-			).Normalize();
+			).Normalize() * -1.0f;
 		}
 	}
 
@@ -116,7 +116,7 @@ void SphereObject::Draw(const ViewProjection &viewProj){
 	material_->SetForRootParameter(commandList,2);
 	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
 	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
-
+	System::getInstance()->getSpotLight()->SetForRootParameter(commandList,5);
 	commandList->DrawIndexedInstanced(
 		kIndexSize,1,0,0,0
 	);

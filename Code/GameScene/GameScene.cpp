@@ -48,6 +48,7 @@ void GameScene::Update(){
 
 	System::getInstance()->getDirectionalLight()->DebugUpdate();
 	System::getInstance()->getPointLight()->DebugUpdate();
+	System::getInstance()->getSpotLight()->DebugUpdate();
 
 	ImGui::Begin("FileLists");
 	if(ImGui::TreeNode("TextureFiles")){

@@ -142,6 +142,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\Light\DirectionalLight.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\Object3dMesh.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\Light\SpotLight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\GameScene\GameObject\IGameObject.h" />
@@ -157,6 +158,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\Math\Vector4.h" />
     <ClInclude Include="Code\System\DebugCamera\DebugCamera.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\Light\PointLight.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\Light\SpotLight.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\Material.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\ViewProjection.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\WorldTransform.h" />

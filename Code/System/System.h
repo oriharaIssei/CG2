@@ -25,9 +25,11 @@
 
 #include "Model.h"
 
-#include "DirectionalLight.h"
 #include "Material.h"
+
+#include "DirectionalLight.h"
 #include "PointLight.h"
+#include "SpotLight.h"
 
 #include "Matrix4x4.h"
 #include "Vector2.h"
@@ -70,8 +72,10 @@ private:
 	std::array<std::string,kBlendNum> texturePsoKeys_;
 
 	std::unique_ptr<MaterialManager> materialManager_;
+
 	std::unique_ptr<DirectionalLight> directionalLight_;
 	std::unique_ptr<PointLight> pointLight_;
+	std::unique_ptr<SpotLight> spotLight_;
 public:
 	WinApp *getWinApp(){ return window_.get(); }
 
@@ -89,6 +93,7 @@ public:
 
 	DirectionalLight *getDirectionalLight()const{ return directionalLight_.get(); }
 	PointLight *getPointLight()const{ return pointLight_.get(); }
+	SpotLight *getSpotLight()const{ return spotLight_.get(); }
 };
 
 const std::string defaultReosurceFolder = "./resource";
