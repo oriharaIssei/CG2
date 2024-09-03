@@ -6,23 +6,32 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
-struct DirectionalLight{
-	Vector4 color;
-	Vector3 direction;// ライトの向き
-	float intensity;// 輝度
-};
-
-class LightBuffer{
+class PointLight{
 public:
 	void Init();
 	void Finalize();
+
+	void DebugUpdate();
+
 	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const;
 	void ConvertToBuffer();
 
 	Vector4 color = {1.0f,1.0f,1.0f,1.0f};
-	Vector3 direction = {1.0f,1.0f,1.0f};
-	float intensity = 1.0f;
+	Vector3 pos = {0,0,0};
+	float intensity;
+	float radius;
+	float decay;
+	
 private:
-	DirectionalLight *directionalLigh_;
+	struct ConstBuffer{
+		Vector4 color;
+		Vector3 pos;
+		float intensity;
+		float radius;
+		float decay;
+		float padding[2];
+	};
+private:
+	ConstBuffer *mappingData_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
 };

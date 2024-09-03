@@ -72,14 +72,22 @@ void System::Init(){
 
 	TextureManager::Init();
 
-	standerdLight_ = std::make_unique<LightBuffer>();
-	standerdLight_->Init();
-	standerdLight_->ConvertToBuffer();
+	directionalLight_ = std::make_unique<DirectionalLight>();
+	directionalLight_->Init();
+	directionalLight_->ConvertToBuffer();
+
+	pointLight_ = std::make_unique<PointLight>();
+	pointLight_->Init();
+	pointLight_->ConvertToBuffer();
+
+	spotLight_ = std::make_unique<SpotLight>();
+	spotLight_->Init();
+	spotLight_->ConvertToBuffer();
 
 	PrimitiveDrawer::Init();
 	Model::Init();
 	Sprite::Init();
-	
+
 	materialManager_ = std::make_unique<MaterialManager>();
 }
 
@@ -103,7 +111,9 @@ void System::Finalize(){
 	input_->Finalize();
 
 	materialManager_->Finalize();
-	standerdLight_->Finalize();
+	directionalLight_->Finalize();
+	pointLight_->Finalize();
+	spotLight_->Finalize();
 
 #ifdef _DEBUG
 	ImGuiManager::getInstance()->Finalize();
