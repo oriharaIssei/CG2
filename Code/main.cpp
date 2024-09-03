@@ -10,7 +10,7 @@
 #include <d3d12sdklayers.h>
 
 int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int){
-	std::unique_ptr<DXDebug> debug = std::make_unique<DXDebug>();
+	DXDebug debug;
 	System *system = System::getInstance();
 	system->Init();
 

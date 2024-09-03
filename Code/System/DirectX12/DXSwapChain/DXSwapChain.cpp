@@ -6,11 +6,13 @@
 
 #include <cassert>
 
-void DXSwapChain::Init(const WinApp *winApp,const DXDevice *device,const DXCommand *command) {
+#include "DXRtvArrayManager.h"
+
+void DXSwapChain::Init(const WinApp *winApp,const DXDevice *device,const DXCommand *command){
 	///================================================
 	///	SwapChain の生成
 	///================================================
-	DXGI_SWAP_CHAIN_DESC1 swapchainDesc {};
+	DXGI_SWAP_CHAIN_DESC1 swapchainDesc{};
 	swapchainDesc.Width = winApp->getWidth();  //画面の幅。windowと同じにする
 	swapchainDesc.Height = winApp->getHeight(); //画面の高さ。windowと同じにする
 	swapchainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -36,23 +38,30 @@ void DXSwapChain::Init(const WinApp *winApp,const DXDevice *device,const DXComma
 	///================================================
 	///	Resource の初期化
 	///================================================
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
 	bufferCount_ = 3;
-	backBuffers_.resize(bufferCount_);
-	for(int i = 0; i < (int)bufferCount_; ++i) {
+
+	backBuffers_ = DXRtvArrayManager::getInstance()->Create(bufferCount_);
+
+	for(int i = 0; i < (int)bufferCount_; ++i){
+		Microsoft::WRL::ComPtr<ID3D12Resource> buff;
 		result = swapChain_->GetBuffer(
-			i,IID_PPV_ARGS(&backBuffers_[i]));
+			i,IID_PPV_ARGS(&buff));
 		assert(SUCCEEDED(result));
+
+		backBuffers_->CreateView(device->getDevice(),rtvDesc,buff);
 	}
 	///================================================
 }
 
-void DXSwapChain::Finalize() {
-	for(auto &backBuffer : backBuffers_) {
-		backBuffer.Reset();
-	}
+void DXSwapChain::Finalize(){
+	backBuffers_->Finalize();
 	swapChain_.Reset();
 }
 
-void DXSwapChain::Present() {
+void DXSwapChain::Present(){
 	swapChain_->Present(1,0);
 }

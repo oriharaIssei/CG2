@@ -1,42 +1,44 @@
-#include "DXSrvArrayManager.h"
+#include "DXRtvArrayManager.h"
 
 #include "System.h"
 
 #include "DXHeap.h"
-#include "DXSrvArray.h"
+#include "DXRtvArray.h"
 
-DXSrvArrayManager *DXSrvArrayManager::getInstance(){
-	static DXSrvArrayManager isntance;
-	return &isntance;
+DXRtvArrayManager *DXRtvArrayManager::getInstance(){
+	static DXRtvArrayManager instance;
+	return &instance;
 }
 
-void DXSrvArrayManager::Init(){
-	heapCondition_.push_back({nullptr,DXHeap::srvHeapSize,0});
+void DXRtvArrayManager::Init(){
+	heapCondition_.push_back({nullptr,DXHeap::dsvHeapSize,0});
 }
 
-void DXSrvArrayManager::Finalize(){
+void DXRtvArrayManager::Finalize(){
 	for(size_t i = 0; i < heapCondition_.size(); i++){
-		if(heapCondition_[i].dxSrvArray_ == nullptr){
+		if(heapCondition_[i].dxRtvArray_ == nullptr){
 			continue;
 		}
-		heapCondition_[i].dxSrvArray_.reset();
+		heapCondition_[i].dxRtvArray_.reset();
 	}
 }
 
-std::shared_ptr<DXSrvArray> DXSrvArrayManager::Create(uint32_t size){
-	std::shared_ptr<DXSrvArray> dxSrvArray = std::make_shared<DXSrvArray>();
-	dxSrvArray->Init(size,SearchEmptyLocation(size,dxSrvArray));
-	return dxSrvArray;
+std::shared_ptr<DXRtvArray> DXRtvArrayManager::Create(uint32_t size){
+	std::shared_ptr<DXRtvArray> dxRtvArray = std::make_shared<DXRtvArray>();
+	uint32_t locate = SearchEmptyLocation(size,dxRtvArray);
+	dxRtvArray->Init(size,locate);
+	heapCondition_.push_back({dxRtvArray,size,locate});
+	return dxRtvArray;
 }
 
-uint32_t DXSrvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<DXSrvArray> dxSrvArray){
+uint32_t DXRtvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<DXRtvArray> dxRtvArray){
 	DXHeap *dxHeap = DXHeap::getInstance();
 	std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE,uint32_t>> usedArrays_;
 	uint32_t currentLocation = 0;
 
 	for(uint32_t i = 0; i < heapCondition_.size(); i++){
-		if(heapCondition_[i].dxSrvArray_ != nullptr){
-			usedArrays_.push_back({dxHeap->getSrvCpuHandle(i),heapCondition_[i].arraySize});
+		if(heapCondition_[i].dxRtvArray_ != nullptr){
+			usedArrays_.push_back({dxHeap->getDsvCpuHandle(i),heapCondition_[i].arraySize});
 			currentLocation += heapCondition_[i].arraySize;
 			continue;
 		}
@@ -47,18 +49,18 @@ uint32_t DXSrvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<DX
 
 		if(static_cast<int32_t>(heapCondition_[i].arraySize -= size) == 0){
 			// sizeがぴったりなら そこを使う
-			heapCondition_[i] = {dxSrvArray,size,i};
+			heapCondition_[i] = {dxRtvArray,size,i};
 		} else{
 			// size が違ったら 使う分だけ前詰めする
 			std::vector<ArrayCondition>::iterator itr = heapCondition_.begin() + i;
-			heapCondition_.insert(itr,{dxSrvArray,size,currentLocation});
+			heapCondition_.insert(itr,{dxRtvArray,size,currentLocation});
 			heapCondition_[i + 1].arrayLocation = currentLocation + size;
 		}
 		return heapCondition_[i].arrayLocation;
 	}
 
 	// 前詰め処理
-	DXHeap::getInstance()->CompactSrvHeap(System::getInstance()->getDXDevice()->getDevice(),
+	DXHeap::getInstance()->CompactDsvHeap(System::getInstance()->getDXDevice()->getDevice(),
 										  usedArrays_);
 
 	///使われていないものを一箇所にまとめる
@@ -66,12 +68,12 @@ uint32_t DXSrvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<DX
 	uint32_t emptySize = 0;
 	auto it = heapCondition_.begin();
 	while(it != heapCondition_.end()){
-		if(it->dxSrvArray_ != nullptr){
+		if(it->dxRtvArray_ != nullptr){
 			// 使用されていない場合
 			emptySize += it->arraySize;
 			it = heapCondition_.erase(it);
 		} else{
-			it->dxSrvArray_->arrayStartLocation_ = endLocation;
+			it->dxRtvArray_->arrayStartLocation_ = endLocation;
 			it->arrayLocation = endLocation;
 			endLocation += it->arraySize;
 			++it;
@@ -83,7 +85,7 @@ uint32_t DXSrvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<DX
 		return 0;
 	}
 
-	heapCondition_.push_back({dxSrvArray,size,endLocation,});
+	heapCondition_.push_back({dxRtvArray,size,endLocation,});
 
 	heapCondition_.push_back({nullptr,emptySize,endLocation + size});
 

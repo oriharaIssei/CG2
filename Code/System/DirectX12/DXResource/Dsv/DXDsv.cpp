@@ -1,4 +1,4 @@
-#include "DXDepthStencilView.h"
+#include "DXDsv.h"
 
 #include <assert.h>
 

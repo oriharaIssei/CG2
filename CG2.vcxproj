@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -59,7 +59,7 @@
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/Lib/ImGuiManager;$(ProjectDir)/Code/Lib/MyFileSystem;$(ProjectDir)/Code/Lib/GlobalVariables;$(ProjectDir)/Code/Lib;$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer/Light;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/ShaderManager;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/Lib/ImGuiManager;$(ProjectDir)/Code/Lib/MyFileSystem;$(ProjectDir)/Code/Lib/GlobalVariables;$(ProjectDir)/Code/Lib;$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer/Light;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource/Dsv;$(ProjectDir)/Code/System/DirectX12/DXResource/Rtv;$(ProjectDir)/Code/System/DirectX12/DXResource/Srv;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/ShaderManager;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -84,7 +84,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/Lib/ImGuiManager;$(ProjectDir)/Code/Lib/MyFileSystem;$(ProjectDir)/Code/Lib/GlobalVariables;$(ProjectDir)/Code/Lib;$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer/Light;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/ShaderManager;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/Lib/ImGuiManager;$(ProjectDir)/Code/Lib/MyFileSystem;$(ProjectDir)/Code/Lib/GlobalVariables;$(ProjectDir)/Code/Lib;$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer/Light;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource/Dsv;$(ProjectDir)/Code/System/DirectX12/DXResource/Rtv;$(ProjectDir)/Code/System/DirectX12/DXResource/Srv;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/ShaderManager;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -121,10 +121,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\DirectX12\DXFence\DXFence.cpp" />
     <ClCompile Include="Code\System\DirectX12\DXFunctionHelper\DXFunctionHelper.cpp" />
     <ClCompile Include="Code\System\DirectX12\DXHeap\DXHeap.cpp" />
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXDepthStencilView.cpp" />
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXRenterTargetView.cpp" />
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArray.cpp" />
-    <ClCompile Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Dsv\DXDsv.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArray.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArrayManager.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Srv\DXSrvArray.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Srv\DXSrvArrayManager.cpp" />
     <ClCompile Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.cpp" />
     <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp" />
     <ClCompile Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.cpp" />
@@ -176,10 +177,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\System\DirectX12\DXFence\DXFence.h" />
     <ClInclude Include="Code\System\DirectX12\DXFunctionHelper\DXFunctionHelper.h" />
     <ClInclude Include="Code\System\DirectX12\DXHeap\DXHeap.h" />
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXDepthStencilView.h" />
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXRenterTargetView.h" />
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXSrvArray.h" />
-    <ClInclude Include="Code\System\DirectX12\DXResource\DXSrvArrayManager.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Dsv\DXDsv.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArray.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArrayManager.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Srv\DXSrvArray.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Srv\DXSrvArrayManager.h" />
     <ClInclude Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.h" />
     <ClInclude Include="Code\System\DirectX12\PipelineStateObj.h" />
     <ClInclude Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.h" />

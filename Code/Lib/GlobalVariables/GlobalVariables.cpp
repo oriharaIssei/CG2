@@ -23,73 +23,72 @@ GlobalVariables *GlobalVariables::getInstance(){
 
 void GlobalVariables::Update(){
 #ifdef _DEBUG
-	if(!ImGui::Begin("Global Variables",nullptr,ImGuiWindowFlags_MenuBar)){
-		return;
-	}
+	if(ImGui::Begin("Global Variables",nullptr,ImGuiWindowFlags_MenuBar)){
 
-	ImGuiMenu();
+		ImGuiMenu();
 
-	if(data_[currentScene_].empty()){
-		ImGui::End();
-		return;
-	}
+		if(data_[currentScene_].empty()){
+			ImGui::End();
+			return;
+		}
 
-	std::vector<const char *> groupList;  // 動的なグループリストを
-	for(auto &group : data_[currentScene_]){
-		groupList.push_back(group.first.c_str());
-	}
+		std::vector<const char *> groupList;  // 動的なグループリストを
+		for(auto &group : data_[currentScene_]){
+			groupList.push_back(group.first.c_str());
+		}
 
-	// ImGui の Combo ボックスでグループリストを表示
-	ImGui::Combo("GroupList",&currentGroupNum_,groupList.data(),static_cast<int>(groupList.size()));
-	currentGroup_ = &data_[currentScene_][groupList[currentGroupNum_]];
-	currentGroupName_ = groupList[currentGroupNum_];
+		// ImGui の Combo ボックスでグループリストを表示
+		ImGui::Combo("GroupList",&currentGroupNum_,groupList.data(),static_cast<int>(groupList.size()));
+		currentGroup_ = &data_[currentScene_][groupList[currentGroupNum_]];
+		currentGroupName_ = groupList[currentGroupNum_];
 
-	ImGui::Dummy({0.0f,4.0f});
-	if(currentGroup_){
-		for(std::map<std::string,Item>::iterator itemItr = currentGroup_->begin();
-			itemItr != currentGroup_->end();
-			++itemItr){
-			const std::string &itemName = itemItr->first;
-			Item &item = itemItr->second;
-			if(std::holds_alternative<int32_t>(item.value)){
-				int32_t *valuePtr = std::get_if<int32_t>(&item.value);
-				ImGui::DragInt(itemName.c_str(),valuePtr,1);
-				auto intPtr = std::get_if<int32_t *>(&item.valuePtr);
-				**intPtr = *valuePtr;
-			} else if(std::holds_alternative<float>(item.value)){
-				float *valuePtr = std::get_if<float>(&item.value);
-				ImGui::DragFloat(itemName.c_str(),valuePtr,0.1f);
-				auto floatPtr = std::get_if<float *>(&item.valuePtr);
-				**floatPtr = *valuePtr;
-			} else if(std::holds_alternative<Vector2>(item.value)){
-				Vector2 *valuePtr = std::get_if<Vector2>(&item.value);
-				ImGui::DragFloat2(itemName.c_str(),reinterpret_cast<float *>(valuePtr),0.1f);
-				auto v2Ptr = std::get_if<Vector2 *>(&item.valuePtr);
-				**v2Ptr = *valuePtr;
-			} else if(std::holds_alternative<Vector3>(item.value)){
-				Vector3 *valuePtr = std::get_if<Vector3>(&item.value);
-				ImGui::DragFloat3(itemName.c_str(),reinterpret_cast<float *>(valuePtr),0.1f);
-				auto v3Ptr = std::get_if<Vector3 *>(&item.valuePtr);
-				**v3Ptr = *valuePtr;
-			} else if(std::holds_alternative<Vector4>(item.value)){
-				Vector4 *valuePtr = std::get_if<Vector4>(&item.value);
-				ImGui::DragFloat4(itemName.c_str(),reinterpret_cast<float *>(valuePtr),0.1f);
-				auto v4Ptr = std::get_if<Vector4 *>(&item.valuePtr);
-				**v4Ptr = *valuePtr;
-			} else if(std::holds_alternative<bool>(item.value)){
-				bool *valuePtr = std::get_if<bool>(&item.value);
-				ImGui::Checkbox(itemName.c_str(),valuePtr);
-				auto boolPtr = std::get_if<bool *>(&item.valuePtr);
-				**boolPtr = *valuePtr;
+		ImGui::Dummy({0.0f,4.0f});
+		if(currentGroup_){
+			for(std::map<std::string,Item>::iterator itemItr = currentGroup_->begin();
+				itemItr != currentGroup_->end();
+				++itemItr){
+				const std::string &itemName = itemItr->first;
+				Item &item = itemItr->second;
+				if(std::holds_alternative<int32_t>(item.value)){
+					int32_t *valuePtr = std::get_if<int32_t>(&item.value);
+					ImGui::DragInt(itemName.c_str(),valuePtr,1);
+					auto intPtr = std::get_if<int32_t *>(&item.valuePtr);
+					**intPtr = *valuePtr;
+				} else if(std::holds_alternative<float>(item.value)){
+					float *valuePtr = std::get_if<float>(&item.value);
+					ImGui::DragFloat(itemName.c_str(),valuePtr,0.1f);
+					auto floatPtr = std::get_if<float *>(&item.valuePtr);
+					**floatPtr = *valuePtr;
+				} else if(std::holds_alternative<Vector2>(item.value)){
+					Vector2 *valuePtr = std::get_if<Vector2>(&item.value);
+					ImGui::DragFloat2(itemName.c_str(),reinterpret_cast<float *>(valuePtr),0.1f);
+					auto v2Ptr = std::get_if<Vector2 *>(&item.valuePtr);
+					**v2Ptr = *valuePtr;
+				} else if(std::holds_alternative<Vector3>(item.value)){
+					Vector3 *valuePtr = std::get_if<Vector3>(&item.value);
+					ImGui::DragFloat3(itemName.c_str(),reinterpret_cast<float *>(valuePtr),0.1f);
+					auto v3Ptr = std::get_if<Vector3 *>(&item.valuePtr);
+					**v3Ptr = *valuePtr;
+				} else if(std::holds_alternative<Vector4>(item.value)){
+					Vector4 *valuePtr = std::get_if<Vector4>(&item.value);
+					ImGui::DragFloat4(itemName.c_str(),reinterpret_cast<float *>(valuePtr),0.1f);
+					auto v4Ptr = std::get_if<Vector4 *>(&item.valuePtr);
+					**v4Ptr = *valuePtr;
+				} else if(std::holds_alternative<bool>(item.value)){
+					bool *valuePtr = std::get_if<bool>(&item.value);
+					ImGui::Checkbox(itemName.c_str(),valuePtr);
+					auto boolPtr = std::get_if<bool *>(&item.valuePtr);
+					**boolPtr = *valuePtr;
+				}
 			}
 		}
-	}
 
-	ImGui::Dummy({0.0f,4.0f});
-	ImGui::Text("\n");
-	if(ImGui::Button("save")){
-		SaveFile(currentScene_,currentGroupName_);
+		ImGui::Dummy({0.0f,4.0f});
+		ImGui::Text("\n");
+		if(ImGui::Button("save")){
+			SaveFile(currentScene_,currentGroupName_);
 
+		}
 	}
 	ImGui::End();
 #endif // _DEBUG
@@ -289,6 +288,7 @@ void GlobalVariables::SaveFile(const std::string &scene,const std::string &group
 #ifdef _DEBUG
 void GlobalVariables::ImGuiMenu(){
 	if(!ImGui::BeginMenuBar()){
+		ImGui::EndMenuBar();
 		return;
 	}
 	if(ImGui::BeginMenu("File")){

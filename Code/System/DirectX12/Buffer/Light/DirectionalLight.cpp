@@ -21,12 +21,13 @@ void DirectionalLight::Finalize(){
 
 void DirectionalLight::DebugUpdate(){
 #ifdef _DEBUG
-	ImGui::Begin("DirectionalLight");
-	ImGui::DragFloat3("Direction",&this->direction.x,0.01f,-1.0f,1.0f);
-	this->direction = this->direction.Normalize();
-	ImGui::ColorEdit4("Color",&this->color.x);
-	ImGui::SliderFloat("Intensity",&this->intensity,0.0f,1.0f);
-	this->ConvertToBuffer();
+	if(ImGui::Begin("DirectionalLight")){
+		ImGui::DragFloat3("Direction",&this->direction.x,0.01f,-1.0f,1.0f);
+		this->direction = this->direction.Normalize();
+		ImGui::ColorEdit4("Color",&this->color.x);
+		ImGui::SliderFloat("Intensity",&this->intensity,0.0f,1.0f);
+		this->ConvertToBuffer();
+	}
 	ImGui::End();
 #endif // _DEBUG
 }

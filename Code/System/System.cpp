@@ -1,5 +1,6 @@
 #include "System.h"
 
+#include "DXHeap.h"
 #include "DXFunctionHelper.h"
 
 #include <imgui.h>
@@ -8,6 +9,7 @@
 #include <Sprite.h>
 #include <TextureManager.h>
 
+#include "DXRtvArrayManager.h"
 #include "DXSrvArrayManager.h"
 
 #include <Logger.h>
@@ -36,7 +38,8 @@ void System::Init(){
 	dxDevice_ = std::make_unique<DXDevice>();
 	dxDevice_->Init();
 
-	DXHeap::getInstance()->Init(dxDevice_->getDevice());
+	DXHeap *dxHeap = DXHeap::getInstance();
+	dxHeap->Init(dxDevice_->getDevice());
 
 	dxCommand_ = std::make_unique<DXCommand>();
 	dxCommand_->Init(dxDevice_->getDevice(),"main","main");
@@ -44,13 +47,12 @@ void System::Init(){
 	dxSwapChain_ = std::make_unique<DXSwapChain>();
 	dxSwapChain_->Init(window_.get(),dxDevice_.get(),dxCommand_.get());
 
-	dxRenderTarget_ = std::make_unique<DXRenterTargetView>();
-	dxRenderTarget_->Init(dxDevice_->getDevice(),dxSwapChain_.get());
+	dxDsv_ = std::make_unique<DXDsv>();
+	dxDsv_->Init(dxDevice_->getDevice(),dxHeap->getDsvHeap(),window_->getWidth(),window_->getHeight());
 
 	DXSrvArrayManager::getInstance()->Init();
 
-	dxDepthStencil_ = std::make_unique<DXDepthStencilView>();
-	dxDepthStencil_->Init(dxDevice_->getDevice(),DXHeap::getInstance()->getDsvHeap(),window_->getWidth(),window_->getHeight());
+	DXRtvArrayManager::getInstance()->Init();
 
 	dxFence_ = std::make_unique<DXFence>();
 	dxFence_->Init(dxDevice_->getDevice());
@@ -92,28 +94,29 @@ void System::Init(){
 }
 
 void System::Finalize(){
+	directionalLight_->Finalize();
+	pointLight_->Finalize();
+	spotLight_->Finalize();
+	materialManager_->Finalize();
+
 	ShaderManager::getInstance()->Finalize();
 	PrimitiveDrawer::Finalize();
 	Sprite::Finalize();
 	Model::Finalize();
 	TextureManager::Finalize();
-	DXSrvArrayManager::getInstance()->Finalize();
 
-	dxDevice_->Finalize();
+	DXSrvArrayManager::getInstance()->Finalize();
+	DXRtvArrayManager::getInstance()->Finalize();
+	dxDsv_->Finalize();
+
 	DXHeap::getInstance()->Finalize();
-	dxDepthStencil_->Finalize();
-	dxRenderTarget_->Finalize();
 	dxSwapChain_->Finalize();
 	dxCommand_->Finalize();
 	DXCommand::ResetAll();
 	dxFence_->Finalize();
+	dxDevice_->Finalize();
 
 	input_->Finalize();
-
-	materialManager_->Finalize();
-	directionalLight_->Finalize();
-	pointLight_->Finalize();
-	spotLight_->Finalize();
 
 #ifdef _DEBUG
 	ImGuiManager::getInstance()->Finalize();

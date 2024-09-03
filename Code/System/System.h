@@ -13,8 +13,8 @@
 #include "DXFence.h"
 #include "DXSwapChain.h"
 
-#include "DXDepthStencilView.h"
-#include "DXRenterTargetView.h"
+#include "DXDsv.h"
+#include "DXRtvArray.h"
 #include "DXSrvArray.h"
 
 #include "Input.h"
@@ -64,9 +64,7 @@ private:
 	std::unique_ptr<DXSwapChain> dxSwapChain_;
 	std::unique_ptr<DXFence> dxFence_;
 
-	std::unique_ptr<DXRenterTargetView> dxRenderTarget_;
-	std::unique_ptr<DXDepthStencilView> dxDepthStencil_;
-
+	std::unique_ptr<DXDsv> dxDsv_;
 
 	std::array<PipelineStateObj *,kBlendNum> texturePso_;
 	std::array<std::string,kBlendNum> texturePsoKeys_;
@@ -83,7 +81,7 @@ public:
 	DXSwapChain *getDXSwapChain()const{ return dxSwapChain_.get(); }
 	DXFence *getDXFence()const{ return dxFence_.get(); }
 
-	DXDepthStencilView *getDXDepthStencil()const{ return dxDepthStencil_.get(); }
+	DXDsv *getDsv()const{ return dxDsv_.get(); }
 
 	MaterialManager *getMaterialManager()const{ return materialManager_.get(); }
 
