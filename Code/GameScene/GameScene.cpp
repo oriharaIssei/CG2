@@ -93,13 +93,13 @@ void GameScene::Update(){
 		}
 
 		int32_t index = 0;
-
 		ImGuiID dockingID = ImGui::GetID(dockingIDName);
-		for(auto objectItr = gameObjects_.begin(); objectItr != gameObjects_.end();){
-			ImGui::SetNextWindowDockID(dockingID,ImGuiCond_FirstUseEver);
+		for(auto objectItr = gameObjects_.begin(); objectItr != gameObjects_.end(); ){
 			auto &object = *objectItr;
 			std::string label = "# " + std::to_string(index) + object->getName();
 			++index;
+
+			ImGui::SetNextWindowDockID(dockingID);
 			if(ImGui::Begin(label.c_str())){
 				object->Updata();
 
@@ -107,8 +107,10 @@ void GameScene::Update(){
 				if(ImGui::Button("Delete this")){
 					objectItr = gameObjects_.erase(objectItr);
 				} else{
-					objectItr++;
+					++objectItr;
 				}
+			} else{
+				++objectItr;
 			}
 			ImGui::End();
 		}
