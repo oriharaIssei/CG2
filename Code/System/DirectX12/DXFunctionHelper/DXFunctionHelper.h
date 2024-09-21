@@ -9,8 +9,9 @@
 #include "DXFence.h"
 #include "DXHeap.h"
 #include "DXSwapChain.h"
-
 #include "ResourceBarrierManager.h"
+
+#include "Vector4.h"
 
 class DXFunctionHelper{
 public:

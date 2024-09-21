@@ -83,7 +83,6 @@ void DXFunctionHelper::ClearRenderTarget(const DXCommand* command,const DXSwapCh
 	);
 }
 
-
 void DXFunctionHelper::SetViewportsAndScissor(const DXCommand* dxCommand,const WinApp* window){
 	ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
 	//ビューポートの設定
