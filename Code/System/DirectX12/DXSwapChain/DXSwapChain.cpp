@@ -18,7 +18,7 @@ void DXSwapChain::Init(const WinApp *winApp,const DXDevice *device,const DXComma
 	swapchainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapchainDesc.SampleDesc.Count = 1; //マルチサンプルしない
 	swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //描画のターゲットとして利用する
-	swapchainDesc.BufferCount = 3; //ダブルバッファ
+	swapchainDesc.BufferCount = 2; //ダブルバッファ
 	swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; //モニタに移したら中身を破棄する
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
@@ -42,7 +42,7 @@ void DXSwapChain::Init(const WinApp *winApp,const DXDevice *device,const DXComma
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-	bufferCount_ = 3;
+	bufferCount_ = 2;
 
 	backBuffers_ = DXRtvArrayManager::getInstance()->Create(bufferCount_);
 

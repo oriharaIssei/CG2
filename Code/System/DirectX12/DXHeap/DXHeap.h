@@ -10,7 +10,7 @@ class DXHeap{
 public:
 	static DXHeap *getInstance();
 
-	static const UINT rtvHeapSize = 3;
+	static const UINT rtvHeapSize = 4;
 	static const UINT srvHeapSize = 256;
 	static const UINT dsvHeapSize = 1;
 public:

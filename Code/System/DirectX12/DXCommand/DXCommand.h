@@ -16,7 +16,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="device"></param>
-	/// <param name="commandListKey">listとallocatorのKey.見つからない場合,D3D12_COMMAND_LIST_TYPE_DIRECTで作成される</param>
+	/// <param name="commandListKey">list と allocator の Key(見つからない場合,D3D12_COMMAND_LIST_TYPE_DIRECTで作成される</param>
 	/// <param name="commandQueueKey"></param>
 	void Init(ID3D12Device *device,const std::string &commandListKey,const std::string &commandQueueKey);
 	void Init(ID3D12Device *device,const std::string &commandListKey,const std::string &commandQueueKey,D3D12_COMMAND_LIST_TYPE listType);

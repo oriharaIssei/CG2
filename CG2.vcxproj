@@ -134,6 +134,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\System\Input\Input.cpp" />
     <ClCompile Include="Code\System\Model\Model.cpp" />
     <ClCompile Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.cpp" />
+    <ClCompile Include="Code\System\Texture\RenderTexture.cpp" />
     <ClCompile Include="Code\System\Sprite\Sprite.cpp" />
     <ClCompile Include="Code\System\Texture\TextureManager.cpp" />
     <ClCompile Include="Code\GameScene\GameScene.cpp" />
@@ -191,6 +192,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\System\Model\Model.h" />
     <ClInclude Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="Code\System\Sprite\Sprite.h" />
+    <ClInclude Include="Code\System\Texture\RenderTexture.h" />
     <ClInclude Include="Code\System\Texture\TextureManager.h" />
     <ClInclude Include="Code\GameScene\GameScene.h" />
     <ClInclude Include="Code\Lib\ImGuiManager\ImGuiManager.h" />

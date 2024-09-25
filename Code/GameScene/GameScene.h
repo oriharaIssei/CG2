@@ -1,20 +1,23 @@
 #pragma once
-#pragma once
 
-#include <Input.h>
+#include <list>
+#include <memory>
+
+#include <string>
+
+#include "DebugCamera.h"
+#include "ViewProjection.h"
 
 #include "GameObject/IGameObject.h"
+#include "RenderTexture.h"
 
-#include <ViewProjection.h>
-#include <WorldTransform.h>
+class Input;
+class MaterialManager;
+class DXRtvArray;
+class DXSrvArray;
 
-#include <Matrix4x4.h>
-#include <Transform.h>
-#include <Vector3.h>
-
-#include "Material.h"
-
-#include <DebugCamera.h>
+struct Matrix4x4;
+struct Vector3;
 
 class GameScene{
 public:
@@ -25,13 +28,17 @@ public:
 	void Update();
 	void Draw();
 private:
-	DebugCamera debugCamera;
+	std::unique_ptr<DebugCamera> debugCamera_;
 	ViewProjection viewProj_;
-	Input *input_;
+	Input* input_;
+
+	std::shared_ptr<DXRtvArray> sceneRtvArray_;
+	std::shared_ptr<DXSrvArray> sceneSrvArray_;
+	std::unique_ptr<RenderTexture> sceneView_;
 
 	std::list<std::unique_ptr<IGameObject>> gameObjects_;
 	std::list<std::pair<std::string,std::string>> textureList_;
 	std::list<std::pair<std::string,std::string>> objectList_;
 
-	MaterialManager *materialManager_;
+	MaterialManager* materialManager_;
 };

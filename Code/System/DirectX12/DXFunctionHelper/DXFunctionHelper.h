@@ -11,6 +11,7 @@
 #include "DXSwapChain.h"
 #include "ResourceBarrierManager.h"
 
+#include "Vector2.h"
 #include "Vector4.h"
 
 class DXFunctionHelper{
@@ -21,8 +22,14 @@ public:
 	static void ClearRenderTarget(const DXCommand* dxCommand,const DXSwapChain* dxSwapChain);
 
 	static void SetViewportsAndScissor(const DXCommand* dxCommand,const WinApp* window);
+	static void SetViewportsAndScissor(const DXCommand* dxCommand,const Vector2& rectSize);
+
 	static void SetRenderTargets(const DXCommand* dxCommand,const DXSwapChain* dxSwapChain);
+	static void SetRenderTargets(const DXCommand* dxCommand,D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
+
 	static void PreDraw(const DXCommand* dxCommand,const WinApp* window,const DXSwapChain* dxSwapChain);
+	static void PreDraw(const DXCommand* dxCommand,const Vector2& rectSize,const DXSwapChain* dxSwapChain);
+
 	static void PostDraw(DXCommand* dxCommands,DXFence* dxFence,DXSwapChain* dxSwapChain);
 };
 using DXFH = DXFunctionHelper;

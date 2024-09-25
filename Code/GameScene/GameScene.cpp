@@ -1,17 +1,27 @@
 #include "GameScene.h"
 
-#include <System.h>
-#include <PrimitiveDrawer.h>
-#include "MyFileSystem.h"
-#include <TextureManager.h>
+#include "debugCamera/debugCamera.h"
 
-#include <string>
-
+#include "GameObject/IGameObject.h"
 #include "GameObject/ModelObject.h"
 #include "GameObject/SphereObject.h"
 #include "GameObject/SpriteObject.h"
 
+#include <string>
+
+#include "DXRtvArray.h"
+#include "DXRtvArrayManager.h"
+#include "DXSrvArray.h"
+#include "DXSrvArrayManager.h"
+
+#include "MyFileSystem.h"
+#include <PrimitiveDrawer.h>
+#include <System.h>
+#include <TextureManager.h>
+
+#ifdef _DEBUG
 #include "imgui.h"
+#endif // _DEBUG
 
 constexpr char dockingIDName[] = "ObjectsWindow";
 
@@ -19,10 +29,18 @@ GameScene::~GameScene(){
 }
 
 void GameScene::Init(){
-	debugCamera.Init();
-	debugCamera.setViewTranslate({0.0f,0.0f,-12.0f});
+	debugCamera_ = std::make_unique<DebugCamera>();
+	debugCamera_->Init();
+
+	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
 	viewProj_.Init();
 	input_ = Input::getInstance();
+
+	sceneRtvArray_ = DXRtvArrayManager::getInstance()->Create(1);
+	sceneSrvArray_ = DXSrvArrayManager::getInstance()->Create(1);
+	
+	sceneView_ = std::make_unique<RenderTexture>(System::getInstance()->getDXCommand(),sceneRtvArray_.get(),sceneSrvArray_.get());
+	sceneView_->Init({1280.0f,720.0f},DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,{1.0f,1.0f,1.0f,1.0f});
 
 	materialManager_ = System::getInstance()->getMaterialManager();
 
@@ -35,12 +53,15 @@ void GameScene::Init(){
 }
 
 void GameScene::Update(){
-	debugCamera.Update();
-	debugCamera.DebugUpdate();
-	viewProj_.viewMat = debugCamera.getViewProjection().viewMat;
-	viewProj_.projectionMat = debugCamera.getViewProjection().projectionMat;
+#ifdef _DEBUG
+	debugCamera_->Update();
+	debugCamera_->DebugUpdate();
+	viewProj_.viewMat = debugCamera_->getViewProjection().viewMat;
+	viewProj_.projectionMat = debugCamera_->getViewProjection().projectionMat;
 	viewProj_.ConvertToBuffer();
+#endif // _DEBUG
 
+#ifdef _DEBUG
 	if(ImGui::Begin("MaterialManager")){
 		materialManager_->DebugUpdate();
 	}
@@ -54,7 +75,7 @@ void GameScene::Update(){
 		if(ImGui::TreeNode("TextureFiles")){
 			ImGui::TreePop();
 			if(ImGui::BeginChild("TextureFiles",ImVec2(250,128),true,ImGuiWindowFlags_HorizontalScrollbar)){
-				for(auto &pngFile : textureList_){
+				for(auto& pngFile : textureList_){
 					ImGui::Bullet();
 					if(!ImGui::Button(pngFile.second.c_str())){
 						continue;
@@ -72,7 +93,7 @@ void GameScene::Update(){
 		if(ImGui::TreeNode("ModelList")){
 			ImGui::TreePop();
 			if(ImGui::BeginChild("ObjectFiles",ImVec2(250,128),true,ImGuiWindowFlags_HorizontalScrollbar)){
-				for(auto &objFile : objectList_){
+				for(auto& objFile : objectList_){
 					ImGui::Bullet();
 					if(!ImGui::Button(objFile.second.c_str())){
 						continue;
@@ -95,7 +116,7 @@ void GameScene::Update(){
 		int32_t index = 0;
 		ImGuiID dockingID = ImGui::GetID(dockingIDName);
 		for(auto objectItr = gameObjects_.begin(); objectItr != gameObjects_.end(); ){
-			auto &object = *objectItr;
+			auto& object = *objectItr;
 			std::string label = "# " + std::to_string(index) + object->getName();
 			++index;
 
@@ -116,10 +137,18 @@ void GameScene::Update(){
 		}
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 
 void GameScene::Draw(){
-	for(auto &object : gameObjects_){
+	sceneView_->PreDraw();
+
+	for(auto& object : gameObjects_){
 		object->Draw(viewProj_);
 	}
+
+	sceneView_->PostDraw();
+
+	System::getInstance()->ScreenPreDraw();
+	System::getInstance()->ScreenPostDraw();
 }

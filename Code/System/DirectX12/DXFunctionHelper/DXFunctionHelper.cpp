@@ -35,6 +35,8 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DXFunctionHelper::CreateRenderTextureReso
 	D3D12_RESOURCE_DESC resourceDesc;
 	// RenderTarget として 利用可能に
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	resourceDesc.Width = width;
+	resourceDesc.Height = height;
 
 	D3D12_HEAP_PROPERTIES heapProps{};
 	// VRAM 上に 生成
@@ -105,10 +107,41 @@ void DXFunctionHelper::SetViewportsAndScissor(const DXCommand* dxCommand,const W
 	commandList->RSSetScissorRects(1,&scissorRect);
 }
 
+void DXFunctionHelper::SetViewportsAndScissor(const DXCommand* dxCommand,const Vector2& rectSize){
+	ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+	//ビューポートの設定
+	D3D12_VIEWPORT viewPort{};
+	viewPort.Width = rectSize.x;
+	viewPort.Height = rectSize.y;
+	viewPort.TopLeftX = 0;
+	viewPort.TopLeftY = 0;
+	viewPort.MinDepth = 0.0f;
+	viewPort.MaxDepth = 1.0f;
+
+	commandList->RSSetViewports(1,&viewPort);
+
+	D3D12_RECT scissorRect{};
+	scissorRect.left = 0;
+	scissorRect.right = rectSize.x;
+	scissorRect.top = 0;
+	scissorRect.bottom = rectSize.y;
+
+	commandList->RSSetScissorRects(1,&scissorRect);
+}
+
 void DXFunctionHelper::SetRenderTargets(const DXCommand* dxCommand,const DXSwapChain* dxSwapChain){
+	ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DXHeap::getInstance()->getRtvCpuHandle(dxSwapChain->getCurrentBackBufferIndex());
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DXHeap::getInstance()->getDsvCpuHandle(0);
-	dxCommand->getCommandList()->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
+	commandList->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
+}
+
+void DXFunctionHelper::SetRenderTargets(const DXCommand* dxCommand,D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle){
+	ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DXHeap::getInstance()->getDsvCpuHandle(0);
+	commandList->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
 }
 
 void DXFunctionHelper::PreDraw(const DXCommand* command,const WinApp* window,const DXSwapChain* swapChain){
@@ -117,12 +150,11 @@ void DXFunctionHelper::PreDraw(const DXCommand* command,const WinApp* window,con
 	///=========================================
 	ID3D12GraphicsCommandList* commandList = command->getCommandList();
 
-	D3D12_RESOURCE_BARRIER barrier{};
-	barrier = ResourceBarrierManager::Barrier(
+	ResourceBarrierManager::Barrier(
+		commandList,
 		swapChain->getCurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
-	commandList->ResourceBarrier(1,&barrier);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DXHeap::getInstance()->getRtvCpuHandle(swapChain->getCurrentBackBufferIndex());
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DXHeap::getInstance()->getDsvCpuHandle(0);
@@ -151,28 +183,66 @@ void DXFunctionHelper::PreDraw(const DXCommand* command,const WinApp* window,con
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
+void DXFunctionHelper::PreDraw(const DXCommand* dxCommand,const Vector2& rectSize,const DXSwapChain* dxSwapChain){
+	///=========================================
+	//	TransitionBarrierの設定
+	///=========================================
+	ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+
+	ResourceBarrierManager::Barrier(
+		commandList,
+		dxSwapChain->getCurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET
+	);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DXHeap::getInstance()->getRtvCpuHandle(dxSwapChain->getCurrentBackBufferIndex());
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DXHeap::getInstance()->getDsvCpuHandle(0);
+	commandList->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
+
+	//ビューポートの設定
+	D3D12_VIEWPORT viewPort{};
+	viewPort.Width = rectSize.x;
+	viewPort.Height = rectSize.y;
+	viewPort.TopLeftX = 0;
+	viewPort.TopLeftY = 0;
+	viewPort.MinDepth = 0.0f;
+	viewPort.MaxDepth = 1.0f;
+
+	commandList->RSSetViewports(1,&viewPort);
+
+	D3D12_RECT scissorRect{};
+	scissorRect.left = 0;
+	scissorRect.right = rectSize.x;
+	scissorRect.top = 0;
+	scissorRect.bottom = rectSize.y;
+
+	commandList->RSSetScissorRects(1,&scissorRect);
+
+	ClearRenderTarget(dxCommand,dxSwapChain);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
 void DXFunctionHelper::PostDraw(DXCommand* dxCommand,DXFence* fence,DXSwapChain* swapChain){
 	HRESULT hr;
+	ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
 	///===============================================================
 	///	バリアの更新(描画->表示状態)
 	///===============================================================
-	D3D12_RESOURCE_BARRIER barrier{};
-	barrier = ResourceBarrierManager::Barrier(
+	ResourceBarrierManager::Barrier(
+		commandList,
 		swapChain->getCurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_PRESENT
 	);
-
-	dxCommand->getCommandList()->ResourceBarrier(1,&barrier);
 	///===============================================================
 
 	// コマンドの受付終了 -----------------------------------
-	hr = dxCommand->getCommandList()->Close();
+	hr = commandList->Close();
 	//----------------------------------------------------
 
 	///===============================================================
 	/// コマンドリストの実行
 	///===============================================================
-	ID3D12CommandList* ppHeaps[] = {dxCommand->getCommandList()};
+	ID3D12CommandList* ppHeaps[] = {commandList};
 	dxCommand->getCommandQueue()->ExecuteCommandLists(1,ppHeaps);
 	///===============================================================
 
