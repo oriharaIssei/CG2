@@ -110,6 +110,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="Code\main.cpp" />
     <ClCompile Include="Code\Math\Matrix4x4.cpp" />
+    <ClCompile Include="Code\System\Audio\Audio.cpp" />
     <ClCompile Include="Code\System\DebugCamera\DebugCamera.cpp" />
     <ClCompile Include="Code\System\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\Light\PointLight.cpp" />
@@ -167,6 +168,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\Math\Transform.h" />
     <ClInclude Include="Code\Math\Vector2.h" />
     <ClInclude Include="Code\Math\Vector4.h" />
+    <ClInclude Include="Code\System\Audio\Audio.h" />
     <ClInclude Include="Code\System\DebugCamera\DebugCamera.h" />
     <ClInclude Include="Code\System\DeltaTime\DeltaTime.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\Light\PointLight.h" />
