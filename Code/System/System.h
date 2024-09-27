@@ -33,7 +33,7 @@
 class System{
 	friend class PrimitiveDrawer;
 public:
-	static System *getInstance();
+	static System* getInstance();
 public:
 	void Init();
 	void Finalize();
@@ -41,16 +41,19 @@ public:
 	void BeginFrame();
 	void EndFrame();
 
-	int LoadTexture(const std::string &filePath);
+	void ScreenPreDraw();
+	void ScreenPostDraw();
+
+	int LoadTexture(const std::string& filePath);
 private:
 	System() = default;
 	~System(){};
-	System(const System &) = delete;
-	const System &operator=(const System &) = delete;
+	System(const System&) = delete;
+	const System& operator=(const System&) = delete;
 	void CreateTexturePSO();
 private:
 	std::unique_ptr<WinApp> window_;
-	Input *input_;
+	Input* input_;
 
 	std::unique_ptr<DXDevice> dxDevice_;
 
@@ -60,7 +63,7 @@ private:
 
 	std::unique_ptr<DXDsv> dxDsv_;
 
-	std::array<PipelineStateObj *,kBlendNum> texturePso_;
+	std::array<PipelineStateObj*,kBlendNum> texturePso_;
 	std::array<std::string,kBlendNum> texturePsoKeys_;
 
 	std::unique_ptr<MaterialManager> materialManager_;
@@ -69,23 +72,24 @@ private:
 	std::unique_ptr<PointLight> pointLight_;
 	std::unique_ptr<SpotLight> spotLight_;
 public:
-	WinApp *getWinApp(){ return window_.get(); }
+	WinApp* getWinApp(){ return window_.get(); }
 
-	DXDevice *getDXDevice()const{ return dxDevice_.get(); }
-	DXSwapChain *getDXSwapChain()const{ return dxSwapChain_.get(); }
-	DXFence *getDXFence()const{ return dxFence_.get(); }
+	DXDevice* getDXDevice()const{ return dxDevice_.get(); }
+	DXCommand* getDXCommand()const{ return dxCommand_.get(); }
+	DXSwapChain* getDXSwapChain()const{ return dxSwapChain_.get(); }
+	DXFence* getDXFence()const{ return dxFence_.get(); }
 
-	DXDsv *getDsv()const{ return dxDsv_.get(); }
+	DXDsv* getDsv()const{ return dxDsv_.get(); }
 
-	MaterialManager *getMaterialManager()const{ return materialManager_.get(); }
+	MaterialManager* getMaterialManager()const{ return materialManager_.get(); }
 
-	PipelineStateObj *getTexturePso(BlendMode blend)const{ return texturePso_[static_cast<size_t>(blend)]; }
+	PipelineStateObj* getTexturePso(BlendMode blend)const{ return texturePso_[static_cast<size_t>(blend)]; }
 
-	const std::array<std::string,kBlendNum> &getTexturePsoKeys()const{ return texturePsoKeys_; }
+	const std::array<std::string,kBlendNum>& getTexturePsoKeys()const{ return texturePsoKeys_; }
 
-	DirectionalLight *getDirectionalLight()const{ return directionalLight_.get(); }
-	PointLight *getPointLight()const{ return pointLight_.get(); }
-	SpotLight *getSpotLight()const{ return spotLight_.get(); }
+	DirectionalLight* getDirectionalLight()const{ return directionalLight_.get(); }
+	PointLight* getPointLight()const{ return pointLight_.get(); }
+	SpotLight* getSpotLight()const{ return spotLight_.get(); }
 };
 
 const std::string defaultReosurceFolder = "./resource";
