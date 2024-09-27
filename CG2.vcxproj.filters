@@ -1,358 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ソース ファイル">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="ヘッダー ファイル">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="リソース ファイル">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Code\main.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\WinApp\WinApp.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\Logger\Logger.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\GameScene\GameScene.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\ShaderCompiler.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\System.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Math\Matrix4x4.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_demo.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_draw.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_impl_win32.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_tables.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="externals\imgui\imgui_widgets.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Lib\ImGuiManager\ImGuiManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\Texture\TextureManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\Model\Model.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\Sprite\Sprite.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\Light\DirectionalLight.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\WorldTransform.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\ViewProjection.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\Material.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\Object3dMesh.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\Input\Input.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DebugCamera\DebugCamera.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXCommand\DXCommand.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXHeap\DXHeap.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXDevice\DXDevice.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXFence\DXFence.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXDebug\DXDebug.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXFunctionHelper\DXFunctionHelper.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\GameScene\Particle\Emitter.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\GameScene\Particle\Particle.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\GameScene\GameObject\IGameObject.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\GameScene\GameObject\ModelObject.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\GameScene\GameObject\SpriteObject.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\GameScene\GameObject\SphereObject.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\ShaderManager\ShaderManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\Light\PointLight.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\Buffer\Light\SpotLight.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Lib\GlobalVariables\GlobalVariables.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\Dsv\DXDsv.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArray.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\Srv\DXSrvArray.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\Srv\DXSrvArrayManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArrayManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\System\Texture\RenderTexture.cpp">
-    <ClCompile Include="Code\System\DeltaTime\DeltaTime.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Code\System\WinApp\WinApp.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\Logger\Logger.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\GameScene\GameScene.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\ShaderCompiler.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\PipelineStateObj.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\System.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Math\Vector3.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Math\Vector4.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Math\Matrix4x4.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imconfig.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_impl_dx12.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_impl_win32.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imgui_internal.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_rectpack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_textedit.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="externals\imgui\imstb_truetype.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Lib\ImGuiManager\ImGuiManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\Texture\TextureManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Math\Vector2.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\Model\Model.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Math\Transform.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\Sprite\Sprite.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\Light\DirectionalLight.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\WorldTransform.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\ViewProjection.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\Material.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\Object3dMesh.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\Input\Input.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DebugCamera\DebugCamera.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXCommand\DXCommand.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXHeap\DXHeap.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXDevice\DXDevice.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXFence\DXFence.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXDebug\DXDebug.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXFunctionHelper\DXFunctionHelper.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Lib\MyFileSystem\MyFileSystem.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\GameScene\Particle\Particle.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\GameScene\Particle\Emitter.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\GameScene\GameObject\IGameObject.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\GameScene\GameObject\ModelObject.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\GameScene\GameObject\SpriteObject.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\GameScene\GameObject\SphereObject.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\ShaderManager\ShaderManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\Light\PointLight.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\Buffer\Light\SpotLight.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Lib\GlobalVariables\GlobalVariables.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\Dsv\DXDsv.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArray.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\Srv\DXSrvArray.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\Srv\DXSrvArrayManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArrayManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\System\Texture\RenderTexture.h">
-    <ClInclude Include="Code\System\DeltaTime\DeltaTime.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
+    <FxCompile Include="Code\System\Shader\Object3d.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Object3d.VS.hlsl" />
     <FxCompile Include="Code\System\Shader\Object3dTexture.PS.hlsl" />
     <FxCompile Include="Code\System\Shader\Object3dTexture.VS.hlsl" />
-    <FxCompile Include="Code\System\Shader\Object3d.VS.hlsl" />
-    <FxCompile Include="Code\System\Shader\Object3d.PS.hlsl" />
-    <FxCompile Include="Code\System\Shader\Sprite.VS.hlsl" />
-    <FxCompile Include="Code\System\Shader\Sprite.PS.hlsl" />
     <FxCompile Include="Code\System\Shader\Particle.PS.hlsl" />
     <FxCompile Include="Code\System\Shader\Particle.VS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Sprite.PS.hlsl" />
+    <FxCompile Include="Code\System\Shader\Sprite.VS.hlsl" />
     <FxCompile Include="resource\Shader\Object3d.PS.hlsl" />
     <FxCompile Include="resource\Shader\Object3d.VS.hlsl" />
     <FxCompile Include="resource\Shader\Object3dTexture.PS.hlsl" />
@@ -363,14 +19,128 @@
     <FxCompile Include="resource\Shader\Sprite.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />
-    <None Include="Code\System\Shader\Object3dTexture.hlsli" />
+    <ClCompile Include="Code\GameScene\GameObject\IGameObject.cpp" />
+    <ClCompile Include="Code\GameScene\GameObject\ModelObject.cpp" />
+    <ClCompile Include="Code\GameScene\GameObject\SphereObject.cpp" />
+    <ClCompile Include="Code\GameScene\GameObject\SpriteObject.cpp" />
+    <ClCompile Include="Code\GameScene\Particle\Emitter.cpp" />
+    <ClCompile Include="Code\GameScene\Particle\Particle.cpp" />
+    <ClCompile Include="Code\Lib\GlobalVariables\GlobalVariables.cpp" />
+    <ClCompile Include="Code\Lib\MyFileSystem\MyFileSystem.cpp" />
+    <ClCompile Include="Code\main.cpp" />
+    <ClCompile Include="Code\Math\Matrix4x4.cpp" />
+    <ClCompile Include="Code\System\DebugCamera\DebugCamera.cpp" />
+    <ClCompile Include="Code\System\DeltaTime\DeltaTime.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\Light\PointLight.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\Material.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\ViewProjection.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\WorldTransform.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXCommand\DXCommand.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXDebug\DXDebug.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXDevice\DXDevice.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXFence\DXFence.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXFunctionHelper\DXFunctionHelper.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXHeap\DXHeap.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Dsv\DXDsv.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArray.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArrayManager.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Srv\DXSrvArray.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXResource\Srv\DXSrvArrayManager.cpp" />
+    <ClCompile Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.cpp" />
+    <ClCompile Include="Code\System\DirectX12\PipelineStateObj.cpp" />
+    <ClCompile Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.cpp" />
+    <ClCompile Include="Code\System\DirectX12\ShaderCompiler.cpp" />
+    <ClCompile Include="Code\System\DirectX12\ShaderManager\ShaderManager.cpp" />
+    <ClCompile Include="Code\System\Input\Input.cpp" />
+    <ClCompile Include="Code\System\Model\Model.cpp" />
+    <ClCompile Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.cpp" />
+    <ClCompile Include="Code\System\Texture\RenderTexture.cpp" />
+    <ClCompile Include="Code\System\Sprite\Sprite.cpp" />
+    <ClCompile Include="Code\System\Texture\TextureManager.cpp" />
+    <ClCompile Include="Code\GameScene\GameScene.cpp" />
+    <ClCompile Include="Code\Lib\ImGuiManager\ImGuiManager.cpp" />
+    <ClCompile Include="Code\System\Logger\Logger.cpp" />
+    <ClCompile Include="Code\System\WinApp\WinApp.cpp" />
+    <ClCompile Include="Code\System\System.cpp" />
+    <ClCompile Include="externals\imgui\imgui.cpp" />
+    <ClCompile Include="externals\imgui\imgui_demo.cpp" />
+    <ClCompile Include="externals\imgui\imgui_draw.cpp" />
+    <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp" />
+    <ClCompile Include="externals\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="externals\imgui\imgui_tables.cpp" />
+    <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\Light\DirectionalLight.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\Object3dMesh.cpp" />
+    <ClCompile Include="Code\System\DirectX12\Buffer\Light\SpotLight.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\GameScene\GameObject\IGameObject.h" />
+    <ClInclude Include="Code\GameScene\GameObject\ModelObject.h" />
+    <ClInclude Include="Code\GameScene\GameObject\SphereObject.h" />
+    <ClInclude Include="Code\GameScene\GameObject\SpriteObject.h" />
+    <ClInclude Include="Code\GameScene\Particle\Emitter.h" />
+    <ClInclude Include="Code\GameScene\Particle\Particle.h" />
+    <ClInclude Include="Code\Lib\GlobalVariables\GlobalVariables.h" />
+    <ClInclude Include="Code\Lib\MyFileSystem\MyFileSystem.h" />
+    <ClInclude Include="Code\Math\Matrix4x4.h" />
+    <ClInclude Include="Code\Math\Transform.h" />
+    <ClInclude Include="Code\Math\Vector2.h" />
+    <ClInclude Include="Code\Math\Vector4.h" />
+    <ClInclude Include="Code\System\DebugCamera\DebugCamera.h" />
+    <ClInclude Include="Code\System\DeltaTime\DeltaTime.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\Light\PointLight.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\Light\SpotLight.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\Material.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\ViewProjection.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\WorldTransform.h" />
+    <ClInclude Include="Code\System\DirectX12\DXCommand\DXCommand.h" />
+    <ClInclude Include="Code\System\DirectX12\DXDebug\DXDebug.h" />
+    <ClInclude Include="Code\System\DirectX12\DXDevice\DXDevice.h" />
+    <ClInclude Include="Code\System\DirectX12\DXFence\DXFence.h" />
+    <ClInclude Include="Code\System\DirectX12\DXFunctionHelper\DXFunctionHelper.h" />
+    <ClInclude Include="Code\System\DirectX12\DXHeap\DXHeap.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Dsv\DXDsv.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArray.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Rtv\DXRtvArrayManager.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Srv\DXSrvArray.h" />
+    <ClInclude Include="Code\System\DirectX12\DXResource\Srv\DXSrvArrayManager.h" />
+    <ClInclude Include="Code\System\DirectX12\DXSwapChain\DXSwapChain.h" />
+    <ClInclude Include="Code\System\DirectX12\PipelineStateObj.h" />
+    <ClInclude Include="Code\System\DirectX12\ResourceBarrierManager\ResourceBarrierManager.h" />
+    <ClInclude Include="Code\System\DirectX12\ShaderCompiler.h" />
+    <ClInclude Include="Code\System\DirectX12\ShaderManager\ShaderManager.h" />
+    <ClInclude Include="Code\System\Input\Input.h" />
+    <ClInclude Include="Code\System\Model\Model.h" />
+    <ClInclude Include="Code\System\PrimitiveDrawer\PrimitiveDrawer.h" />
+    <ClInclude Include="Code\System\Sprite\Sprite.h" />
+    <ClInclude Include="Code\System\Texture\RenderTexture.h" />
+    <ClInclude Include="Code\System\Texture\TextureManager.h" />
+    <ClInclude Include="Code\GameScene\GameScene.h" />
+    <ClInclude Include="Code\Lib\ImGuiManager\ImGuiManager.h" />
+    <ClInclude Include="Code\System\Logger\Logger.h" />
+    <ClInclude Include="Code\Math\Vector3.h" />
+    <ClInclude Include="Code\System\WinApp\WinApp.h" />
+    <ClInclude Include="Code\System\System.h" />
+    <ClInclude Include="externals\imgui\imconfig.h" />
+    <ClInclude Include="externals\imgui\imgui.h" />
+    <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
+    <ClInclude Include="externals\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="externals\imgui\imgui_internal.h" />
+    <ClInclude Include="externals\imgui\imstb_rectpack.h" />
+    <ClInclude Include="externals\imgui\imstb_textedit.h" />
+    <ClInclude Include="externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\Light\DirectionalLight.h" />
+    <ClInclude Include="Code\System\DirectX12\Buffer\Object3dMesh.h" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Code\System\Shader\Object3d.hlsli" />
+    <None Include="Code\System\Shader\Object3dTexture.hlsli" />
     <None Include="Code\System\Shader\Particle.hlsli" />
+    <None Include="Code\System\Shader\Sprite.hlsli" />
+    <None Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj" />
     <None Include="resource\Shader\Object3d.hlsli" />
     <None Include="resource\Shader\Object3dTexture.hlsli" />
-    <None Include="resource\Shader\Sprite.hlsli" />
     <None Include="resource\Shader\Particle.hlsli" />
-    <None Include="Code\System\Shader\Sprite.hlsli" />
+    <None Include="resource\Shader\Sprite.hlsli" />
   </ItemGroup>
 </Project>

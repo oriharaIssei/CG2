@@ -38,14 +38,14 @@ void GameScene::Init(){
 
 	sceneRtvArray_ = DXRtvArrayManager::getInstance()->Create(1);
 	sceneSrvArray_ = DXSrvArrayManager::getInstance()->Create(1);
-	
+
 	sceneView_ = std::make_unique<RenderTexture>(System::getInstance()->getDXCommand(),sceneRtvArray_.get(),sceneSrvArray_.get());
-	sceneView_->Init({1280.0f,720.0f},DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,{1.0f,1.0f,1.0f,1.0f});
+	sceneView_->Init({1280.0f,720.0f},DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,{0.0f,0.0f,0.0f,0.0f});
 
 	materialManager_ = System::getInstance()->getMaterialManager();
 
 	textureList_ = myFs::SearchFile("./resource","png");
-	objectList_ = myFs::SearchFile("./resource","obj");
+	objectList_  = myFs::SearchFile("./resource","obj");
 
 	std::unique_ptr<SphereObject> sprite = std::make_unique<SphereObject>();
 	sprite->Init("","sphere");
@@ -150,5 +150,6 @@ void GameScene::Draw(){
 	sceneView_->PostDraw();
 
 	System::getInstance()->ScreenPreDraw();
+	sceneView_->DrawTexture();
 	System::getInstance()->ScreenPostDraw();
 }
