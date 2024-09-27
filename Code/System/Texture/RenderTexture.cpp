@@ -165,3 +165,6 @@ void RenderTexture::PostDraw(){
 	dxCommand_->CommandReset();
 	///===============================================================
 }
+
+void RenderTexture::DrawTexture(){
+}

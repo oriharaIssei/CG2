@@ -21,6 +21,8 @@ public:
 	void PreDraw();
 	void PostDraw();
 
+	void DrawTexture();
+
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
 
