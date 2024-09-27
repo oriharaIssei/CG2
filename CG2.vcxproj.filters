@@ -72,6 +72,7 @@
     <ClCompile Include="Code\System\DirectX12\Buffer\Light\DirectionalLight.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\Object3dMesh.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\Light\SpotLight.cpp" />
+    <ClCompile Include="Code\System\Audio\Audio.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\GameScene\GameObject\IGameObject.h" />
@@ -131,6 +132,7 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\Light\DirectionalLight.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\Object3dMesh.h" />
+    <ClInclude Include="Code\System\Audio\Audio.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Code\System\Shader\Object3d.hlsli" />
