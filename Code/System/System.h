@@ -1,31 +1,27 @@
 #pragma once
 
-#include <string>
-
 #include <array>
+#include <memory>
+#include <string>
 #include <vector>
 
-#include <memory>
-
-#include "DXDevice.h"
+#include "Input.h"
+#include "WinApp.h"
 
 #include "DXCommand.h"
-#include "DXFence.h"
-#include "DXSwapChain.h"
-
+#include "DXDevice.h"
 #include "DXDsv.h"
-
-#include "Input.h"
+#include "DXFence.h"
+#include "DXRtvArray.h"
+#include "DXSrvArray.h"
+#include "DXSwapChain.h"
 #include "PipelineStateObj.h"
 #include "ShaderCompiler.h"
 #include "ShaderManager.h"
-#include "WinApp.h"
-
-#include "Model.h"
-
-#include "Material.h"
 
 #include "DirectionalLight.h"
+#include "Material.h"
+#include "Model.h"
 #include "PointLight.h"
 #include "SpotLight.h"
 

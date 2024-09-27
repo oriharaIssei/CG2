@@ -169,6 +169,7 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Code\System\Texture\RenderTexture.cpp">
+    <ClCompile Include="Code\System\DeltaTime\DeltaTime.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -339,6 +340,7 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Code\System\Texture\RenderTexture.h">
+    <ClInclude Include="Code\System\DeltaTime\DeltaTime.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

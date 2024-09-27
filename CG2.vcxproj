@@ -84,7 +84,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)/Code/Lib/ImGuiManager;$(ProjectDir)/Code/Lib/MyFileSystem;$(ProjectDir)/Code/Lib/GlobalVariables;$(ProjectDir)/Code/Lib;$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer/Light;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource/Dsv;$(ProjectDir)/Code/System/DirectX12/DXResource/Rtv;$(ProjectDir)/Code/System/DirectX12/DXResource/Srv;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/ShaderManager;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/Code/Lib/ImGuiManager;$(ProjectDir)/Code/Lib/MyFileSystem;$(ProjectDir)/Code/Lib/GlobalVariables;$(ProjectDir)/Code/Lib;$(ProjectDir)/Code/System/Input;$(ProjectDir)/Code/System/Logger;$(ProjectDir)/Code/System/WinApp;$(ProjectDir)/Code/System/DirectX12/Buffer/Light;$(ProjectDir)/Code/System/DirectX12/Buffer;$(ProjectDir)/Code/System/DirectX12/ResourceBarrierManager;$(ProjectDir)/Code/System/DirectX12/DXFunctionHelper;$(ProjectDir)/Code/System/DirectX12/DXSwapChain;$(ProjectDir)/Code/System/DirectX12/DXResource/Dsv;$(ProjectDir)/Code/System/DirectX12/DXResource/Rtv;$(ProjectDir)/Code/System/DirectX12/DXResource/Srv;$(ProjectDir)/Code/System/DirectX12/DXResource;$(ProjectDir)/Code/System/DirectX12/DXHeap;$(ProjectDir)/Code/System/DirectX12/DXFence;$(ProjectDir)/Code/System/DirectX12/DXDebug;$(ProjectDir)/Code/System/DirectX12/DXDevice;$(ProjectDir)/Code/System/DirectX12/ShaderManager;$(ProjectDir)/Code/System/DirectX12/DXCommand;$(ProjectDir)/Code/System/DirectX12;$(ProjectDir)/Code/System/Model;$(ProjectDir)/Code/System/PrimitiveDrawer;$(ProjectDir)/Code/System/Sprite;$(ProjectDir)/Code/System/DebugCamera;$(ProjectDir)/Code/System/DeltaTime;$(ProjectDir)/Code/System;$(ProjectDir)/Code/Math;$(ProjectDir)/Code/GameScene;$(ProjectDir)/Code/System/Texture;$(ProjectDir)/Code/System/Light;$(ProjectDir)/Code;$(ProjectDir)/externals/imgui;$(ProjectDir)/externals/DirectXTex;$(ProjectDir)/externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,6 +111,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Code\main.cpp" />
     <ClCompile Include="Code\Math\Matrix4x4.cpp" />
     <ClCompile Include="Code\System\DebugCamera\DebugCamera.cpp" />
+    <ClCompile Include="Code\System\DeltaTime\DeltaTime.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\Light\PointLight.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\Material.cpp" />
     <ClCompile Include="Code\System\DirectX12\Buffer\ViewProjection.cpp" />
@@ -167,6 +168,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Code\Math\Vector2.h" />
     <ClInclude Include="Code\Math\Vector4.h" />
     <ClInclude Include="Code\System\DebugCamera\DebugCamera.h" />
+    <ClInclude Include="Code\System\DeltaTime\DeltaTime.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\Light\PointLight.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\Light\SpotLight.h" />
     <ClInclude Include="Code\System\DirectX12\Buffer\Material.h" />

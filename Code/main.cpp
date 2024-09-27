@@ -1,26 +1,26 @@
+#include "DXDebug.h"
 #include <System.h>
 
 #include <memory>
 
-#include <GameScene.h>
+#include "DeltaTime/DeltaTime.h"
 #include "GlobalVariables.h"
-
-#include "DXDebug.h"
-
-#include <d3d12sdklayers.h>
+#include <GameScene.h>
 
 int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int){
 	DXDebug debug;
-	System *system = System::getInstance();
-	system->Init();
-
-	GlobalVariables *variables = GlobalVariables::getInstance();
-	variables->LoadAllFile();
-
+	System* system = System::getInstance();
+	DeltaTime* deltaTime = DeltaTime::getInstance();
+	GlobalVariables* variables = GlobalVariables::getInstance();
 	std::unique_ptr<GameScene> scene = std::make_unique<GameScene>();
+
+	system->Init();
+	variables->LoadAllFile();
 	scene->Init();
+	deltaTime->Init();
 
 	while(!system->ProcessMessage()){
+		deltaTime->Update();
 		system->BeginFrame();
 
 		variables->Update();
