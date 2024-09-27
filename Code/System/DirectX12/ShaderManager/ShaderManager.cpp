@@ -10,19 +10,19 @@ void ShaderManager::Init(){
 }
 
 void ShaderManager::Finalize(){
-	for(auto &pso : psoMap_){
+	for(auto& pso : psoMap_){
 		pso.second->Finalize();
 		pso.second.reset();
 	}
-	for(auto &blob : shaderBlobMap_){
+	for(auto& blob : shaderBlobMap_){
 		blob.second.Reset();
 	}
 	shaderCompiler_->Finalize();
 }
 
-PipelineStateObj *ShaderManager::CreatePso(const std::string &key,
-										   const ShaderInformation &shaderInfo,
-										   ID3D12Device *device){
+PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
+										   const ShaderInformation& shaderInfo,
+										   ID3D12Device* device){
 	std::unique_ptr<PipelineStateObj> pso;
 	pso = std::make_unique<PipelineStateObj>();
 	HRESULT result;
@@ -31,12 +31,13 @@ PipelineStateObj *ShaderManager::CreatePso(const std::string &key,
 	/// RootSignature 
 	///=================================================
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {
-		.NumParameters     = static_cast<uint32_t>(shaderInfo.rootParameters_.size()),
-		.pParameters       = shaderInfo.rootParameters_.data(),
+		.NumParameters = static_cast<uint32_t>(shaderInfo.rootParameters_.size()),
+		.pParameters = shaderInfo.rootParameters_.data(),
 		.NumStaticSamplers = static_cast<uint32_t>(shaderInfo.samplerDescs_.size()),
-		.pStaticSamplers   = shaderInfo.samplerDescs_.data(),
-		.Flags             = shaderInfo.rootSignatureFlag,
+		.pStaticSamplers = shaderInfo.samplerDescs_.data(),
+		.Flags = shaderInfo.rootSignatureFlag,
 	};
+
 	//シリアライズしてバイナリにする
 	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
@@ -49,7 +50,7 @@ PipelineStateObj *ShaderManager::CreatePso(const std::string &key,
 	);
 
 	if(FAILED(result)){
-		Logger::OutputLog(reinterpret_cast<char *>(errorBlob->GetBufferPointer()));
+		Logger::OutputLog(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
 		assert(false);
 	}
 
@@ -65,7 +66,7 @@ PipelineStateObj *ShaderManager::CreatePso(const std::string &key,
 	///=================================================
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{
 		.pInputElementDescs = shaderInfo.elementDescs_.data(),
-		.NumElements        = static_cast<uint32_t>(shaderInfo.elementDescs_.size()),
+		.NumElements = static_cast<uint32_t>(shaderInfo.elementDescs_.size()),
 	};
 
 	///=================================================
@@ -170,31 +171,31 @@ PipelineStateObj *ShaderManager::CreatePso(const std::string &key,
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
 
 	if(!shaderInfo.vsKey.empty()){
-		pipelineStateDesc.VS={
+		pipelineStateDesc.VS = {
 			shaderBlobMap_[shaderInfo.vsKey]->GetBufferPointer(),
 			shaderBlobMap_[shaderInfo.vsKey]->GetBufferSize()
 		};
 	}
 	if(!shaderInfo.psKey.empty()){
-		pipelineStateDesc.PS={
+		pipelineStateDesc.PS = {
 			shaderBlobMap_[shaderInfo.psKey]->GetBufferPointer(),
 			shaderBlobMap_[shaderInfo.psKey]->GetBufferSize()
 		};
 	}
 	if(!shaderInfo.dsKey.empty()){
-		pipelineStateDesc.DS={
+		pipelineStateDesc.DS = {
 			shaderBlobMap_[shaderInfo.dsKey]->GetBufferPointer(),
 			shaderBlobMap_[shaderInfo.dsKey]->GetBufferSize()
 		};
 	}
 	if(!shaderInfo.hsKey.empty()){
-		pipelineStateDesc.HS={
+		pipelineStateDesc.HS = {
 			shaderBlobMap_[shaderInfo.hsKey]->GetBufferPointer(),
 			shaderBlobMap_[shaderInfo.hsKey]->GetBufferSize()
 		};
 	}
 	if(!shaderInfo.dsKey.empty()){
-		pipelineStateDesc.DS={
+		pipelineStateDesc.DS = {
 			shaderBlobMap_[shaderInfo.dsKey]->GetBufferPointer(),
 			shaderBlobMap_[shaderInfo.dsKey]->GetBufferSize()
 		};
@@ -228,6 +229,6 @@ PipelineStateObj *ShaderManager::CreatePso(const std::string &key,
 	return psoMap_[key].get();
 }
 
-bool ShaderManager::LoadShader(const std::string &fileName,const std::string &directory,const wchar_t *profile){
+bool ShaderManager::LoadShader(const std::string& fileName,const std::string& directory,const wchar_t* profile){
 	return RegisterShaderBlob(fileName,shaderCompiler_->CompileShader(Logger::ConvertString(directory + '/' + fileName + ".hlsl"),profile));
 }

@@ -63,14 +63,21 @@ public:
 
 	BlendMode blendMode_ = BlendMode::Alpha;
 
+	/// <summary>
+	/// PushBack Sampler Infomation
+	/// </summary>
+	/// <param name="samplerDesc"></param>
+	/// <returns>Index</returns>
 	size_t pushBackSamplerDesc(const D3D12_STATIC_SAMPLER_DESC &samplerDesc){
 		samplerDescs_.emplace_back(samplerDesc);
 		return samplerDescs_.size() - 1;
 	}
+	/// <returns>Index</returns>
 	size_t pushBackRootParameter(const D3D12_ROOT_PARAMETER &parameter){
 		rootParameters_.push_back(parameter);
 		return rootParameters_.size() - 1;
 	}
+	/// <returns>Index</returns>
 	size_t pushBackInputElementDesc(const D3D12_INPUT_ELEMENT_DESC &elementDesc){
 		elementDescs_.push_back(elementDesc);
 		return elementDescs_.size() - 1;

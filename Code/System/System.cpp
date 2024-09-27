@@ -8,6 +8,7 @@
 #include <PrimitiveDrawer.h>
 #include <Sprite.h>
 #include <TextureManager.h>
+#include "RenderTexture.h"
 
 #include "DXRtvArrayManager.h"
 #include "DXSrvArrayManager.h"
@@ -89,6 +90,7 @@ void System::Init(){
 	PrimitiveDrawer::Init();
 	Model::Init();
 	Sprite::Init();
+	RenderTexture::Awake();
 
 	materialManager_ = std::make_unique<MaterialManager>();
 }
