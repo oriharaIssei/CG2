@@ -27,19 +27,23 @@ struct SoundData{
 	uint32_t bufferSize;
 };
 
-class Audio:{
+class Audio{
 public:
 	static void StaticInit();
 	static void StaticFinalize();
 
+	Audio(){}
+	~Audio(){}
+
 	void Init(const std::string& fileName);
 
-	void Play();
+	void PlayTrigger();
 	void PlayLoop();
 
 	void Pause();
 
 	void Finalize();
+
 private:
 	SoundData LoadWave(const std::string& fileName);
 	void SoundUnLoad();
