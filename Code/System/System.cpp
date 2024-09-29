@@ -9,6 +9,7 @@
 #include <Sprite.h>
 #include <TextureManager.h>
 #include "RenderTexture.h"
+#include "Audio/Audio.h"
 
 #include "DXRtvArrayManager.h"
 #include "DXSrvArrayManager.h"
@@ -35,6 +36,8 @@ void System::Init(){
 
 	input_ = Input::getInstance();
 	input_->Init();
+
+	Audio::StaticInit();
 
 	dxDevice_ = std::make_unique<DXDevice>();
 	dxDevice_->Init();
@@ -119,6 +122,7 @@ void System::Finalize(){
 	dxDevice_->Finalize();
 
 	input_->Finalize();
+	Audio::StaticFinalize();
 
 #ifdef _DEBUG
 	ImGuiManager::getInstance()->Finalize();
@@ -239,8 +243,6 @@ void System::BeginFrame(){
 }
 
 void System::EndFrame(){
-	ImGuiManager::getInstance()->End();
-	ImGuiManager::getInstance()->Draw();
 }
 
 void System::ScreenPreDraw(){
@@ -248,6 +250,8 @@ void System::ScreenPreDraw(){
 }
 
 void System::ScreenPostDraw(){
+	ImGuiManager::getInstance()->End();
+	ImGuiManager::getInstance()->Draw();
 	DXFH::PostDraw(dxCommand_.get(),dxFence_.get(),dxSwapChain_.get());
 }
 

@@ -45,11 +45,15 @@ void GameScene::Init(){
 	materialManager_ = System::getInstance()->getMaterialManager();
 
 	textureList_ = myFs::SearchFile("./resource","png");
-	objectList_  = myFs::SearchFile("./resource","obj");
+	objectList_ = myFs::SearchFile("./resource","obj");
 
 	std::unique_ptr<SphereObject> sprite = std::make_unique<SphereObject>();
 	sprite->Init("","sphere");
 	gameObjects_.emplace_back(std::move(sprite));
+
+	audio_ = std::make_unique<Audio>();
+	audio_->Init("./resource/fanfare.wav");
+	audio_->PlayLoop();
 }
 
 void GameScene::Update(){
